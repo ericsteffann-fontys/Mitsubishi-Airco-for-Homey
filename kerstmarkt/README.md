@@ -48,7 +48,18 @@ ADMIN_PIN=4821 PORT=3000 node server.js
 
 Bestellingen worden bewaard in `data/orders.json`, zodat een herstart niets kwijtmaakt.
 
-### Online zetten
+### Online zetten via Render (aanbevolen)
+
+In de root van de repo staat `render.yaml`:
+
+1. Maak een account aan op https://render.com en koppel je GitHub.
+2. Ga naar **New → Blueprint** en kies deze repo en de juiste branch.
+3. Vul een `ADMIN_PIN` in en klik op **Apply**. Na 1–2 minuten krijg je een adres zoals `https://kerstmarkt-badges.onrender.com`.
+4. Maak een QR-code naar dat adres. Inloggen op de kraam doe je via `/kraam`.
+
+Het `starter`-plan kost ongeveer $7 per maand. Je kunt het na het weekend weer verwijderen. Het `free`-plan kan ook: haal dan in `render.yaml` het `disk`-blok weg en zet `plan: free`. Let op: een gratis server valt na 15 minuten zonder bezoekers in slaap, en de eerste klant wacht dan bijna een minuut. Ook raak je bij een herstart de bestellingen kwijt.
+
+### Andere opties
 
 De klant moet de pagina via mobiel internet kunnen bereiken. Een paar opties:
 - **Render / Railway / Fly.io**: start command `node server.js`, en zet `ADMIN_PIN` als environment variable. Kies een vorm met een blijvende schijf, of accepteer dat de data bij een herstart verdwijnt (de markt duurt maar een weekend).

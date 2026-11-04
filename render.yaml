@@ -1,0 +1,23 @@
+# Render Blueprint voor de kerstmarkt-bestelstatus (map kerstmarkt/).
+# Render Dashboard → New → Blueprint → kies deze repo → vul ADMIN_PIN in.
+services:
+  - type: web
+    name: kerstmarkt-badges
+    runtime: node
+    rootDir: kerstmarkt
+    plan: starter            # betaald: blijft wakker en heeft een schijf. "free" kan ook (zie README).
+    region: frankfurt
+    buildCommand: "true"     # geen dependencies
+    startCommand: node server.js
+    healthCheckPath: /api/config
+    envVars:
+      - key: ADMIN_PIN
+        sync: false          # Render vraagt je dit zelf in te vullen
+      - key: DATA_DIR
+        value: /var/data
+      - key: TZ
+        value: Europe/Amsterdam
+    disk:
+      name: orders
+      mountPath: /var/data
+      sizeGB: 1
