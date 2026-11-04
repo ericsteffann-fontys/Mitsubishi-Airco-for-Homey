@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kraam – bestellingen</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap" id="loginWrap">
+  <header class="top"><div class="logo">🔒</div><h1>Kraam</h1></header>
+  <form class="card" id="loginForm">
+    <label class="field" for="pin">Pincode</label>
+    <input type="password" id="pin" inputmode="numeric" autocomplete="current-password">
+    <p class="error" id="loginError"></p>
+    <button class="primary">Inloggen</button>
+  </form>
+</div>
+
+<div class="wrap wide hidden" id="app">
+  <div class="toolbar">
+    <h1 style="margin:0;font-size:22px">Bestellingen</h1>
+    <span class="counts" id="counts"></span>
+    <input type="search" id="search" placeholder="Zoek op code of naam (bij ophalen)">
+    <button class="ghost" id="addToggle">＋ Bestelling aan de kraam</button>
+  </div>
+
+  <form class="card hidden" id="addForm" autocomplete="off">
+    <div class="quickadd">
+      <div id="addPreview"></div>
+      <input type="text" id="addName" placeholder="Naam" maxlength="14" required>
+      <div class="swatches" id="addSwatches"></div>
+      <p class="error" id="addError"></p>
+      <button class="primary">Toevoegen (is betaald)</button>
+    </div>
+  </form>
+  <div class="card hidden" id="added"></div>
+
+  <div class="board" id="board"></div>
+  <p class="hint" style="margin-top:14px">Klantpagina: <code id="publicUrl"></code> · Opgehaalde bestellingen verdwijnen automatisch, onbetaalde klant-bestellingen vervallen vanzelf.</p>
+</div>
+
+<script src="/common.js"></script>
+<script>
+let config, orders = [], addColor = null;
+const $ = (id) => document.getElementById(id);
+
+const COLUMNS = [
+  { key: 'betalen',  title: '💶 Nog betalen',  next: 'wachtrij', nextLabel: 'Betaald' },
+  { key: 'wachtrij', title: '🧾 Te printen',   next: 'printen',  nextLabel: 'Start print' },
+  { key: 'printen',  title: '🖨️ In de printer', next: 'klaar',    nextLabel: 'Klaar' },
+  { key: 'klaar',    title: '🎉 Klaar / ophalen', next: 'opgehaald', nextLabel: 'Opgehaald' },
+];
+const PREV = { wachtrij: 'betalen', printen: 'wachtrij', klaar: 'printen', opgehaald: 'klaar', geannuleerd: 'wachtrij' };
+
+function ago(ts) {
+  const m = Math.round((Date.now() - ts) / 60000);
+  if (m < 1) return 'net';
+  if (m < 60) return m + ' min';
+  return Math.floor(m / 60) + 'u ' + (m % 60) + 'm';
+}
+
+function ticket(o, col, q) {
+  const c = colorById(config, o.color);
+  const match = q && (o.code.includes(q.toUpperCase()) || o.name.toLowerCase().includes(q.toLowerCase()));
+  return `<div class="ticket ${match ? 'match' : ''}" data-code="${o.code}">
+    <div class="row"><span class="tname">${esc(o.name)}</span><span class="tcode">${o.code}</span></div>
+    <div class="meta"><span class="colorpill"><i style="background:${c.hex}"></i>${esc(c.label)}</span>
+      · ${o.source === 'kraam' ? 'aan kraam' : 'via telefoon'} · ${ago(o.createdAt)}</div>
+    <div class="actions">
+      ${col ? `<button data-act="set" data-status="${col.next}">${col.nextLabel}</button>` : ''}
+      ${PREV[o.status] ? `<button class="sec" data-act="set" data-status="${PREV[o.status]}" title="Stap terug">↩︎</button>` : ''}
+      ${o.status !== 'geannuleerd' && o.status !== 'opgehaald' ? `<button class="sec" data-act="cancel" title="Annuleren">✕</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function render() {
+  const q = $('search').value.trim();
+  const visible = orders.filter((o) => !q || o.code.includes(q.toUpperCase()) || o.name.toLowerCase().includes(q.toLowerCase()));
+  const open = orders.filter((o) => ['wachtrij', 'printen'].includes(o.status)).length;
+  $('counts').textContent = `${open} te doen · ${orders.filter((o) => o.status === 'klaar').length} klaar`;
+  let html = COLUMNS.map((col) => {
+    const list = visible.filter((o) => o.status === col.key);
+    return `<div class="col"><h3><span>${col.title}</span><span>${list.length}</span></h3>${list.map((o) => ticket(o, col, q)).join('')}</div>`;
+  }).join('');
+  const done = visible.filter((o) => o.status === 'opgehaald' || o.status === 'geannuleerd');
+  if (done.length) html += `<div class="col" style="grid-column:1/-1;opacity:.75"><h3><span>Afgehandeld (verdwijnt vanzelf)</span><span>${done.length}</span></h3>
+    ${done.map((o) => ticket(o, null, q)).join('')}</div>`;
+  $('board').innerHTML = html;
+}
+
+async function load() {
+  try {
+    const d = await api('/api/admin/orders');
+    orders = d.orders;
+    render();
+  } catch (e) {
+    if (e.status === 401) return showLogin();
+  }
+}
+
+$('board').addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  const code = b.closest('.ticket').dataset.code;
+  if (b.dataset.act === 'cancel' && !confirm('Bestelling ' + code + ' annuleren?')) return;
+  const status = b.dataset.act === 'cancel' ? 'geannuleerd' : b.dataset.status;
+  await api('/api/admin/orders/' + code, { method: 'PATCH', body: { status } });
+  load();
+});
+
+$('search').addEventListener('input', render);
+
+// Bestelling aan de kraam (klant zonder telefoon of die al betaald heeft)
+function renderAddPreview() {
+  $('addPreview').innerHTML = pencilHTML($('addName').value.trim(), addColor ? colorById(config, addColor) : { hex: '#e9e2d6' });
+}
+$('addToggle').onclick = () => { $('addForm').classList.toggle('hidden'); $('addName').focus(); };
+$('addName').addEventListener('input', renderAddPreview);
+$('addSwatches').addEventListener('click', (e) => {
+  const b = e.target.closest('.swatch'); if (!b) return;
+  addColor = b.dataset.id;
+  document.querySelectorAll('#addSwatches .swatch').forEach((s) => s.setAttribute('aria-pressed', s === b));
+  renderAddPreview();
+});
+$('addForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('addError').textContent = '';
+  if (!addColor) return ($('addError').textContent = 'Kies een kleur.');
+  try {
+    const o = await api('/api/admin/orders', { method: 'POST', body: { name: $('addName').value, color: addColor } });
+    const url = location.origin + '/b/' + o.code;
+    $('added').innerHTML = `<div class="code-box"><div class="label">Geef de klant deze code</div><div class="code">${o.code}</div>
+      <div class="hint">Volgen via <strong>${esc(url)}</strong></div></div>`;
+    $('added').classList.remove('hidden');
+    $('addName').value = ''; addColor = null;
+    document.querySelectorAll('#addSwatches .swatch').forEach((s) => s.setAttribute('aria-pressed', false));
+    renderAddPreview();
+    load();
+  } catch (err) { $('addError').textContent = err.message; }
+});
+
+function showLogin() { $('app').classList.add('hidden'); $('loginWrap').classList.remove('hidden'); $('pin').focus(); }
+function showApp() { $('loginWrap').classList.add('hidden'); $('app').classList.remove('hidden'); }
+
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try {
+    await api('/api/admin/login', { method: 'POST', body: { pin: $('pin').value } });
+    showApp(); load();
+  } catch (err) { $('loginError').textContent = err.message; }
+});
+
+(async () => {
+  config = await api('/api/config');
+  $('addName').maxLength = config.maxNameLength;
+  $('publicUrl').textContent = location.origin + '/';
+  $('addSwatches').innerHTML = config.colors.map((c) =>
+    `<button type="button" class="swatch" data-id="${c.id}" aria-pressed="false"><i style="background:${c.hex}"></i>${esc(c.label)}</button>`).join('');
+  renderAddPreview();
+  try { await api('/api/admin/orders'); showApp(); load(); } catch { showLogin(); }
+  setInterval(() => { if (!$('app').classList.contains('hidden')) load(); }, 4000);
+})();
+</script>
+</body>
+</html>
