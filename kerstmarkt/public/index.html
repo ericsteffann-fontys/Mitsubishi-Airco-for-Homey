@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bestel je potlood-badge</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo">✏️🎄</div>
+    <h1 id="shop">Potlood Badges</h1>
+    <p id="tagline"></p>
+  </header>
+
+  <section class="card hidden" id="mineCard">
+    <h2>Jouw bestellingen</h2>
+    <ul class="mine" id="mineList"></ul>
+  </section>
+
+  <form class="card" id="orderForm" autocomplete="off">
+    <h2>Bestel je eigen naam-badge</h2>
+    <div id="preview"></div>
+
+    <label class="field" for="name">Naam op de badge</label>
+    <input type="text" id="name" maxlength="14" placeholder="bv. Sanne" required>
+    <div class="hint"><span id="count">0</span>/<span id="max">14</span> tekens</div>
+
+    <label class="field" style="margin-top:16px">Kies een kleur</label>
+    <div class="swatches" id="swatches" role="group" aria-label="Kleur"></div>
+
+    <p class="error" id="error"></p>
+    <button class="primary" type="submit" id="submit">Bestellen</button>
+    <p class="hint" style="text-align:center;margin-top:10px">Je betaalt <strong id="price"></strong> bij de kraam. Daarna gaat je badge de printer in.</p>
+  </form>
+
+  <section class="card" id="closedCard" hidden>
+    <h2>Bestellen gaat bij de kraam</h2>
+    <p>Kom even langs, dan zetten we je bestelling erin. Je krijgt een code waarmee je hier kunt volgen wanneer hij klaar is.</p>
+  </section>
+
+  <div class="notice">
+    <strong>Geen zin om te wachten?</strong> Loop gerust verder over de markt. Op je bestelpagina zie je live wanneer je badge klaar ligt.
+    <span id="sundayHint"></span>
+  </div>
+
+  <footer class="foot">Heb je een code van de kraam? <a href="#" id="codeLink">Volg je bestelling</a></footer>
+</div>
+
+<script src="/common.js"></script>
+<script>
+let config, chosen = null;
+const $ = (id) => document.getElementById(id);
+
+function renderPreview() {
+  const color = chosen ? colorById(config, chosen) : { hex: '#e9e2d6' };
+  $('preview').innerHTML = pencilHTML($('name').value.trim(), color);
+  $('count').textContent = $('name').value.length;
+}
+
+async function renderMine() {
+  const codes = getMine();
+  if (!codes.length) return $('mineCard').classList.add('hidden');
+  const items = [];
+  for (const code of codes.slice().reverse()) {
+    try {
+      const o = await api('/api/orders/' + code);
+      const c = colorById(config, o.color);
+      items.push(`<li><a href="/b/${o.code}"><span class="chip" style="background:${c.hex}"></span>
+        <strong>${esc(o.name)}</strong><span class="st">${STATUS_LABEL[o.status]} ›</span></a></li>`);
+    } catch (e) {
+      if (e.status === 404) forgetOrder(code); // opgeruimd
+    }
+  }
+  $('mineList').innerHTML = items.join('');
+  $('mineCard').classList.toggle('hidden', !items.length);
+}
+
+async function init() {
+  config = await api('/api/config');
+  document.title = config.shopName + ' – bestellen';
+  $('shop').textContent = config.shopName;
+  $('tagline').textContent = config.tagline;
+  $('price').textContent = config.price;
+  $('name').maxLength = config.maxNameLength;
+  $('max').textContent = config.maxNameLength;
+  const last = config.days[config.days.length - 1];
+  if (config.days.length > 1) $('sundayHint').textContent =
+    ` Lukt het ${config.days[0].label} niet? Dan kun je hem ook ${last.label} ophalen bij ${config.standLocation}.`;
+
+  if (!config.selfOrder) { $('orderForm').hidden = true; $('closedCard').hidden = false; }
+
+  $('swatches').innerHTML = config.colors.map((c) =>
+    `<button type="button" class="swatch" data-id="${c.id}" aria-pressed="false"><i style="background:${c.hex}"></i>${esc(c.label)}</button>`
+  ).join('');
+  $('swatches').addEventListener('click', (e) => {
+    const b = e.target.closest('.swatch');
+    if (!b) return;
+    chosen = b.dataset.id;
+    document.querySelectorAll('.swatch').forEach((s) => s.setAttribute('aria-pressed', s === b));
+    renderPreview();
+  });
+  $('name').addEventListener('input', renderPreview);
+  renderPreview();
+  renderMine();
+}
+
+$('orderForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('error').textContent = '';
+  if (!chosen) return ($('error').textContent = 'Kies nog een kleur.');
+  $('submit').disabled = true;
+  try {
+    const o = await api('/api/orders', { method: 'POST', body: { name: $('name').value, color: chosen } });
+    rememberOrder(o.code);
+    location.href = '/b/' + o.code;
+  } catch (err) {
+    $('error').textContent = err.message;
+    $('submit').disabled = false;
+  }
+});
+
+$('codeLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  const code = (prompt('Vul je code in (staat op je bonnetje):') || '').trim().toUpperCase();
+  if (code) location.href = '/b/' + encodeURIComponent(code);
+});
+
+init();
+</script>
+</body>
+</html>
