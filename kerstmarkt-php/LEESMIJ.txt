@@ -6,8 +6,8 @@ Geen database nodig.
 
 INSTALLEREN
 1. Open instellingen.php en vervang VERANDER-MIJ door je eigen pincode.
-2. Pas config.json aan: datums en openingstijden, prijs, kleuren (max. 8),
-   en "purgeEverythingAfter" (moment waarop alles automatisch gewist wordt).
+2. Prijs, kleuren en marktdagen/openingstijden stel je in via
+   kraam.html -> tabblad "Instellingen" (na uploaden).
 3. Upload ALLE bestanden via FTP, bijvoorbeeld naar de map /badges/
    (de map data/ moet ook mee).
 4. Zorg dat de map data/ beschrijfbaar is (rechten 755, of 775 als dat
@@ -22,9 +22,18 @@ Gebruik bij voorkeur https:// (meldingen op telefoons werken alleen via https).
 BESTANDEN
   index.html       bestelpagina voor klanten
   status.html      live status van één bestelling (status.html?code=XXXXX)
-  kraam.html       jouw overzicht (met pincode)
+  kraam.html       jouw overzicht (met pincode): bestellingen, bezorglijst,
+                   instellingen (prijs, kleuren aan/uit, openingstijden)
   api.php          de server-kant
   instellingen.php je pincode (niet via de browser leesbaar)
-  config.json      kleuren, prijs, marktdagen, opruimtijden
+  config.json      teksten, standaardwaarden, bezorggebied, opruimtijden
+  kleuren.json     alle Bambu Lab PLA Matte-kleuren (naam, artikelnr., hex)
   style.css, common.js
   data/            hier worden bestellingen opgeslagen (afgeschermd)
+
+THUISBEZORGEN
+Klanten die hun badge niet kunnen ophalen, laten op hun statuspagina hun adres
+achter (alleen Son en Breugel, postcode 5690-5694). Je vindt die adressen in
+kraam.html onder het tabblad "Bezorgen". Bestellingen die niet zijn opgehaald
+en geen adres hebben, worden 1 dag na de markt automatisch gewist.
+Bezorgadressen worden 21 dagen na de markt gewist.

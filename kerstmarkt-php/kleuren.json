@@ -1,0 +1,30 @@
+{
+  "bron": "Bambu Lab PLA Matte – volledige kleurenlijst (ook niet-leverbare kleuren). Hex-codes volgens Bambu Lab.",
+  "kleuren": [
+    { "id": "ivory-white",     "label": "Ivory White",     "code": "11100", "hex": "#FFFFFF" },
+    { "id": "bone-white",      "label": "Bone White",      "code": "11103", "hex": "#CBC6B8" },
+    { "id": "desert-tan",      "label": "Desert Tan",      "code": "11401", "hex": "#E8DBB7" },
+    { "id": "latte-brown",     "label": "Latte Brown",     "code": "11800", "hex": "#D3B7A7" },
+    { "id": "caramel",         "label": "Caramel",         "code": "11803", "hex": "#AE835B" },
+    { "id": "terracotta",      "label": "Terracotta",      "code": "11203", "hex": "#B15533" },
+    { "id": "dark-brown",      "label": "Dark Brown",      "code": "11801", "hex": "#7D6556" },
+    { "id": "dark-chocolate",  "label": "Dark Chocolate",  "code": "11802", "hex": "#4D3324" },
+    { "id": "lemon-yellow",    "label": "Lemon Yellow",    "code": "11400", "hex": "#F7D959" },
+    { "id": "mandarin-orange", "label": "Mandarin Orange", "code": "11300", "hex": "#F99963" },
+    { "id": "sakura-pink",     "label": "Sakura Pink",     "code": "11201", "hex": "#E8AFCF" },
+    { "id": "lilac-purple",    "label": "Lilac Purple",    "code": "11700", "hex": "#AE96D4" },
+    { "id": "plum",            "label": "Plum",            "code": "11204", "hex": "#950051" },
+    { "id": "scarlet-red",     "label": "Scarlet Red",     "code": "11200", "hex": "#DE4343" },
+    { "id": "dark-red",        "label": "Dark Red",        "code": "11202", "hex": "#BB3D43" },
+    { "id": "apple-green",     "label": "Apple Green",     "code": "11502", "hex": "#C2E189" },
+    { "id": "grass-green",     "label": "Grass Green",     "code": "11500", "hex": "#61C680" },
+    { "id": "dark-green",      "label": "Dark Green",      "code": "11501", "hex": "#68724D" },
+    { "id": "ice-blue",        "label": "Ice Blue",        "code": "11601", "hex": "#A3D8E1" },
+    { "id": "sky-blue",        "label": "Sky Blue",        "code": "11603", "hex": "#56B7E6" },
+    { "id": "marine-blue",     "label": "Marine Blue",     "code": "11600", "hex": "#0078BF" },
+    { "id": "dark-blue",       "label": "Dark Blue",       "code": "11602", "hex": "#042F56" },
+    { "id": "ash-gray",        "label": "Ash Gray",        "code": "11102", "hex": "#9B9EA0" },
+    { "id": "nardo-gray",      "label": "Nardo Gray",      "code": "11104", "hex": "#757575" },
+    { "id": "charcoal",        "label": "Charcoal",        "code": "11101", "hex": "#000000" }
+  ]
+}

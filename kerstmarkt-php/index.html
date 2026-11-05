@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bestel je potlood-badge</title>
+<title>Potlood Badges</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,44 +14,75 @@
     <p id="tagline"></p>
   </header>
 
-  <section class="card hidden" id="mineCard">
-    <h2>Jouw bestellingen</h2>
-    <ul class="mine" id="mineList"></ul>
+  <!-- Landingskeuze -->
+  <nav class="choice" id="choice" aria-label="Wat wil je doen?">
+    <button class="choice-btn" data-go="bestellen">
+      <span class="ci">✏️</span>
+      <span><strong>Ik wil bestellen</strong><small>Kies je naam en kleur</small></span>
+    </button>
+    <button class="choice-btn" data-go="volgen">
+      <span class="ci">🔍</span>
+      <span><strong>Ik wil mijn bestelling volgen</strong><small id="mineHint">Met je code</small></span>
+    </button>
+  </nav>
+
+  <!-- Bestellen -->
+  <section id="view-bestellen" class="view hidden">
+    <button class="back" data-go="">‹ Terug</button>
+    <form class="card" id="orderForm" autocomplete="off">
+      <h2>Bestel je eigen naam-badge</h2>
+      <div id="preview"></div>
+
+      <label class="field" for="name">Naam op de badge</label>
+      <input type="text" id="name" maxlength="14" placeholder="bijv. Sanne" required>
+      <div class="hint"><span id="count">0</span>/<span id="max">14</span> tekens</div>
+
+      <label class="field" style="margin-top:16px">Kies een kleur</label>
+      <div class="swatches" id="swatches" role="group" aria-label="Kleur"></div>
+
+      <p class="error" id="error"></p>
+      <button class="primary" type="submit" id="submit">Bestellen</button>
+      <p class="hint center" style="margin-top:10px">Je betaalt <strong id="price"></strong> bij de kraam. Daarna gaat je badge de printer in.</p>
+    </form>
+    <div class="notice" id="orderInfo"></div>
   </section>
 
-  <form class="card" id="orderForm" autocomplete="off">
-    <h2>Bestel je eigen naam-badge</h2>
-    <div id="preview"></div>
-
-    <label class="field" for="name">Naam op de badge</label>
-    <input type="text" id="name" maxlength="14" placeholder="bv. Sanne" required>
-    <div class="hint"><span id="count">0</span>/<span id="max">14</span> tekens</div>
-
-    <label class="field" style="margin-top:16px">Kies een kleur</label>
-    <div class="swatches" id="swatches" role="group" aria-label="Kleur"></div>
-
-    <p class="error" id="error"></p>
-    <button class="primary" type="submit" id="submit">Bestellen</button>
-    <p class="hint" style="text-align:center;margin-top:10px">Je betaalt <strong id="price"></strong> bij de kraam. Daarna gaat je badge de printer in.</p>
-  </form>
-
-  <section class="card" id="closedCard" hidden>
-    <h2>Bestellen gaat bij de kraam</h2>
-    <p>Kom even langs, dan zetten we je bestelling erin. Je krijgt een code waarmee je hier kunt volgen wanneer hij klaar is.</p>
+  <!-- Volgen -->
+  <section id="view-volgen" class="view hidden">
+    <button class="back" data-go="">‹ Terug</button>
+    <section class="card hidden" id="mineCard">
+      <h2>Jouw bestellingen op deze telefoon</h2>
+      <ul class="mine" id="mineList"></ul>
+    </section>
+    <form class="card" id="codeForm" autocomplete="off">
+      <h2>Volg je bestelling</h2>
+      <label class="field" for="code">Jouw code</label>
+      <input type="text" id="code" placeholder="bijv. C96GG" maxlength="8" autocapitalize="characters" class="mono">
+      <p class="error" id="codeError"></p>
+      <button class="primary">Bekijk status</button>
+    </form>
   </section>
 
-  <div class="notice">
-    <strong>Geen zin om te wachten?</strong> Loop gerust verder over de markt. Op je bestelpagina zie je live wanneer je badge klaar ligt.
-    <span id="sundayHint"></span>
-  </div>
-
-  <footer class="foot">Heb je een code van de kraam? <a href="#" id="codeLink">Volg je bestelling</a></footer>
+  <section class="card" id="hours"></section>
 </div>
 
 <script src="common.js"></script>
 <script>
 let config, chosen = null;
 const $ = (id) => document.getElementById(id);
+
+function show(view) {
+  $('choice').classList.toggle('hidden', !!view);
+  document.querySelectorAll('.view').forEach((v) => v.classList.toggle('hidden', v.id !== 'view-' + view));
+  if (view) history.replaceState(null, '', '#' + view); else history.replaceState(null, '', location.pathname);
+  if (view === 'bestellen') $('name').focus();
+  if (view === 'volgen') renderMine();
+  window.scrollTo(0, 0);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-go]');
+  if (b) { e.preventDefault(); show(b.dataset.go); }
+});
 
 function renderPreview() {
   const color = chosen ? colorById(config, chosen) : { hex: '#e9e2d6' };
@@ -61,39 +92,36 @@ function renderPreview() {
 
 async function renderMine() {
   const codes = getMine();
-  if (!codes.length) return $('mineCard').classList.add('hidden');
   const items = [];
   for (const code of codes.slice().reverse()) {
     try {
       const o = await api('api.php?a=order&code=' + code);
       const c = colorById(config, o.color);
       items.push(`<li><a href="status.html?code=${o.code}"><span class="chip" style="background:${c.hex}"></span>
-        <strong>${esc(o.name)}</strong><span class="st">${STATUS_LABEL[o.status]} ›</span></a></li>`);
+        <strong>${esc(o.name)}</strong><span class="mono small">${o.code}</span><span class="st">${statusLabel(o)} ›</span></a></li>`);
     } catch (e) {
-      if (e.status === 404) forgetOrder(code); // opgeruimd
+      if (e.status === 404) forgetOrder(code);
     }
   }
   $('mineList').innerHTML = items.join('');
   $('mineCard').classList.toggle('hidden', !items.length);
+  $('mineHint').textContent = items.length ? `${items.length === 1 ? '1 bestelling' : items.length + ' bestellingen'} op deze telefoon` : 'Met je code';
 }
 
 async function init() {
   config = await api('api.php?a=config');
-  document.title = config.shopName + ' – bestellen';
+  document.title = config.shopName;
   $('shop').textContent = config.shopName;
   $('tagline').textContent = config.tagline;
   $('price').textContent = config.price;
   $('name').maxLength = config.maxNameLength;
   $('max').textContent = config.maxNameLength;
-  const last = config.days[config.days.length - 1];
-  if (config.days.length > 1) $('sundayHint').textContent =
-    ` Lukt het ${config.days[0].label} niet? Dan kun je hem ook ${last.label} ophalen bij ${config.standLocation}.`;
-
-  if (!config.selfOrder) { $('orderForm').hidden = true; $('closedCard').hidden = false; }
+  $('hours').innerHTML = hoursHTML(config);
+  $('orderInfo').innerHTML = `<strong>Geen zin om te wachten?</strong> Loop gerust verder over de markt. Je ziet op je telefoon wanneer je badge klaar ligt.
+    Lukt het ${esc(config.days[0].label)} niet? Haal hem dan ${esc(config.days[config.days.length - 1].label)} op bij ${esc(config.standLocation)}.`;
 
   $('swatches').innerHTML = config.colors.map((c) =>
-    `<button type="button" class="swatch" data-id="${c.id}" aria-pressed="false"><i style="background:${c.hex}"></i>${esc(c.label)}</button>`
-  ).join('');
+    `<button type="button" class="swatch" data-id="${c.id}" aria-pressed="false"><i style="background:${c.hex}"></i>${esc(c.label)}</button>`).join('');
   $('swatches').addEventListener('click', (e) => {
     const b = e.target.closest('.swatch');
     if (!b) return;
@@ -103,6 +131,9 @@ async function init() {
   });
   $('name').addEventListener('input', renderPreview);
   renderPreview();
+  if (!config.selfOrder) document.querySelector('[data-go=bestellen]').classList.add('hidden');
+  const start = location.hash.slice(1);
+  show(['bestellen', 'volgen'].includes(start) ? start : '');
   renderMine();
 }
 
@@ -121,10 +152,16 @@ $('orderForm').addEventListener('submit', async (e) => {
   }
 });
 
-$('codeLink').addEventListener('click', (e) => {
+$('codeForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const code = (prompt('Vul je code in (staat op je bonnetje):') || '').trim().toUpperCase();
-  if (code) location.href = 'status.html?code=' + encodeURIComponent(code);
+  const code = $('code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!code) return ($('codeError').textContent = 'Vul je code in.');
+  try {
+    await api('api.php?a=order&code=' + code);
+    location.href = 'status.html?code=' + code;
+  } catch (err) {
+    $('codeError').textContent = err.status === 404 ? 'Deze code kennen we niet (meer). Controleer je bonnetje.' : err.message;
+  }
 });
 
 init();

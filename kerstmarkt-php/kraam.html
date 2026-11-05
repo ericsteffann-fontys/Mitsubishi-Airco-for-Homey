@@ -7,7 +7,7 @@
 <title>Kraam – bestellingen</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="kraam">
 <div class="wrap" id="loginWrap">
   <header class="top"><div class="logo">🔒</div><h1>Kraam</h1></header>
   <form class="card" id="loginForm">
@@ -19,33 +19,87 @@
 </div>
 
 <div class="wrap wide hidden" id="app">
-  <div class="toolbar">
-    <h1 style="margin:0;font-size:22px">Bestellingen</h1>
-    <span class="counts" id="counts"></span>
-    <input type="search" id="search" placeholder="Zoek op code of naam (bij ophalen)">
-    <button class="ghost" id="addToggle">＋ Bestelling aan de kraam</button>
-  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="orders" aria-selected="true">🧾 Bestellingen</button>
+    <button role="tab" data-tab="deliver" aria-selected="false">🏠 Bezorgen <span class="pill" id="deliverCount"></span></button>
+    <button role="tab" data-tab="settings" aria-selected="false">⚙️ Instellingen</button>
+  </nav>
 
-  <form class="card hidden" id="addForm" autocomplete="off">
-    <div class="quickadd">
-      <div id="addPreview"></div>
-      <input type="text" id="addName" placeholder="Naam" maxlength="14" required>
-      <div class="swatches" id="addSwatches"></div>
-      <p class="error" id="addError"></p>
-      <button class="primary">Toevoegen (is betaald)</button>
+  <!-- Bestellingen -->
+  <section id="tab-orders">
+    <div class="toolbar">
+      <span class="counts" id="counts"></span>
+      <input type="search" id="search" placeholder="Zoek op code of naam (bij ophalen)">
+      <button class="ghost" id="addToggle">＋ Bestelling aan de kraam</button>
     </div>
-  </form>
-  <div class="card hidden" id="added"></div>
+    <form class="card hidden" id="addForm" autocomplete="off">
+      <div class="quickadd">
+        <div id="addPreview"></div>
+        <input type="text" id="addName" placeholder="Naam" maxlength="14" required>
+        <div class="swatches" id="addSwatches"></div>
+        <p class="error" id="addError"></p>
+        <button class="primary">Toevoegen (is betaald)</button>
+      </div>
+    </form>
+    <div class="card hidden" id="added"></div>
+    <div class="board" id="board"></div>
+    <p class="hint" style="margin-top:14px">Klantpagina: <code id="publicUrl"></code></p>
+  </section>
 
-  <div class="board" id="board"></div>
-  <p class="hint" style="margin-top:14px">Klantpagina: <code id="publicUrl"></code> · Opgehaalde bestellingen verdwijnen automatisch, onbetaalde klant-bestellingen vervallen vanzelf.</p>
+  <!-- Bezorgen -->
+  <section id="tab-deliver" class="hidden">
+    <div class="toolbar">
+      <span class="counts">Bestellingen met een bezorgadres (alleen Son en Breugel). Bezorgen binnen twee weken.</span>
+      <button class="ghost" onclick="window.print()">🖨️ Print lijst</button>
+    </div>
+    <div class="card"><table class="dtable" id="deliverTable"></table></div>
+  </section>
+
+  <!-- Instellingen -->
+  <section id="tab-settings" class="hidden">
+    <form id="settingsForm" class="settings">
+      <div class="card">
+        <h2>Prijs</h2>
+        <label class="field" for="setPrice">Prijs per badge (zoals de klant hem ziet)</label>
+        <input type="text" id="setPrice" placeholder="€ 3,50" style="max-width:220px">
+      </div>
+      <div class="card">
+        <h2>Marktdagen en openingstijden</h2>
+        <div id="setDays"></div>
+      </div>
+      <div class="card">
+        <h2>Kleuren <span class="counts" id="colorCount"></span></h2>
+        <p class="hint" style="margin-top:-6px">Alle Bambu Lab PLA Matte-kleuren. Vink aan welke kleuren de klant kan kiezen.</p>
+        <div class="toolbar" style="margin:10px 0">
+          <button type="button" class="ghost" id="allOn">Alles aan</button>
+          <button type="button" class="ghost" id="allOff">Alles uit</button>
+        </div>
+        <div class="colorgrid" id="setColors"></div>
+      </div>
+      <div class="savebar">
+        <span id="saveMsg" class="counts"></span>
+        <button class="primary" id="saveBtn">Instellingen opslaan</button>
+      </div>
+    </form>
+  </section>
 </div>
 
 <script src="common.js"></script>
 <script>
-let config, orders = [], addColor = null;
+let config, allColors = [], orders = [], addColor = null, settings = null;
 const $ = (id) => document.getElementById(id);
 
+// ---------- tabs ----------
+function showTab(name) {
+  document.querySelectorAll('[role=tab]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name));
+  ['orders', 'deliver', 'settings'].forEach((t) => $('tab-' + t).classList.toggle('hidden', t !== name));
+  if (name === 'settings') loadSettings();
+}
+document.querySelector('.tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tab]'); if (b) showTab(b.dataset.tab);
+});
+
+// ---------- bestellingen ----------
 const COLUMNS = [
   { key: 'betalen',  title: '💶 Nog betalen',  next: 'wachtrij', nextLabel: 'Betaald' },
   { key: 'wachtrij', title: '🧾 Te printen',   next: 'printen',  nextLabel: 'Start print' },
@@ -58,18 +112,23 @@ function ago(ts) {
   const m = Math.round((Date.now() - ts) / 60000);
   if (m < 1) return 'net';
   if (m < 60) return m + ' min';
-  return Math.floor(m / 60) + 'u ' + (m % 60) + 'm';
+  if (m < 1440) return Math.floor(m / 60) + 'u ' + (m % 60) + 'm';
+  return Math.floor(m / 1440) + ' d';
 }
+function cfg() { return { allColors }; }
 
 function ticket(o, col, q) {
-  const c = colorById(config, o.color);
+  const c = colorById(cfg(), o.color);
   const match = q && (o.code.includes(q.toUpperCase()) || o.name.toLowerCase().includes(q.toLowerCase()));
+  let nextLabel = col && col.nextLabel;
+  if (col && col.key === 'klaar' && o.delivery) nextLabel = 'Bezorgd';
   return `<div class="ticket ${match ? 'match' : ''}" data-code="${o.code}">
     <div class="row"><span class="tname">${esc(o.name)}</span><span class="tcode">${o.code}</span></div>
     <div class="meta"><span class="colorpill"><i style="background:${c.hex}"></i>${esc(c.label)}</span>
-      · ${o.source === 'kraam' ? 'aan kraam' : 'via telefoon'} · ${ago(o.createdAt)}</div>
+      · ${o.source === 'kraam' ? 'aan kraam' : 'via telefoon'} · ${ago(o.createdAt)}
+      ${o.delivery ? `<div class="deliv">🏠 ${esc(o.delivery.street)} ${esc(o.delivery.number)}, ${esc(o.delivery.postcode)} ${esc(o.delivery.city)}</div>` : ''}</div>
     <div class="actions">
-      ${col ? `<button data-act="set" data-status="${col.next}">${col.nextLabel}</button>` : ''}
+      ${col ? `<button data-act="set" data-status="${col.next}">${nextLabel}</button>` : ''}
       ${PREV[o.status] ? `<button class="sec" data-act="set" data-status="${PREV[o.status]}" title="Stap terug">↩︎</button>` : ''}
       ${o.status !== 'geannuleerd' && o.status !== 'opgehaald' ? `<button class="sec" data-act="cancel" title="Annuleren">✕</button>` : ''}
     </div>
@@ -89,33 +148,57 @@ function render() {
   if (done.length) html += `<div class="col" style="grid-column:1/-1;opacity:.75"><h3><span>Afgehandeld (verdwijnt vanzelf)</span><span>${done.length}</span></h3>
     ${done.map((o) => ticket(o, null, q)).join('')}</div>`;
   $('board').innerHTML = html;
+
+  // Bezorglijst
+  const del = orders.filter((o) => o.delivery && o.status !== 'geannuleerd')
+    .sort((a, b) => (a.delivery.postcode + a.delivery.street).localeCompare(b.delivery.postcode + b.delivery.street));
+  const todo = del.filter((o) => o.status !== 'opgehaald').length;
+  $('deliverCount').textContent = todo || '';
+  $('deliverTable').innerHTML = del.length
+    ? `<thead><tr><th>Adres</th><th>Postcode</th><th>Naam op badge</th><th>Kleur</th><th>Status</th><th></th></tr></thead><tbody>${del.map((o) => {
+        const c = colorById(cfg(), o.color);
+        return `<tr data-code="${o.code}" class="${o.status === 'opgehaald' ? 'muted' : ''}">
+          <td><strong>${esc(o.delivery.street)} ${esc(o.delivery.number)}</strong><br><span class="hint">${esc(o.delivery.city)}</span></td>
+          <td>${esc(o.delivery.postcode)}</td><td>${esc(o.name)} <span class="tcode">${o.code}</span></td>
+          <td><span class="colorpill"><i style="background:${c.hex}"></i>${esc(c.label)}</span></td>
+          <td>${o.status === 'opgehaald' ? 'Bezorgd' : STATUS_LABEL[o.status]}</td>
+          <td class="noprint">${o.status === 'opgehaald'
+            ? `<button class="ghost" data-act="set" data-status="klaar">↩︎</button>`
+            : `<button class="ghost" data-act="set" data-status="opgehaald">✓ Bezorgd</button>`}</td></tr>`;
+      }).join('')}</tbody>`
+    : '<tr><td class="hint">Nog geen bezorgadressen.</td></tr>';
 }
 
 async function load() {
   try {
     const d = await api('api.php?a=admin_list');
-    orders = d.orders;
+    orders = d.orders; allColors = d.allColors;
     render();
   } catch (e) {
     if (e.status === 401) return showLogin();
   }
 }
 
-$('board').addEventListener('click', async (e) => {
+async function onAction(e) {
   const b = e.target.closest('button[data-act]');
   if (!b) return;
-  const code = b.closest('.ticket').dataset.code;
+  const code = b.closest('[data-code]').dataset.code;
   if (b.dataset.act === 'cancel' && !confirm('Bestelling ' + code + ' annuleren?')) return;
   const status = b.dataset.act === 'cancel' ? 'geannuleerd' : b.dataset.status;
   await api('api.php?a=admin_update&code=' + code, { method: 'POST', body: { status } });
   load();
-});
-
+}
+$('board').addEventListener('click', onAction);
+$('deliverTable').addEventListener('click', onAction);
 $('search').addEventListener('input', render);
 
-// Bestelling aan de kraam (klant zonder telefoon of die al betaald heeft)
+// Bestelling aan de kraam
 function renderAddPreview() {
-  $('addPreview').innerHTML = pencilHTML($('addName').value.trim(), addColor ? colorById(config, addColor) : { hex: '#e9e2d6' });
+  $('addPreview').innerHTML = pencilHTML($('addName').value.trim(), addColor ? colorById(cfg(), addColor) : { hex: '#e9e2d6' });
+}
+function renderAddSwatches() {
+  $('addSwatches').innerHTML = config.colors.map((c) =>
+    `<button type="button" class="swatch" data-id="${c.id}" aria-pressed="${c.id === addColor}"><i style="background:${c.hex}"></i>${esc(c.label)}</button>`).join('');
 }
 $('addToggle').onclick = () => { $('addForm').classList.toggle('hidden'); $('addName').focus(); };
 $('addName').addEventListener('input', renderAddPreview);
@@ -136,12 +219,54 @@ $('addForm').addEventListener('submit', async (e) => {
       <div class="hint">Volgen via <strong>${esc(url)}</strong></div></div>`;
     $('added').classList.remove('hidden');
     $('addName').value = ''; addColor = null;
-    document.querySelectorAll('#addSwatches .swatch').forEach((s) => s.setAttribute('aria-pressed', false));
-    renderAddPreview();
+    renderAddSwatches(); renderAddPreview();
     load();
   } catch (err) { $('addError').textContent = err.message; }
 });
 
+// ---------- instellingen ----------
+async function loadSettings() {
+  const d = await api('api.php?a=admin_settings');
+  settings = d.settings; allColors = d.allColors;
+  $('setPrice').value = settings.price;
+  $('setDays').innerHTML = settings.days.map((day, i) => `
+    <div class="dayrow" data-i="${i}">
+      <strong>${esc(day.label[0].toUpperCase() + day.label.slice(1))}</strong>
+      <label>Datum <input type="date" name="date" value="${day.date}" required></label>
+      <label>Open <input type="time" name="open" value="${day.open}" required></label>
+      <label>Dicht <input type="time" name="close" value="${day.close}" required></label>
+    </div>`).join('');
+  $('setColors').innerHTML = allColors.map((c) => `
+    <label class="colorcheck">
+      <input type="checkbox" value="${c.id}" ${settings.enabledColors.includes(c.id) ? 'checked' : ''}>
+      <i style="background:${c.hex}"></i>
+      <span>${esc(c.label)}<small>${esc(c.code || '')}</small></span>
+    </label>`).join('');
+  updateColorCount();
+  $('saveMsg').textContent = '';
+}
+function updateColorCount() {
+  const n = document.querySelectorAll('#setColors input:checked').length;
+  $('colorCount').textContent = `· ${n} van ${allColors.length} aan`;
+}
+$('setColors').addEventListener('change', updateColorCount);
+$('allOn').onclick = () => { document.querySelectorAll('#setColors input').forEach((i) => (i.checked = true)); updateColorCount(); };
+$('allOff').onclick = () => { document.querySelectorAll('#setColors input').forEach((i) => (i.checked = false)); updateColorCount(); };
+
+$('settingsForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const days = [...document.querySelectorAll('.dayrow')].map((r) => ({
+    date: r.querySelector('[name=date]').value, open: r.querySelector('[name=open]').value, close: r.querySelector('[name=close]').value }));
+  const enabledColors = [...document.querySelectorAll('#setColors input:checked')].map((i) => i.value);
+  try {
+    await api('api.php?a=admin_settings', { method: 'POST', body: { price: $('setPrice').value, days, enabledColors } });
+    $('saveMsg').textContent = '✓ Opgeslagen. Klanten zien het direct.';
+    config = await api('api.php?a=config');
+    renderAddSwatches();
+  } catch (err) { $('saveMsg').textContent = '⚠️ ' + err.message; }
+});
+
+// ---------- login ----------
 function showLogin() { $('app').classList.add('hidden'); $('loginWrap').classList.remove('hidden'); $('pin').focus(); }
 function showApp() { $('loginWrap').classList.add('hidden'); $('app').classList.remove('hidden'); }
 
@@ -155,11 +280,10 @@ $('loginForm').addEventListener('submit', async (e) => {
 
 (async () => {
   config = await api('api.php?a=config');
+  allColors = config.allColors;
   $('addName').maxLength = config.maxNameLength;
   $('publicUrl').textContent = new URL('./', location.href).href;
-  $('addSwatches').innerHTML = config.colors.map((c) =>
-    `<button type="button" class="swatch" data-id="${c.id}" aria-pressed="false"><i style="background:${c.hex}"></i>${esc(c.label)}</button>`).join('');
-  renderAddPreview();
+  renderAddSwatches(); renderAddPreview();
   try { await api('api.php?a=admin_list'); showApp(); load(); } catch { showLogin(); }
   setInterval(() => { if (!$('app').classList.contains('hidden')) load(); }, 4000);
 })();

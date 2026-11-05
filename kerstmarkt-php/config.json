@@ -1,28 +1,28 @@
 {
   "shopName": "Potlood Badges",
-  "tagline": "Jouw naam, vers geprint op de kerstmarkt",
-  "price": "€ 3,50",
+  "tagline": "Jouw naam, vers geprint op de Winter Event",
   "maxNameLength": 14,
   "selfOrder": true,
-  "colors": [
-    { "id": "rood",   "label": "Kerstrood",   "hex": "#c62828" },
-    { "id": "groen",  "label": "Dennengroen", "hex": "#2e7d32" },
-    { "id": "goud",   "label": "Goud",        "hex": "#d4a017" },
-    { "id": "zilver", "label": "Zilver",      "hex": "#9ea7ad" },
-    { "id": "wit",    "label": "Sneeuwwit",   "hex": "#f5f5f5" },
-    { "id": "blauw",  "label": "IJsblauw",    "hex": "#4fa3d8" },
-    { "id": "roze",   "label": "Roze",        "hex": "#e57399" },
-    { "id": "zwart",  "label": "Zwart",       "hex": "#222222" }
-  ],
-  "days": [
-    { "label": "zaterdag", "date": "2026-12-12", "open": "11:00", "close": "20:00" },
-    { "label": "zondag",   "date": "2026-12-13", "open": "11:00", "close": "18:00" }
-  ],
   "standLocation": "dezelfde kraam als zaterdag",
+  "delivery": {
+    "places": ["son en breugel", "son", "breugel"],
+    "postcodes": ["5690", "5691", "5692", "5693", "5694"],
+    "placeLabel": "Son en Breugel",
+    "withinText": "binnen twee weken"
+  },
+  "defaults": {
+    "price": "€ 3,50",
+    "enabledColors": ["ivory-white", "charcoal", "scarlet-red", "grass-green", "marine-blue", "lemon-yellow", "sakura-pink", "mandarin-orange"],
+    "days": [
+      { "label": "zaterdag", "date": "2026-12-12", "open": "13:00", "close": "18:00" },
+      { "label": "zondag",   "date": "2026-12-13", "open": "13:00", "close": "17:00" }
+    ]
+  },
   "cleanup": {
     "pickedUpVisibleMinutes": 30,
     "unpaidExpireMinutes": 45,
     "cancelledVisibleMinutes": 15,
-    "purgeEverythingAfter": "2026-12-14T03:00:00+01:00"
+    "purgeDaysAfterMarket": 1,
+    "purgeDeliveriesDaysAfterMarket": 21
   }
 }

@@ -25,7 +25,7 @@ function textOn(hex) {
 }
 
 function colorById(config, id) {
-  return config.colors.find((c) => c.id === id) || { id, label: id, hex: '#999999' };
+  return (config.allColors || config.colors).find((c) => c.id === id) || { id, label: id, hex: '#999999' };
 }
 
 function pencilHTML(name, color) {
@@ -34,6 +34,20 @@ function pencilHTML(name, color) {
     <div class="badge" style="background:${color.hex};color:${textOn(color.hex)}">${esc(name || 'Jouw naam')}</div>
     <div class="body end"></div><div class="eraser"></div>
   </div>`;
+}
+
+// Tijden als "13:00" → "13.00 uur"-achtige weergave: "13–18 uur".
+function hourShort(t) { return t.endsWith(':00') ? String(parseInt(t, 10)) : t.replace(':', '.'); }
+function dayDate(d) {
+  return new Date(d.date + 'T12:00:00').toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' });
+}
+function dayLine(d) { return `${d.label} ${dayDate(d)}, ${hourShort(d.open)}–${hourShort(d.close)} uur`; }
+
+function hoursHTML(config) {
+  return `<h2>Openingstijden kraam</h2>
+    <ul class="hours">${config.days.map((d) => `<li><span>${esc(d.label[0].toUpperCase() + d.label.slice(1))} ${esc(dayDate(d))}</span><strong>${hourShort(d.open)}–${hourShort(d.close)} uur</strong></li>`).join('')}</ul>
+    <p class="hint">Kun je je badge niet ophalen? Laat via je bestelling je adres achter, dan bezorgen we hem ${esc(config.deliveryWithin)} in je brievenbus (alleen in ${esc(config.deliveryPlace)}).
+    Niet opgehaalde badges zonder adres worden na de markt vernietigd.</p>`;
 }
 
 // Bepaalt waar we zijn in het marktweekend (op basis van de klok van de telefoon).
@@ -60,6 +74,11 @@ const STATUS_LABEL = {
   opgehaald: 'Opgehaald',
   geannuleerd: 'Geannuleerd',
 };
+function statusLabel(o) {
+  if (o.delivery && o.status === 'opgehaald') return 'Bezorgd';
+  if (o.delivery && o.status !== 'geannuleerd') return 'Wordt thuisbezorgd';
+  return STATUS_LABEL[o.status];
+}
 
 // Onthoud bestellingen van deze klant op dit toestel.
 const MINE_KEY = 'kerstmarkt-bestellingen';

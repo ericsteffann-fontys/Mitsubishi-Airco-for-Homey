@@ -13,80 +13,105 @@
     <h1 id="shop">Je bestelling</h1>
   </header>
 
-  <div id="content"><p style="text-align:center;color:var(--muted)">Laden…</p></div>
+  <div id="content"><p class="center muted">Laden…</p></div>
 
   <div class="live" id="live"><span class="dot"></span><span id="liveText">Live bijgewerkt</span></div>
-  <footer class="foot"><a href="./">Nog een badge bestellen</a></footer>
+  <footer class="foot"><a href="./">‹ Terug naar de start</a> · <a href="./#bestellen">Nog een badge bestellen</a></footer>
 </div>
 
 <script src="common.js"></script>
 <script>
-const code = (new URLSearchParams(location.search).get('code') || '').toUpperCase();
-let config, last = null, notified = false;
+const code = (new URLSearchParams(location.search).get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+let config, last = null, lastKey = '', notified = false;
 const $ = (id) => document.getElementById(id);
 
 const STEPS = ['betalen', 'wachtrij', 'printen', 'klaar'];
 const STEP_LABEL = ['Betalen', 'In de rij', 'Printen', 'Klaar'];
 
 function stepsHTML(status) {
-  // 'opgehaald' telt als alles gedaan
-  const idx = status === 'opgehaald' ? 99 : STEPS.indexOf(status);
-  return `<div class="steps">${STEP_LABEL.map((l, i) => {
-    // stap i is "klaar" als de huidige status voorbij stap i is
+  const idx = STEPS.indexOf(status);
+  return `<section class="card"><div class="steps">${STEP_LABEL.map((l, i) => {
     const cls = i < idx ? 'done' : i === idx ? (status === 'klaar' ? 'done now' : 'now') : '';
     return `<div class="${cls}">${l}</div>`;
-  }).join('')}</div>`;
+  }).join('')}</div></section>`;
 }
 
 function stateHTML(o, mp) {
   const next = mp.next;
   const closedNow = mp.phase === 'dicht' || mp.phase === 'na';
-  const pickupLater = next ? `${next.label} tussen ${next.open} en ${next.close}` : '';
-  const S = {
-    betalen:  ['💶', 'Nog even betalen', `Reken ${esc(config.price)} af bij de kraam en noem je code. Daarna gaat je badge de printer in.`],
-    wachtrij: ['🧾', 'Betaald, je staat in de rij', 'We gaan zo voor je aan de slag. Loop gerust verder over de markt.'],
-    printen:  ['🖨️', 'Je badge wordt geprint', 'Nog even geduld. We laten het hier meteen zien als hij klaar is.'],
-    klaar:    ['🎉', 'Klaar! Kom hem ophalen', closedNow && next
-                 ? `De kraam is nu dicht. Je badge ligt ${pickupLater} voor je klaar bij ${esc(config.standLocation)}.`
+  let S;
+  if (o.delivery && o.status === 'opgehaald') {
+    S = ['📬', 'Bezorgd', 'Je badge is in je brievenbus bezorgd. Veel plezier ermee!'];
+  } else if (o.delivery && o.status !== 'geannuleerd') {
+    S = ['🏠', 'Wordt thuisbezorgd', `We hebben je adres ontvangen. Je badge komt ${esc(config.deliveryWithin)} in je brievenbus.`];
+  } else {
+    S = {
+      betalen:  ['💶', 'Nog even betalen', `Reken ${esc(config.price)} af bij de kraam en noem je code. Daarna gaat je badge de printer in.`],
+      wachtrij: ['🧾', 'Betaald, je staat in de rij', 'We gaan zo voor je aan de slag. Loop gerust verder over de markt.'],
+      printen:  ['🖨️', 'Je badge wordt geprint', 'Nog even geduld. Je ziet het hier meteen als hij klaar is.'],
+      klaar:    ['🎉', 'Klaar! Kom hem ophalen',
+                 mp.phase === 'na' ? 'De markt is voorbij. Laat hieronder je adres achter als je in ' + esc(config.deliveryPlace) + ' woont.'
+                 : closedNow && next ? `De kraam is nu dicht. Je badge ligt ${esc(dayLine(next))} voor je klaar bij ${esc(config.standLocation)}.`
                  : 'Je badge ligt klaar bij de kraam. Laat je code zien en neem hem mee.'],
-    opgehaald:['✅', 'Opgehaald, veel plezier!', 'Bedankt voor je bestelling en fijne feestdagen!'],
-    geannuleerd: ['✖️', 'Bestelling geannuleerd', 'Klopt dit niet? Loop even langs de kraam.'],
-  }[o.status];
-  return `<section class="card state ${o.status}">
-    <div class="icon">${S[0]}</div><h2>${S[1]}</h2><p>${S[2]}</p>
-  </section>`;
+      opgehaald:['✅', 'Opgehaald, veel plezier!', 'Bedankt voor je bestelling en fijne feestdagen!'],
+      geannuleerd: ['✖️', 'Bestelling geannuleerd', 'Klopt dit niet? Loop even langs de kraam.'],
+    }[o.status];
+  }
+  const cls = o.delivery && o.status !== 'geannuleerd' ? 'klaar' : o.status;
+  return `<section class="card state ${cls}"><div class="icon">${S[0]}</div><h2>${S[1]}</h2><p>${S[2]}</p></section>`;
 }
 
-function noticesHTML(o, mp) {
+function pickupHTML(o, mp) {
+  if (['opgehaald', 'geannuleerd'].includes(o.status) || o.delivery) return '';
+  const days = config.days, first = days[0], lastDay = days[days.length - 1];
   const out = [];
-  const days = config.days;
-  const first = days[0], lastDay = days[days.length - 1];
-  const done = ['opgehaald', 'geannuleerd'].includes(o.status);
-  if (done) return '';
-
-  if (mp.phase === 'dicht' && mp.next && o.status === 'klaar') {
-    // staat al in het statusblok
-  } else if (mp.phase === 'dicht' && mp.next) {
-    out.push(`<div class="notice sunday"><strong>De kraam is nu dicht.</strong> ${o.status === 'klaar' ? 'Je badge ligt' : 'We maken je badge af en hij ligt'}
-      ${esc(mp.next.label)} vanaf ${mp.next.open} klaar bij ${esc(config.standLocation)}.</div>`);
-  } else if (mp.phase === 'na') {
-    out.push(`<div class="notice sunday">De markt is voorbij. Loop je bestelling mis? Neem dan contact op met de verkoper.</div>`);
-  } else if (days.length > 1 && !(mp.phase === 'open' && mp.isLast)) {
+  if (mp.phase === 'dicht' && mp.next && o.status !== 'klaar') {
+    out.push(`<div class="notice sunday"><strong>De kraam is nu dicht.</strong> We maken je badge af. Hij ligt ${esc(dayLine(mp.next))} klaar bij ${esc(config.standLocation)}.</div>`);
+  } else if (mp.phase === 'open' && !mp.isLast) {
     out.push(`<div class="notice"><strong>Geen tijd om te wachten of ben je er ${esc(first.label)} niet meer?</strong>
-      Dan kun je hem ook ${esc(lastDay.label)} (${lastDay.open}–${lastDay.close}) ophalen bij ${esc(config.standLocation)}.</div>`);
+      Haal hem dan ${esc(dayLine(lastDay))} op bij ${esc(config.standLocation)}.</div>`);
   } else if (mp.phase === 'open' && mp.isLast) {
-    out.push(`<div class="notice">Vandaag is de laatste marktdag: de kraam is open tot ${mp.day.close}.</div>`);
+    out.push(`<div class="notice">Vandaag is de laatste marktdag. De kraam is open tot ${hourShort(mp.day.close)} uur.</div>`);
+  } else if (mp.phase === 'voor') {
+    out.push(`<div class="notice">Ophalen kan ${days.map((d) => esc(dayLine(d))).join(' en ')}.</div>`);
   }
-  if (o.status !== 'klaar' && 'Notification' in window && Notification.permission === 'default') {
-    out.push(`<div class="notice"><button class="ghost" id="notifyBtn">🔔 Geef me een seintje als hij klaar is</button>
-      <div class="hint">Houd deze pagina open, dan trilt je telefoon ook als hij klaar is.</div></div>`);
-  }
-  return out.length ? `<section class="card">${out.join('')}</section>` : '';
+
+  // Thuisbezorgen
+  const canDeliver = ['wachtrij', 'printen', 'klaar'].includes(o.status);
+  out.push(`<div class="notice deliver">
+    <strong>Kun je hem niet meer ophalen?</strong> Laat je adres achter, dan bezorgen we je badge ${esc(config.deliveryWithin)} in je brievenbus.
+    Dit kan alleen voor adressen in <strong>${esc(config.deliveryPlace)}</strong>.
+    <p class="warn">Niet opgehaald en geen adres achtergelaten? Dan wordt je badge na de markt vernietigd.</p>
+    ${canDeliver
+      ? `<button class="ghost" id="deliverOpen" type="button">🏠 Adres achterlaten voor bezorging</button>
+         <form id="deliverForm" class="addr hidden" autocomplete="on">
+           <div class="addr-row">
+             <div class="grow"><label class="field" for="street">Straat</label><input type="text" id="street" autocomplete="address-line1" required></div>
+             <div class="num"><label class="field" for="number">Huisnr.</label><input type="text" id="number" required></div>
+           </div>
+           <div class="addr-row">
+             <div class="num"><label class="field" for="postcode">Postcode</label><input type="text" id="postcode" autocomplete="postal-code" placeholder="5691 AB" required></div>
+             <div class="grow"><label class="field" for="city">Plaats</label><input type="text" id="city" autocomplete="address-level2" value="Son en Breugel" required></div>
+           </div>
+           <p class="error" id="deliverError"></p>
+           <button class="primary">Bezorg mijn badge</button>
+         </form>`
+      : `<p class="hint">Dit kan zodra je bestelling betaald is.</p>`}
+  </div>`);
+  return `<section class="card">${out.join('')}</section>`;
+}
+
+function notifyHTML(o) {
+  if (o.status === 'klaar' || o.delivery || ['opgehaald', 'geannuleerd'].includes(o.status)) return '';
+  if (!('Notification' in window) || Notification.permission !== 'default') return '';
+  return `<section class="card"><button class="ghost" id="notifyBtn">🔔 Geef me een seintje als hij klaar is</button>
+    <div class="hint">Houd deze pagina open, dan trilt je telefoon ook als hij klaar is.</div></section>`;
 }
 
 function render(o) {
   const mp = marketPhase(config.days);
   const c = colorById(config, o.color);
+  const showSteps = !o.delivery && !['opgehaald', 'geannuleerd'].includes(o.status);
   $('content').innerHTML = `
     <section class="card code-box">
       ${pencilHTML(o.name, c)}
@@ -95,11 +120,25 @@ function render(o) {
       <div class="hint">${esc(o.name)} · ${esc(c.label)}</div>
     </section>
     ${stateHTML(o, mp)}
-    ${['opgehaald', 'geannuleerd'].includes(o.status) ? '' : `<section class="card">${stepsHTML(o.status)}</section>`}
-    ${noticesHTML(o, mp)}`;
-  const btn = document.getElementById('notifyBtn');
-  if (btn) btn.onclick = () => Notification.requestPermission().then(() => render(o));
-  document.title = (o.status === 'klaar' ? '🎉 Klaar! ' : '') + `${o.name} – ${STATUS_LABEL[o.status]}`;
+    ${showSteps ? stepsHTML(o.status) : ''}
+    ${notifyHTML(o)}
+    ${pickupHTML(o, mp)}`;
+  const nb = $('notifyBtn');
+  if (nb) nb.onclick = () => Notification.requestPermission().then(() => { lastKey = ''; render(o); });
+  const open = $('deliverOpen');
+  if (open) open.onclick = () => { open.classList.add('hidden'); $('deliverForm').classList.remove('hidden'); $('street').focus(); };
+  const form = $('deliverForm');
+  if (form) form.onsubmit = async (e) => {
+    e.preventDefault();
+    $('deliverError').textContent = '';
+    try {
+      const upd = await api('api.php?a=delivery&code=' + code, { method: 'POST', body: {
+        street: $('street').value, number: $('number').value, postcode: $('postcode').value, city: $('city').value } });
+      last = upd; lastKey = ''; render(upd);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) { $('deliverError').textContent = err.message; }
+  };
+  document.title = (o.status === 'klaar' && !o.delivery ? '🎉 Klaar! ' : '') + `${o.name} – ${statusLabel(o)}`;
 }
 
 function celebrate(o) {
@@ -112,32 +151,35 @@ function celebrate(o) {
   } catch {}
 }
 
+// Alleen opnieuw tekenen als er echt iets veranderde, zodat een half ingevuld adresformulier blijft staan.
+function keyOf(o) { return [o.status, o.delivery, o.name, o.color, marketPhase(config.days).phase].join('|'); }
+
 async function poll() {
   try {
     const o = await api('api.php?a=order&code=' + encodeURIComponent(code));
     rememberOrder(o.code);
-    if (last && last.status !== 'klaar' && o.status === 'klaar') celebrate(o);
-    render(o);
+    if (last && last.status !== 'klaar' && o.status === 'klaar' && !o.delivery) celebrate(o);
+    const k = keyOf(o);
+    if (k !== lastKey) { render(o); lastKey = k; }
     last = o;
     $('live').classList.remove('off'); $('liveText').textContent = 'Live bijgewerkt';
   } catch (e) {
     if (e.status === 404) {
       forgetOrder(code);
       $('content').innerHTML = `<section class="card state"><div class="icon">🔍</div><h2>Niet (meer) gevonden</h2>
-        <p>Klopt de code <strong>${esc(code)}</strong>? Opgehaalde bestellingen verdwijnen na een tijdje van deze pagina.</p></section>`;
+        <p>Klopt de code <strong>${esc(code)}</strong>? Afgehandelde bestellingen verdwijnen na een tijdje van deze pagina.</p></section>`;
       $('live').classList.add('hidden');
-      return; // stop met pollen
+      return;
     }
     $('live').classList.add('off'); $('liveText').textContent = 'Geen verbinding, opnieuw proberen…';
   }
   setTimeout(poll, document.hidden ? 15000 : 5000);
 }
 
-document.addEventListener('visibilitychange', () => { if (!document.hidden && last) render(last); });
-
 (async () => {
   config = await api('api.php?a=config');
   $('shop').textContent = config.shopName;
+  if (!code) return (location.href = './#volgen');
   poll();
 })();
 </script>
