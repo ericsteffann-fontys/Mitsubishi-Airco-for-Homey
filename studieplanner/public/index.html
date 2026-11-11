@@ -23,6 +23,7 @@
   <main class="wrap">
     <details class="kaart" id="gegevens" open>
       <summary>Gegevens en start van je studie</summary>
+      <p class="plan-info" id="plan-info" hidden></p>
       <p class="uitleg">Deze gegevens komen alleen in je PDF te staan. De app slaat niets op: als je de pagina sluit zonder PDF, is je plan weg.</p>
       <div class="velden">
         <div class="veld"><label for="f-naam">Naam student</label><input id="f-naam" autocomplete="off"></div>
@@ -63,6 +64,8 @@
             <span style="--c: #ede9fe">verleden (wat je al gedaan hebt)</span>
             <span style="--c: var(--verleden)">periode is voorbij</span>
             <span style="--c: #ebe9ee">vóór je instroom</span>
+            <span style="--c: #fed7aa">meerdere EvL's tegelijk (extra studiedruk)</span>
+            <span class="lijn-legenda">vandaag</span>
           </div>
           <div class="kolomkop" id="kolomkop"></div>
           <div class="rooster" id="rooster"></div>

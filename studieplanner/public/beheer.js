@@ -126,8 +126,14 @@
 
       <h3 style="margin:14px 0 2px;font-size:.95rem">Aanbod</h3>
       <p class="uitleg">Stel per leerweg in wanneer de EvL kan <b>starten</b>.${e.ec === 30 ? ' Deze EvL duurt 2 periodes: bij start in P4 loopt hij door tot en met P1 van het volgende schooljaar.' : ''} Studenten kunnen een leerwegonafhankelijke variant kiezen als de fysieke variant op dat moment niet wordt aangeboden.</p>
-      ${S.LEERWEGEN.map((l) => leerwegHtml(e, l)).join('')}`;
+      ${S.LEERWEGEN.map((l) => leerwegHtml(e, l)).join('')}
+      <div class="leerweg-blok"><h3>Aanbod nog niet bekend</h3>
+        <p class="uitleg" style="margin-top:0">Vink de schooljaren aan waarin nog niet vaststaat óf en wanneer deze EvL gegeven wordt. Studenten kunnen hem in die jaren in elke periode inplannen (met de leerwegen die hierboven aan staan), maar het blok staat dan <b>onder voorbehoud</b>.</p>
+        <div class="checks">${jarenLijst().map((j) => `<label><input type="checkbox" data-onbekend="${j}"${e.onbekendeJaren.includes(j) ? ' checked' : ''}> ${S.jaarLabel(j)}</label>`).join('')}</div>
+      </div>`;
   }
+
+  const jarenLijst = () => { const r = []; for (let j = cat.eersteSchooljaar; j <= cat.laatsteSchooljaar; j++) r.push(j); return r; };
 
   function looptijdUitleg(e) {
     if (e.ingangsdatum && e.sluitingsdatum && e.ingangsdatum > e.sluitingsdatum) return '<b style="color:var(--fout)">De ingangsdatum ligt na de sluitingsdatum.</b>';
@@ -188,6 +194,9 @@
       const a = e.aanbod[t.dataset.lw];
       a.momenten = t.checked ? [...new Set([...a.momenten, t.dataset.moment])].sort() : a.momenten.filter((x) => x !== t.dataset.moment);
       t.closest('td').classList.toggle('aan', t.checked);
+    } else if (t.dataset.onbekend) {
+      const j = Number(t.dataset.onbekend);
+      e.onbekendeJaren = t.checked ? [...new Set([...e.onbekendeJaren, j])].sort() : e.onbekendeJaren.filter((x) => x !== j);
     } else if (t.dataset.patroonp) return;
     markeer(); renderTabel();
   });
@@ -227,6 +236,7 @@
         for (let p = 1; p <= 4; p++) {
           const i = S.abs(j, p);
           const f = S.aangeboden(cat, e, 'fysiek', i), l = S.aangeboden(cat, e, 'lwo', i);
+          if ((f || l) && S.onderVoorbehoud(e, i)) { cellen.push('<td class="vb" title="Nog niet bekend">?</td>'); continue; }
           cellen.push(f && l ? '<td class="beide">F+L</td>' : f ? '<td class="f">F</td>' : l ? '<td class="lwo">L</td>' : '<td></td>');
         }
       }
@@ -278,12 +288,20 @@
         return `<td><input type="date" data-jaar="${j}" data-k="${k}" value="${waarde}" style="${aangepast ? 'font-weight:700' : ''}"></td>`;
       }).join('');
       const iets = eigen.some((x) => S.isIso(x));
-      rijen.push(`<tr><th>${S.jaarLabel(j)}</th>${cellen}<td>${iets ? `<button class="btn klein" data-herstel="${j}" type="button">Patroon</button>` : ''}</td></tr>`);
+      const onbekend = cat.datumsOnbekend.includes(j);
+      rijen.push(`<tr${onbekend ? ' class="voorlopig"' : ''}><th>${S.jaarLabel(j)}</th>${cellen}<td><label class="checks"><input type="checkbox" data-onbekendjaar="${j}"${onbekend ? ' checked' : ''}> nog niet bekend</label></td><td>${iets ? `<button class="btn klein" data-herstel="${j}" type="button">Patroon</button>` : ''}</td></tr>`);
     }
-    $('#jaardatums').innerHTML = `<thead><tr><th>Schooljaar</th><th>Start P1</th><th>Start P2</th><th>Start P3</th><th>Start P4</th><th>Einde P4</th><th></th></tr></thead><tbody>${rijen.join('')}</tbody>`;
+    $('#jaardatums').innerHTML = `<thead><tr><th>Schooljaar</th><th>Start P1</th><th>Start P2</th><th>Start P3</th><th>Start P4</th><th>Einde P4</th><th>Datums</th><th></th></tr></thead><tbody>${rijen.join('')}</tbody>`;
   }
   $('#jaardatums').addEventListener('change', (ev) => {
     const t = ev.target;
+    if (t.dataset.onbekendjaar) {
+      ev.stopPropagation();
+      const j = Number(t.dataset.onbekendjaar);
+      cat.datumsOnbekend = t.checked ? [...new Set([...cat.datumsOnbekend, j])].sort() : cat.datumsOnbekend.filter((x) => x !== j);
+      markeer(); renderJaardatums();
+      return;
+    }
     if (!t.dataset.jaar) return;
     ev.stopPropagation();
     const j = t.dataset.jaar, k = Number(t.dataset.k);

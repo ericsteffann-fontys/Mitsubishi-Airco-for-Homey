@@ -71,7 +71,15 @@ const SP = (() => {
   const MAANDEN = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
   const datumKort = (s) => { const d = vanIso(s); return `${d.getDate()} ${MAANDEN[d.getMonth()]}`; };
   const datumLang = (s) => { const d = vanIso(s); return `${d.getDate()} ${MAANDEN[d.getMonth()]} ${d.getFullYear()}`; };
-  const periodeDatums = (cat, i) => `${datumKort(periodeStart(cat, i))} – ${datumKort(periodeEind(cat, i))}`;
+  // Schooljaren waarvan de periodedatums nog niet vaststaan: datums zijn dan een schatting.
+  const datumsVoorlopig = (cat, j) => !!(cat && Array.isArray(cat.datumsOnbekend) && cat.datumsOnbekend.includes(Number(j)));
+  const maandKort = (s) => MAANDEN[vanIso(s).getMonth()];
+  const periodeDatums = (cat, i) => (datumsVoorlopig(cat, jaarVan(i))
+    ? `± ${maandKort(periodeStart(cat, i))} – ${maandKort(periodeEind(cat, i))} (datum volgt)`
+    : `${datumKort(periodeStart(cat, i))} – ${datumKort(periodeEind(cat, i))}`);
+  // Datum van een periode als tekst, met 'ca.' als het schooljaar nog voorlopig is.
+  const startTekst = (cat, i) => (datumsVoorlopig(cat, jaarVan(i)) ? `ca. ${maandKort(periodeStart(cat, i))} ${periodeStart(cat, i).slice(0, 4)} (datum volgt)` : datumLang(periodeStart(cat, i)));
+  const eindTekst = (cat, i) => (datumsVoorlopig(cat, jaarVan(i)) ? `ca. ${maandKort(periodeEind(cat, i))} ${periodeEind(cat, i).slice(0, 4)}` : datumLang(periodeEind(cat, i)));
   const maandVan = (cat, p) => MAANDEN[Number((((cat && cat.periodeStart) || STANDAARD_START)[p - 1]).split('-')[0]) - 1];
 
   // Welke periode is het nu? De eerste periode die nog niet afgelopen is.
@@ -104,12 +112,18 @@ const SP = (() => {
 
   // ---- aanbod ----
   // evl.aanbod[leerweg] = { modus: 'geen' | 'doorlopend' | 'jaarlijks' | 'specifiek', periodes: [1,3], momenten: ['2026-1'] }
+  // Schooljaren waarin nog niet bekend is óf en wanneer de EvL gegeven wordt.
+  // De student mag hem daar dan in elke periode plannen (met de leerwegen die de EvL kent),
+  // maar het blok staat 'onder voorbehoud'.
+  const onderVoorbehoud = (evl, i) => !!(evl && Array.isArray(evl.onbekendeJaren) && evl.onbekendeJaren.includes(jaarVan(i)));
+
   function aangeboden(cat, evl, leerweg, i) {
     const a = evl && evl.aanbod && evl.aanbod[leerweg];
     if (!a) return false;
     const j = jaarVan(i);
     if (cat && (j < cat.eersteSchooljaar || j > cat.laatsteSchooljaar)) return false;
     if (!binnenLooptijd(cat, evl, i)) return false;
+    if (onderVoorbehoud(evl, i)) return a.modus !== 'geen';
     switch (a.modus) {
       case 'doorlopend': return true;
       case 'jaarlijks': return (a.periodes || []).includes(periodeVan(i));
@@ -130,6 +144,7 @@ const SP = (() => {
       else t = (a.momenten || []).length ? `${a.momenten.length} specifieke startmoment(en)` : 'geen startmomenten gekozen';
       delen.push(`${l.naam}: ${t}`);
     }
+    if (delen.length && (evl.onbekendeJaren || []).length) delen.push('nog niet bekend in ' + evl.onbekendeJaren.slice().sort().map(jaarLabel).join(', '));
     return delen.length ? delen.join(' · ') : 'Niet aangeboden';
   }
 
@@ -182,6 +197,7 @@ const SP = (() => {
     c.periodeStart = Array.isArray(c.periodeStart) && c.periodeStart.length === 4 ? c.periodeStart : STANDAARD_START.slice();
     c.jaarEinde = /^\d\d-\d\d$/.test(c.jaarEinde || '') ? c.jaarEinde : STANDAARD_EINDE;
     c.periodeData = c.periodeData && typeof c.periodeData === 'object' ? c.periodeData : {};
+    c.datumsOnbekend = Array.isArray(c.datumsOnbekend) ? c.datumsOnbekend.map(Number) : [];
     c.evls = Array.isArray(c.evls) ? c.evls : [];
     for (const e of c.evls) {
       e.id = e.id || 'evl-' + uid();
@@ -190,6 +206,7 @@ const SP = (() => {
       e.vereist = Array.isArray(e.vereist) ? e.vereist : [];
       e.ingangsdatum = isIso(e.ingangsdatum) ? e.ingangsdatum : '';
       e.sluitingsdatum = isIso(e.sluitingsdatum) ? e.sluitingsdatum : '';
+      e.onbekendeJaren = Array.isArray(e.onbekendeJaren) ? e.onbekendeJaren.map(Number) : [];
       e.aanbod = e.aanbod || {};
       for (const l of LEERWEGEN) {
         const a = e.aanbod[l.id] || { modus: 'geen' };
@@ -206,7 +223,7 @@ const SP = (() => {
     PER, LEERWEGEN, STATUS, leerwegNaam, leerwegKort,
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
-    binnenLooptijd, looptijdTekst, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
+    binnenLooptijd, looptijdTekst, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
     encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, laadCatalogus, normaliseerCatalogus,
   };
 })();

@@ -100,7 +100,11 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 @media (max-width: 900px) { .lijst { position: static; max-height: none; } }
 .lijst .filters { display: grid; gap: 6px; margin-bottom: 8px; }
 .lijst .filters input, .lijst .filters select { width: 100%; border: 1px solid var(--lijn); border-radius: 7px; padding: 6px 8px; }
-.evl-lijst { overflow: auto; display: grid; gap: 6px; padding-right: 2px; }
+.evl-lijst { overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; padding-right: 2px; align-content: start; }
+/* 15 EC = halve breedte, 30 EC = volle breedte: de figuurlijke grootte is direct zichtbaar */
+.evl-lijst .cat-kop, .evl-lijst > p, .evl-kaart.ec30 { grid-column: 1 / -1; }
+.evl-kaart.ec15 .t { font-size: .86rem; }
+.evl-kaart { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
 .evl-kaart {
   border: 1px solid var(--lijn);
   border-left: 5px solid var(--kleur, var(--paars));
@@ -157,7 +161,7 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .kolomkop { display: grid; grid-template-columns: 92px repeat(4, minmax(0, 1fr)); gap: 6px; font-size: .78rem; color: var(--zacht); font-weight: 600; text-align: center; }
 .cel {
   grid-row: 1;
-  min-height: 92px;
+  min-height: 0;
   border: 2px dashed var(--lijn);
   border-radius: 9px;
   background: #fff;
@@ -177,6 +181,21 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .cel.kan-verleden { background: #ede9fe; border-color: var(--paars); border-style: solid; }
 .cel.kan-niet { opacity: .45; }
 .cel.drop { box-shadow: 0 0 0 3px var(--paars) inset; }
+.cel.druk { background: #fff7ed; border-color: #fb923c; border-style: solid; }
+.cel.druk .datum { color: #c2410c; font-weight: 600; }
+.cel.kan-druk { box-shadow: 0 0 0 3px #fb923c inset; }
+.cel.kan-vb::before { content: '?'; position: absolute; top: 4px; left: 7px; font-weight: 800; color: var(--let); }
+.jaar { position: relative; grid-template-rows: repeat(var(--banen, 1), minmax(64px, auto)) var(--voet, 22px); }
+.vandaag { position: relative; pointer-events: none; z-index: 6; }
+.vandaag::before { content: ''; position: absolute; top: -5px; bottom: -5px; left: var(--pos); border-left: 2px solid #dc2626; }
+.vandaag span { position: absolute; top: -9px; left: var(--pos); transform: translateX(-50%); background: #dc2626; color: #fff; font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 99px; white-space: nowrap; }
+.legenda .lijn-legenda::before { width: 0; height: 12px; border: 0; border-left: 2px solid #dc2626; border-radius: 0; }
+.jaar .label .voorlopig { color: var(--let); font-weight: 600; }
+.tag.vb { background: var(--let-l); color: var(--let); }
+.sleep-ghost { position: fixed; top: -500px; left: 0; height: 64px; background: #fff; border: 1px solid rgba(0,0,0,.15); border-left: 6px solid var(--kleur, var(--paars)); border-radius: 8px; padding: 6px 9px; font-size: .85rem; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+.sleep-ghost span { color: var(--zacht); font-size: .78rem; }
+.plan-info { background: var(--paars-l); border-radius: 8px; padding: 8px 12px; margin: 0 0 8px; font-size: .9rem; }
+.plan-info.oud { background: var(--let-l); }
 .cel .datum { font-size: .72rem; }
 .kolomkop small { font-weight: 400; }
 
@@ -273,6 +292,8 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
 .overzicht th.l, .overzicht td.l { text-align: left; position: sticky; left: 0; background: #fff; }
 .overzicht td.f { background: var(--ok-l); color: var(--ok); font-weight: 700; }
 .overzicht td.lwo { background: var(--lwo-l); color: var(--lwo); font-weight: 700; }
+.overzicht td.vb { background: var(--let-l); color: var(--let); font-weight: 700; }
+.aanbod-raster tr.voorlopig input[type=date] { opacity: .6; font-style: italic; }
 .overzicht td.beide { background: linear-gradient(135deg, var(--ok-l) 50%, var(--lwo-l) 50%); font-weight: 700; }
 .rij { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .checks { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -299,7 +320,9 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
   .jaar .label { font-size: .68rem; padding: 2px; }
   .jaar .label small { display: none; }
   .cel { min-height: 78px; }
-  .cel .datum { font-size: .58rem; text-align: right; }
+  .cel .datum { font-size: .58rem; text-align: right; line-height: 1.15; }
+  .jaar { --voet: 30px; }
+  .vandaag span { font-size: .55rem; }
   .blok { position: relative; margin: 1px; padding: 4px 4px 4px 5px; font-size: .7rem; border-left-width: 4px; gap: 2px; }
   .blok .t { white-space: normal; word-break: break-word; hyphens: auto; padding-right: 12px; }
   .blok .t small { display: none; }

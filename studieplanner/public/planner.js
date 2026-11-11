@@ -13,6 +13,7 @@ const Planner = (() => {
     sel: null, // { type: 'evl', id } of { type: 'blok', uid } – klik-modus
     drag: null, // idem, tijdens slepen
     gewijzigd: false,
+    ingelezen: null, // { opgeslagen, eersteVersie } van een ingelezen PDF
   };
 
   // ---------- plan ----------
@@ -23,6 +24,7 @@ const Planner = (() => {
       startJaar: S.jaarVan(nu),
       startPeriode: S.periodeVan(nu), // tussentijds instromen kan: elke periode is een instroommoment
       jaren: 4, // aantal schooljaren (rijen) in beeld; uit te breiden met '+ Schooljaar toevoegen'
+      eersteVersie: null, // wanneer dit plan voor het eerst als PDF is opgeslagen
       blokken: [],
     };
   }
@@ -49,9 +51,13 @@ const Planner = (() => {
     else b.status = 'gepland';
   }
 
-  function bezetDoor(i, skipUid) {
-    return state.plan.blokken.find((b) => b.start != null && b.uid !== skipUid && i >= b.start && i <= blokEind(b)) || null;
+  // Alle blokken die in periode i lopen (meerdere EvL's tegelijk volgen is toegestaan).
+  function blokkenIn(i, skipUid) {
+    return state.plan.blokken.filter((b) => b.start != null && b.uid !== skipUid && actief(b) && i >= b.start && i <= blokEind(b));
   }
+  // Studielast in een periode: elke lopende EvL telt 15 EC per periode (30 EC = 2 periodes x 15).
+  const lastIn = (i, skipUid) => blokkenIn(i, skipUid).length * 15;
+  const DRUK_TEKST = 'Meerdere EvL\'s tegelijk volgen kan, maar geeft mogelijk extra studiedruk. Bespreek dit met je studiecoach.';
 
   // Kan EvL (id) starten op moment i? Geeft de mogelijke leerwegen terug.
   function kanPlaatsen(evlId, i, skipUid) {
@@ -61,16 +67,25 @@ const Planner = (() => {
     if (i < hStart()) return { ok: false, reden: 'Vóór de start van je studie' };
     if (i + d - 1 > hEind()) return { ok: false, reden: 'Past niet meer binnen de getoonde schooljaren. Voeg een schooljaar toe.' };
     if (!S.binnenLooptijd(state.cat, e, i)) return { ok: false, reden: `${e.naam} bestaat dan niet: looptijd ${S.looptijdTekst(e)}.` };
-    for (let k = i; k < i + d; k++) {
-      const b = bezetDoor(k, skipUid);
-      if (b) return { ok: false, reden: `Periode ${S.momentLabel(k)} is al bezet door ${b.naam}` };
-    }
+    const extraDruk = [];
+    for (let k = i; k < i + d; k++) if (blokkenIn(k, skipUid).length) extraDruk.push(k);
     const dubbel = state.plan.blokken.find((b) => b.evl === evlId && b.uid !== skipUid && actief(b));
     if (dubbel) return { ok: false, reden: 'Deze EvL staat al in je plan' };
-    if (i < state.nu) return { ok: true, verleden: true, leerwegen: S.LEERWEGEN.map((l) => l.id) };
+    if (i < state.nu) return { ok: true, verleden: true, extraDruk, leerwegen: S.LEERWEGEN.map((l) => l.id) };
     const lw = S.leerwegenOp(state.cat, e, i);
     if (!lw.length) return { ok: false, reden: `Wordt niet aangeboden met start in ${S.momentLabel(i)}` };
-    return { ok: true, leerwegen: lw };
+    return { ok: true, leerwegen: lw, extraDruk, voorbehoud: S.onderVoorbehoud(e, i) };
+  }
+
+  // Melding na plaatsen/verplaatsen; de student hoeft niets te bevestigen.
+  function meldNaPlaatsen(k, e, extra) {
+    const t = [];
+    if (extra) t.push(extra);
+    if (k.extraDruk && k.extraDruk.length && !k.verleden) {
+      t.push(`Let op: in ${k.extraDruk.map(S.momentLabel).join(' en ')} volg je dan meerdere EvL's tegelijk. Dat kan extra studiedruk geven.`);
+    }
+    if (k.voorbehoud) t.push(`Onder voorbehoud: het is nog niet bekend of en wanneer ${e.naam} in dat schooljaar gegeven wordt.`);
+    if (t.length) toast(t.join(' '), t.length > 1 ? 8000 : 6000);
   }
 
   function plaatsEvl(evlId, i, leerweg) {
@@ -80,6 +95,7 @@ const Planner = (() => {
     autoStatus(b);
     state.plan.blokken.push(b);
     wijzig();
+    meldNaPlaatsen(k, evlVan(evlId));
     return true;
   }
 
@@ -91,12 +107,14 @@ const Planner = (() => {
     const oud = b.start;
     b.start = i;
     if (oud == null) b.status = '';
+    let extra = '';
     if (!k.leerwegen.includes(b.leerweg)) {
       b.leerweg = k.leerwegen[0];
-      toast(`Leerweg aangepast naar ${S.leerwegNaam(b.leerweg)}: ${S.leerwegNaam(k.leerwegen.includes('fysiek') ? 'lwo' : 'fysiek')} wordt dan niet aangeboden.`);
+      extra = `Leerweg aangepast naar ${S.leerwegNaam(b.leerweg)}: ${S.leerwegNaam(k.leerwegen.includes('fysiek') ? 'lwo' : 'fysiek')} wordt dan niet aangeboden.`;
     }
     autoStatus(b);
     wijzig();
+    meldNaPlaatsen(k, blokEvl(b), extra);
     return true;
   }
 
@@ -131,16 +149,15 @@ const Planner = (() => {
     if (b.ec && b.ec !== e.ec) m.push({ niveau: 'let', t: `is gewijzigd van ${b.ec} naar ${e.ec} EC.` });
     if (b.start == null) return m;
     if (b.start < hStart() || blokEind(b) > hEind()) m.push({ niveau: 'let', t: 'valt (deels) buiten de getoonde studiejaren.' });
-    for (let k = b.start; k <= blokEind(b); k++) {
-      const o = bezetDoor(k, b.uid);
-      if (o) { m.push({ niveau: 'fout', t: `overlapt met ${o.naam} in ${S.momentLabel(k)}.` }); break; }
-    }
     const looptijdOk = S.binnenLooptijd(state.cat, e, b.start);
     if (!looptijdOk && actief(b) && b.status !== 'bezig') {
       m.push({ niveau: 'fout', t: `valt buiten de looptijd van deze EvL (${S.looptijdTekst(e)}). Verplaats deze EvL of overleg met je studiecoach.` });
     } else if (b.start >= state.nu && b.status !== 'bezig' && !S.aangeboden(state.cat, e, b.leerweg, b.start)) {
       const anders = S.leerwegenOp(state.cat, e, b.start);
       m.push({ niveau: 'fout', t: `wordt ${S.leerwegNaam(b.leerweg).toLowerCase()} niet aangeboden met start in ${S.momentLabel(b.start)}.` + (anders.length ? ` Wel als ${anders.map(S.leerwegNaam).join(' / ').toLowerCase()}.` : ' Verplaats deze EvL.') });
+    }
+    if (looptijdOk && b.status === 'gepland' && S.onderVoorbehoud(e, b.start)) {
+      m.push({ niveau: 'info', t: `staat onder voorbehoud: nog niet bekend of en wanneer deze EvL in ${S.jaarLabel(S.jaarVan(b.start))} gegeven wordt.` });
     }
     if (looptijdOk && e.sluitingsdatum && (b.status === 'gepland' || b.status === 'bezig')) {
       m.push({ niveau: 'info', t: `wordt uitgefaseerd: afronden kan tot en met ${S.datumLang(e.sluitingsdatum)}.` });
@@ -167,6 +184,16 @@ const Planner = (() => {
     for (const b of state.plan.blokken) {
       for (const x of blokMeldingen(b)) meldingen.push({ niveau: x.niveau, t: `${b.code ? b.code + ' ' : ''}${b.naam} ${x.t}`, uid: b.uid });
     }
+    for (let i = Math.max(state.nu, hStart()); i <= hEind(); i++) {
+      const lopend = blokkenIn(i);
+      if (lopend.length > 1) {
+        meldingen.push({ niveau: 'let', t: `In ${S.momentLabel(i)} volg je ${lopend.length} EvL's tegelijk (${lopend.length * 15} EC in 10 weken, normaal is 15 EC): ${lopend.map((b) => b.naam).join(', ')}. Dat kan extra studiedruk geven.` });
+      }
+    }
+    if (state.ingelezen && state.ingelezen.opgeslagen) {
+      const dagen = Math.floor((Date.now() - new Date(state.ingelezen.opgeslagen).getTime()) / 864e5);
+      if (dagen >= 90) meldingen.push({ niveau: 'let', t: `Dit plan is ${dagen} dagen geleden voor het laatst opgeslagen. Bespreek met je studiecoach of het herzien moet worden.` });
+    }
     const ontbreekt = state.cat.evls.filter((e) => e.verplicht && !state.plan.blokken.some((b) => b.evl === e.id && actief(b)));
     if (ontbreekt.length) meldingen.push({ niveau: 'let', t: `Nog niet ingepland (verplicht): ${ontbreekt.map((e) => e.naam).join(', ')}.` });
     const doel = state.cat.totaalEC;
@@ -177,7 +204,28 @@ const Planner = (() => {
   }
 
   // ---------- render ----------
+  const datumTijd = (isoTijd) => new Date(isoTijd).toLocaleString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  function leeftijd(isoTijd) {
+    const d = Math.floor((Date.now() - new Date(isoTijd).getTime()) / 864e5);
+    if (d <= 0) return 'vandaag';
+    if (d === 1) return 'gisteren';
+    if (d < 60) return `${d} dagen geleden`;
+    return `${Math.round(d / 30.4)} maanden geleden`;
+  }
+  function renderPlanInfo() {
+    const el = $('#plan-info');
+    const ing = state.ingelezen;
+    if (!ing || !ing.opgeslagen) { el.hidden = true; return; }
+    const dagen = Math.floor((Date.now() - new Date(ing.opgeslagen).getTime()) / 864e5);
+    el.hidden = false;
+    el.className = 'plan-info' + (dagen >= 90 ? ' oud' : '');
+    el.innerHTML = `Dit plan is laatst opgeslagen als PDF op <b>${S.esc(datumTijd(ing.opgeslagen))}</b> (${S.esc(leeftijd(ing.opgeslagen))}).`
+      + (ing.eersteVersie && ing.eersteVersie !== ing.opgeslagen ? ` Eerste versie: ${S.esc(datumTijd(ing.eersteVersie))}.` : '')
+      + (dagen >= 90 ? ' Dit plan is al wat ouder: bespreek of het herzien moet worden.' : '');
+  }
+
   function render() {
+    renderPlanInfo();
     renderLijst();
     renderRooster();
     renderVrij();
@@ -205,7 +253,7 @@ const Planner = (() => {
       else if (S.nogNietActief(e)) looptijd = `<span class="tag">nieuw vanaf ${S.esc(S.datumLang(e.ingangsdatum))}</span>`;
       else if (e.sluitingsdatum) looptijd = `<span class="tag verpl">t/m ${S.esc(S.datumLang(e.sluitingsdatum))}</span>`;
       const gekozen = (state.sel && state.sel.type === 'evl' && state.sel.id === e.id) ? ' gekozen' : '';
-      html.push(`<div class="evl-kaart${inPlan.length ? ' ingepland' : ''}${gekozen}" draggable="true" data-evl="${S.esc(e.id)}" style="--kleur:${S.esc(S.kleurVoor(state.cat, e))}">
+      html.push(`<div class="evl-kaart ec${e.ec}${inPlan.length ? ' ingepland' : ''}${gekozen}" draggable="true" data-evl="${S.esc(e.id)}" style="--kleur:${S.esc(S.kleurVoor(state.cat, e))}">
         <div class="t">${e.code ? `<small>${S.esc(e.code)}</small> ` : ''}${S.esc(e.naam)}</div>
         <div class="m"><span>${e.ec} EC · ${S.weken(e)} wk</span>${heeftF ? '<span class="tag f">fysiek</span>' : ''}${heeftL ? '<span class="tag lwo">LWO</span>' : ''}${e.verplicht ? '<span class="tag verpl">verplicht</span>' : ''}${looptijd}${plek ? `<span>✓ ${S.esc(plek)}</span>` : ''}</div>
       </div>`);
@@ -213,10 +261,47 @@ const Planner = (() => {
     $('#evl-lijst').innerHTML = html.join('') || '<p class="uitleg">Geen EvL\'s gevonden.</p>';
   }
 
+  // Verdeel de blokken van één schooljaar over banen (rijen), zodat EvL's die tegelijk
+  // lopen onder elkaar komen te staan. Een 30 EC-blok is altijd 2 kolommen breed.
+  function rijIndeling(j) {
+    const segs = [];
+    for (const b of state.plan.blokken) {
+      if (b.start == null) continue;
+      const s = Math.max(b.start, S.abs(j, 1));
+      const eind = Math.min(blokEind(b), S.abs(j, S.PER));
+      if (s > eind) continue;
+      segs.push({ b, s, eind, vervolg: s !== b.start });
+    }
+    segs.sort((x, y) => x.s - y.s || (y.eind - y.s) - (x.eind - x.s) || (actief(y.b) - actief(x.b)));
+    const banen = [];
+    for (const g of segs) {
+      let L = banen.findIndex((laatste) => laatste < g.s);
+      if (L < 0) { L = banen.length; banen.push(0); }
+      banen[L] = g.eind;
+      g.baan = L;
+    }
+    return { segs, banen: Math.max(1, banen.length) };
+  }
+
+  // Positie van vandaag: periode en fractie binnen die periode.
+  function vandaagPositie() {
+    const vandaag = S.vandaag();
+    let res = null;
+    for (let i = hStart() - S.PER; i <= hEind(); i++) {
+      const st = S.periodeStart(state.cat, i), ei = S.periodeEind(state.cat, i);
+      if (st > vandaag) break;
+      const dur = (new Date(ei) - new Date(st)) || 1;
+      res = { i, frac: Math.min(1, Math.max(0, (new Date(vandaag) - new Date(st)) / dur)) };
+    }
+    return res;
+  }
+
   function renderRooster() {
     const h0 = hStart(), h1 = hEind();
     const rijen = [];
+    const vp = vandaagPositie();
     for (let j = S.jaarVan(h0); j <= S.jaarVan(h1); j++) {
+      const { segs, banen } = rijIndeling(j);
       const cel = [];
       for (let p = 1; p <= S.PER; p++) {
         const i = S.abs(j, p);
@@ -224,19 +309,19 @@ const Planner = (() => {
         if (i < h0 || i > h1) cls.push('buiten');
         else if (i < state.nu) cls.push('verleden');
         if (i === state.nu) cls.push('nu');
-        const lab = i < h0 ? 'vóór instroom' : `${i === h0 ? 'instroom · ' : ''}${i === state.nu ? 'nu · ' : ''}${S.periodeDatums(state.cat, i)}`;
-        cel.push(`<div class="${cls.join(' ')}" data-i="${i}" style="grid-column:${p + 1}" title="${S.esc(S.momentLabel(i) + ': ' + S.periodeDatums(state.cat, i))}"><span class="datum">${S.esc(lab)}</span></div>`);
+        const druk = i >= state.nu && i >= h0 && blokkenIn(i).length > 1;
+        if (druk) cls.push('druk');
+        const lab = i < h0 ? 'vóór instroom' : `${druk ? '⚠ extra studiedruk · ' : ''}${i === h0 ? 'instroom · ' : ''}${S.periodeDatums(state.cat, i)}`;
+        cel.push(`<div class="${cls.join(' ')}" data-i="${i}" style="grid-column:${p + 1};grid-row:1 / -1" title="${S.esc(S.momentLabel(i) + ': ' + S.periodeDatums(state.cat, i) + (druk ? '. ' + DRUK_TEKST : ''))}"><span class="datum">${S.esc(lab)}</span></div>`);
       }
-      const blokken = [];
-      for (const b of state.plan.blokken) {
-        if (b.start == null) continue;
-        const s = Math.max(b.start, S.abs(j, 1));
-        const eind = Math.min(blokEind(b), S.abs(j, S.PER));
-        if (s > eind) continue;
-        blokken.push(blokHtml(b, S.periodeVan(s), eind - s + 1, s !== b.start));
+      const blokken = segs.map((g) => blokHtml(g.b, S.periodeVan(g.s), g.eind - g.s + 1, g.vervolg, g.baan + 1));
+      let lijn = '';
+      if (vp && S.jaarVan(vp.i) === j) {
+        lijn = `<div class="vandaag" style="grid-column:${S.periodeVan(vp.i) + 1};grid-row:1 / -1;--pos:${(vp.frac * 100).toFixed(1)}%"><span>vandaag ${S.esc(S.datumKort(S.vandaag()))}</span></div>`;
       }
       const jaarNr = j - S.jaarVan(h0) + 1;
-      rijen.push(`<div class="jaar"><div class="label">${S.jaarLabel(j)}<small>studiejaar ${jaarNr}</small></div>${cel.join('')}${blokken.join('')}</div>`);
+      const voorlopig = S.datumsVoorlopig(state.cat, j) ? '<small class="voorlopig">datums volgen</small>' : '';
+      rijen.push(`<div class="jaar" style="--banen:${banen}"><div class="label" style="grid-row:1 / -1">${S.jaarLabel(j)}<small>studiejaar ${jaarNr}</small>${voorlopig}</div>${cel.join('')}${blokken.join('')}${lijn}</div>`);
     }
     $('#rooster').innerHTML = rijen.join('');
     $('#kolomkop').innerHTML = '<div></div>' + [1, 2, 3, 4].map((p) => `<div>Periode ${p} · ${S.maandVan(state.cat, p)}<br><small>10 weken</small></div>`).join('');
@@ -253,7 +338,7 @@ const Planner = (() => {
       : '';
   }
 
-  function blokHtml(b, p, span, vervolg) {
+  function blokHtml(b, p, span, vervolg, rij = 1) {
     const e = blokEvl(b);
     const m = blokMeldingen(b);
     const fout = m.find((x) => x.niveau === 'fout');
@@ -273,9 +358,10 @@ const Planner = (() => {
       if (b.status === 'behaald' || b.status === 'niet-behaald') {
         lw += `<select data-status="${b.uid}" title="Resultaat"><option value="behaald"${b.status === 'behaald' ? ' selected' : ''}>Behaald</option><option value="niet-behaald"${b.status === 'niet-behaald' ? ' selected' : ''}>Niet behaald</option></select>`;
       } else if (b.status === 'bezig') lw += '<span class="tag">loopt nu</span>';
+      if (b.status === 'gepland' && S.onderVoorbehoud(e, b.start)) lw += '<span class="tag vb" title="Nog niet bekend of en wanneer deze EvL in dit schooljaar gegeven wordt">onder voorbehoud</span>';
     }
     const melding = !vervolg && (fout || let_) ? `<div class="melding${fout ? '' : ' let'}">⚠ ${S.esc((fout || let_).t)}</div>` : '';
-    return `<div class="${cls.join(' ')}" draggable="true" data-blok="${b.uid}" style="grid-column:${p + 1} / span ${span};--kleur:${S.esc(S.kleurVoor(state.cat, e))}">
+    return `<div class="${cls.join(' ')}" draggable="true" data-blok="${b.uid}" style="grid-column:${p + 1} / span ${span};grid-row:${rij};--kleur:${S.esc(S.kleurVoor(state.cat, e))}">
       <div class="r kopregel"><div class="t">${e.code ? `<small>${S.esc(e.code)}</small> ` : ''}${S.esc(e.naam)}${vervolg ? ' <small>(vervolg)</small>' : ''}</div>${vervolg ? '' : `<button class="x" data-weg="${b.uid}" title="Verwijderen" type="button">✕</button>`}</div>
       <div class="r"><span class="tag grijs">${e.ec} EC</span>${lw}</div>${melding}
     </div>`;
@@ -303,7 +389,7 @@ const Planner = (() => {
   function markeer() {
     const sel = state.drag || state.sel;
     const cellen = document.querySelectorAll('.cel');
-    cellen.forEach((c) => c.classList.remove('kan-f', 'kan-lwo', 'kan-verleden', 'kan-niet'));
+    cellen.forEach((c) => c.classList.remove('kan-f', 'kan-lwo', 'kan-verleden', 'kan-niet', 'kan-druk', 'kan-vb'));
     $('#vrij-zone').classList.toggle('kan', !!sel);
     const hint = $('#hint');
     if (!sel) { hint.hidden = true; return; }
@@ -316,6 +402,8 @@ const Planner = (() => {
       if (!k.ok) c.classList.add('kan-niet');
       else if (k.verleden) c.classList.add('kan-verleden');
       else c.classList.add(k.leerwegen.includes('fysiek') ? 'kan-f' : 'kan-lwo');
+      if (k.ok && k.extraDruk.length && !k.verleden) c.classList.add('kan-druk');
+      if (k.ok && k.voorbehoud) c.classList.add('kan-vb');
     });
     if (state.sel && !state.drag) {
       hint.hidden = false;
@@ -328,15 +416,18 @@ const Planner = (() => {
     const dlg = $('#dlg-keuze');
     $('#keuze-titel').textContent = `Start in ${S.momentLabel(i)}`;
     const verleden = i < state.nu;
-    $('#keuze-uitleg').textContent = verleden
+    const lopend = blokkenIn(i);
+    $('#keuze-uitleg').textContent = (verleden
       ? 'Deze periode is voorbij. Kies welke EvL je hier gevolgd hebt.'
-      : 'Deze EvL\'s kun je in deze periode starten.';
+      : 'Deze EvL\'s kun je in deze periode starten.')
+      + (lopend.length && !verleden ? ` Je volgt hier al ${lopend.map((b) => b.naam).join(', ')}. ${DRUK_TEKST}` : '')
+      + ` (${S.periodeDatums(state.cat, i)})`;
     const opties = state.cat.evls.map((e) => ({ e, k: kanPlaatsen(e.id, i) })).filter((x) => x.k.ok);
     $('#keuze-lijst').innerHTML = opties.length ? opties.map(({ e, k }) => {
       const knoppen = verleden
         ? `<button class="btn klein primair" data-kies="${S.esc(e.id)}" data-lw="fysiek" type="button">Gevolgd</button>`
         : k.leerwegen.map((l) => `<button class="btn klein${l === 'fysiek' ? ' primair' : ''}" data-kies="${S.esc(e.id)}" data-lw="${l}" type="button">${S.esc(S.leerwegNaam(l))}</button>`).join('');
-      return `<div class="keuze" style="--kleur:${S.esc(S.kleurVoor(state.cat, e))}"><div class="info"><b>${S.esc(e.code ? e.code + ' ' : '')}${S.esc(e.naam)}</b><small>${e.ec} EC · ${S.weken(e)} weken${e.verplicht ? ' · verplicht' : ''}</small></div>${knoppen}</div>`;
+      return `<div class="keuze" style="--kleur:${S.esc(S.kleurVoor(state.cat, e))}"><div class="info"><b>${S.esc(e.code ? e.code + ' ' : '')}${S.esc(e.naam)}</b><small>${e.ec} EC · ${S.weken(e)} weken${e.verplicht ? ' · verplicht' : ''}${k.voorbehoud ? ' · onder voorbehoud' : ''}</small></div>${knoppen}</div>`;
     }).join('') : '<p>Er is hier niets (meer) te kiezen. Misschien is de periode al bezet, of staat alles wat hier wordt aangeboden al in je plan.</p>';
     dlg.dataset.i = i;
     dlg.showModal();
@@ -357,7 +448,7 @@ const Planner = (() => {
     $('#info-inhoud').innerHTML = `
       ${e.beschrijving ? `<p>${S.esc(e.beschrijving)}</p>` : ''}
       <p><b>${e.ec} EC</b> · ${S.weken(e)} weken${e.categorie ? ' · ' + S.esc(e.categorie) : ''}${e.verplicht ? ' · <span class="tag verpl">verplicht</span>' : ''}</p>
-      ${b ? `<p><b>In je plan:</b> ${b.start == null ? 'vrijstelling' : `${S.momentLabel(b.start)}${blokDuur(b) > 1 ? ' t/m ' + S.momentLabel(blokEind(b)) : ''} (${S.datumLang(S.periodeStart(state.cat, b.start))} – ${S.datumLang(S.periodeEind(state.cat, blokEind(b)))}) · ${S.esc(S.leerwegNaam(b.leerweg))}`} · ${S.esc(S.STATUS[b.status] || b.status)}</p>` : ''}
+      ${b ? `<p><b>In je plan:</b> ${b.start == null ? 'vrijstelling' : `${S.momentLabel(b.start)}${blokDuur(b) > 1 ? ' t/m ' + S.momentLabel(blokEind(b)) : ''} (${S.startTekst(state.cat, b.start)} – ${S.eindTekst(state.cat, blokEind(b))}) · ${S.esc(S.leerwegNaam(b.leerweg))}`} · ${S.esc(S.STATUS[b.status] || b.status)}</p>` : ''}
       ${m.length ? `<ul class="meldingen">${m.map((x) => `<li class="${x.niveau === 'fout' ? 'fout' : ''}">${S.esc(e.naam + ' ' + x.t)}</li>`).join('')}</ul>` : ''}
       <p><b>Aanbod:</b> ${S.esc(S.aanbodTekst(e))}</p>
       ${S.looptijdTekst(e) ? `<p><b>Looptijd:</b> ${S.esc(S.looptijdTekst(e))}</p>` : ''}
@@ -382,13 +473,13 @@ const Planner = (() => {
   }
 
   let toastTimer = null;
-  function toast(t) {
+  function toast(t, ms = 4500) {
     let el = document.querySelector('.melding-toast');
     if (!el) { el = document.createElement('div'); el.className = 'melding-toast'; document.body.appendChild(el); }
     el.textContent = t;
     el.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { el.hidden = true; }, 4500);
+    toastTimer = setTimeout(() => { el.hidden = true; }, ms);
   }
 
   // ---------- selectie ----------
@@ -433,7 +524,7 @@ const Planner = (() => {
   function vulPeriodes(j) {
     const sel = $('#f-startperiode');
     const oud = sel.value;
-    sel.innerHTML = [1, 2, 3, 4].map((p) => `<option value="${p}">Periode ${p} – start ${S.esc(S.datumLang(S.periodeStart(state.cat, S.abs(j, p))))}</option>`).join('');
+    sel.innerHTML = [1, 2, 3, 4].map((p) => `<option value="${p}">Periode ${p} – start ${S.esc(S.startTekst(state.cat, S.abs(j, p)))}</option>`).join('');
     if (oud) sel.value = oud;
   }
 
@@ -451,8 +542,9 @@ const Planner = (() => {
   function exportData() {
     leesFormulier();
     const p = state.plan;
+    const nu = new Date().toISOString();
     return {
-      app: 'fontys-studieplanner', formaat: 1, gemaakt: new Date().toISOString(),
+      app: 'fontys-studieplanner', formaat: 1, gemaakt: nu, eersteVersie: p.eersteVersie || nu,
       opleiding: state.cat.opleiding, catalogusVersie: state.cat.versie || '',
       student: p.student, start: S.momentKey(hStart()), jaren: p.jaren,
       blokken: p.blokken.map((b) => ({ evl: b.evl, code: b.code, naam: b.naam, ec: b.ec, start: b.start == null ? null : S.momentKey(b.start), leerweg: b.leerweg, status: b.status })),
@@ -466,6 +558,7 @@ const Planner = (() => {
     p.student = { naam: '', nummer: '', coach: '', opmerkingen: '', ...(d.student || {}) };
     if (start != null) { p.startJaar = S.jaarVan(start); p.startPeriode = S.periodeVan(start); }
     p.jaren = Math.min(12, Math.max(1, Number(d.jaren) || 4));
+    p.eersteVersie = d.eersteVersie || d.gemaakt || null;
     p.blokken = d.blokken.map((x) => {
       const b = { uid: S.uid(), evl: String(x.evl), code: x.code || '', naam: x.naam || String(x.evl), ec: Number(x.ec) || 15, start: x.start == null ? null : S.parseMoment(x.start), leerweg: x.leerweg || 'fysiek', status: x.status || '' };
       return b;
@@ -478,11 +571,12 @@ const Planner = (() => {
     for (const b of p.blokken) autoStatus(b);
     state.sel = null;
     state.gewijzigd = false;
+    state.ingelezen = { opgeslagen: d.gemaakt || null, eersteVersie: p.eersteVersie };
     vulFormulier();
     render();
     const anders = d.catalogusVersie && state.cat.versie && d.catalogusVersie !== state.cat.versie;
     const fouten = overzicht().meldingen.filter((m) => m.niveau === 'fout').length;
-    toast(`Plan ingelezen${p.student.naam ? ' van ' + p.student.naam : ''}.` + (anders ? ' Het aanbod is sindsdien gewijzigd: kijk bij Overzicht wat er aangepast moet worden.' : '') + (fouten ? ` ${fouten} blok(ken) moeten verplaatst worden.` : ''));
+    return (anders ? ' Het aanbod is sindsdien gewijzigd: kijk bij Overzicht wat er aangepast moet worden.' : '') + (fouten ? ` ${fouten} blok(ken) moeten verplaatst worden.` : '');
   }
 
   async function leesPdf(file) {
@@ -490,7 +584,9 @@ const Planner = (() => {
       const buf = await file.arrayBuffer();
       const d = S.decodePlanFromPdfBytes(buf);
       if (!d) throw new Error('In dit PDF is geen studieplan gevonden. Gebruik het originele PDF dat met "Opslaan als PDF" is gemaakt.');
-      importData(d);
+      const extra = importData(d);
+      const naam = state.plan.student.naam ? ' van ' + state.plan.student.naam : '';
+      toast(`Plan ingelezen${naam}${d.gemaakt ? `, opgeslagen op ${datumTijd(d.gemaakt)} (${leeftijd(d.gemaakt)})` : ''}.${extra}`, 8000);
     } catch (e) {
       toast(e.message || 'Kon het PDF niet lezen.');
     }
@@ -537,6 +633,21 @@ const Planner = (() => {
       } else state.drag = { type: 'blok', uid: k.dataset.blok };
       ev.dataTransfer.effectAllowed = 'move';
       ev.dataTransfer.setData('text/plain', k.dataset.evl || k.dataset.blok);
+      // Sleepbeeld op ware grootte: 30 EC is twee periodes breed, 15 EC één.
+      const sb = state.drag.type === 'blok' ? state.plan.blokken.find((x) => x.uid === state.drag.uid) : null;
+      const se = sb ? blokEvl(sb) : evlVan(state.drag.id);
+      const cel = document.querySelector('.cel:not(.buiten)') || document.querySelector('.cel');
+      if (se && cel && ev.dataTransfer.setDragImage && !k.classList.contains('blok')) {
+        const d = S.duur(se), w = cel.getBoundingClientRect().width;
+        const g = document.createElement('div');
+        g.className = 'sleep-ghost';
+        g.style.width = Math.round(w * d + 6 * (d - 1)) + 'px';
+        g.style.setProperty('--kleur', S.kleurVoor(state.cat, se));
+        g.innerHTML = `<b>${S.esc((se.code ? se.code + ' ' : '') + se.naam)}</b><span>${se.ec} EC · ${S.weken(se)} weken</span>`;
+        document.body.appendChild(g);
+        ev.dataTransfer.setDragImage(g, 24, 20);
+        setTimeout(() => g.remove(), 0);
+      }
       // klasse pas na de start zetten, anders annuleert Chrome het slepen
       setTimeout(() => { document.body.classList.add('sleept'); markeer(); }, 0);
     });
@@ -594,8 +705,9 @@ const Planner = (() => {
       const blok = ev.target.closest('.blok');
       if (blok) {
         if (state.sel) {
-          // klik op een blok tijdens kiezen: kies de onderliggende periode niet, toon info
-          toast('Deze periode is bezet. Kies een vrije, gekleurde periode.');
+          // tijdens kiezen: de periode onder het blok is het doel (EvL's mogen tegelijk lopen)
+          const onder = document.elementsFromPoint(ev.clientX, ev.clientY).find((el) => el.classList && el.classList.contains('cel'));
+          if (onder && !onder.classList.contains('buiten')) doelBereikt(Number(onder.dataset.i));
           return;
         }
         toonInfo(null, blok.dataset.blok);
@@ -641,7 +753,7 @@ const Planner = (() => {
     // kopknoppen
     $('#btn-nieuw').addEventListener('click', () => {
       if (state.plan.blokken.length && !confirm('Een nieuw plan beginnen? Je huidige plan gaat verloren als je het niet als PDF hebt opgeslagen.')) return;
-      state.plan = leegPlan(); state.sel = null; state.gewijzigd = false;
+      state.plan = leegPlan(); state.sel = null; state.gewijzigd = false; state.ingelezen = null;
       vulFormulier(); render();
     });
     $('#btn-inlezen').addEventListener('click', () => {
@@ -664,8 +776,11 @@ const Planner = (() => {
     $('#btn-opslaan').addEventListener('click', () => {
       leesFormulier();
       try {
-        StudiePdf.maak(api);
+        const d = StudiePdf.maak(api);
         state.gewijzigd = false;
+        if (!state.plan.eersteVersie) state.plan.eersteVersie = d.eersteVersie;
+        state.ingelezen = { opgeslagen: d.gemaakt, eersteVersie: state.plan.eersteVersie };
+        renderPlanInfo();
       } catch (e) {
         console.error(e);
         toast('Het maken van het PDF is mislukt: ' + e.message);
@@ -693,7 +808,7 @@ const Planner = (() => {
     render();
   }
 
-  const api = { state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
+  const api = { rijIndeling, vandaagPositie, blokkenIn, state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
   document.addEventListener('DOMContentLoaded', start);
   return api;
 })();

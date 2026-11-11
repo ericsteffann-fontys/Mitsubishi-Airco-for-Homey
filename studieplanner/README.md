@@ -3,7 +3,8 @@
 Een webapp waarmee een student, samen met de studiecoach, het eigen studieprogramma samenstelt uit **Eenheden van Leeruitkomsten (EvL's)** voor de hele duur van de studie.
 
 - Elk schooljaar heeft **4 periodes van 10 weken** tussen september en juli (start rond september, november, februari en april). De datums staan in het rooster.
-- EvL's van **15 EC (10 weken, 1 periode)** en **30 EC (20 weken, 2 periodes)**.
+- EvL's van **15 EC (10 weken, 1 periode)** en **30 EC (20 weken, 2 periodes)**. Een 30 EC-blok is ook visueel twee keer zo groot: in de lijst, tijdens het slepen en in het rooster.
+- Een student kan **meerdere EvL's tegelijk** volgen. Dat is toegestaan, maar de app meldt dat het extra studiedruk kan geven. De student hoeft niets te bevestigen.
 - EvL's kunnen worden **ingefaseerd** (ingangsdatum) en **uitgefaseerd** (sluitingsdatum). Een student kan een EvL alleen plaatsen binnen die looptijd.
 - Per EvL stel je in **beheer** in wanneer hij kan starten, per leerweg: **fysiek** en/of **leerwegonafhankelijk (LWO)**.
 - De student kan alleen kiezen wat op dat moment wordt aangeboden. Wordt een EvL fysiek niet aangeboden maar wel LWO, dan kan de student LWO kiezen.
@@ -24,10 +25,11 @@ Een webapp waarmee een student, samen met de studiecoach, het eigen studieprogra
    - Een EvL van 30 EC beslaat 2 periodes. Bij start in P4 loopt hij door in P1 van het volgende jaar.
 3. **Schuiven**: sleep een blok naar een andere periode, of tik op het blok en kies *Verplaatsen*. Terugslepen naar de lijst = verwijderen.
 4. **Al bezig met de studie (instappen)**: periodes die voorbij zijn, zijn grijs. Zet daar de EvL's die je al gevolgd hebt en kies *Behaald* of *Niet behaald*. Een niet-behaalde EvL kun je opnieuw inplannen. Vrijstellingen sleep je naar *Vrijstellingen / elders behaald*.
-5. Het rooster toont 4 periodes per schooljaar. Met **+ Schooljaar toevoegen** breid je het uit naar volgende schooljaren (bijvoorbeeld bij uitloop). Met *Laatste schooljaar weghalen* haal je een leeg jaar weer weg.
-6. Onder **Overzicht** staan de EC-tellers en aandachtspunten: verplichte EvL's die nog ontbreken, voorwaarden ("eerst nodig") en blokken die niet (meer) worden aangeboden.
-7. **Opslaan als PDF**: je krijgt een PDF met het overzicht per schooljaar, alle gekozen EvL's met **contactpersonen** voor inhoudelijke vragen, de aandachtspunten en de afspraken met je studiecoach.
-8. **PDF inlezen**: kies het PDF (of sleep het op de pagina), dan wordt het plan weer opgebouwd. Is het aanbod sindsdien gewijzigd, dan ziet de student meteen welke blokken verplaatst moeten worden.
+5. Een **rode lijn** in het rooster laat zien waar je vandaag staat. Volg je in een periode meer dan één EvL, dan staan de blokken onder elkaar en wordt de periode oranje gemarkeerd (*extra studiedruk*). Een EvL met *onder voorbehoud* kan nog wijzigen: het is nog niet bekend of en wanneer hij dan gegeven wordt. "Datum volgt" betekent dat de periodedatums van dat schooljaar nog niet vaststaan.
+6. Het rooster toont 4 periodes per schooljaar. Met **+ Schooljaar toevoegen** breid je het uit naar volgende schooljaren (bijvoorbeeld bij uitloop). Met *Laatste schooljaar weghalen* haal je een leeg jaar weer weg.
+7. Onder **Overzicht** staan de EC-tellers en aandachtspunten: verplichte EvL's die nog ontbreken, voorwaarden ("eerst nodig") en blokken die niet (meer) worden aangeboden.
+8. **Opslaan als PDF**: je krijgt een PDF met het overzicht per schooljaar, alle gekozen EvL's met **contactpersonen** voor inhoudelijke vragen, de aandachtspunten en de afspraken met je studiecoach. Bovenaan staan **datum en tijd van opslaan** (en de datum van de eerste versie), en een rode lijn in het overzicht markeert de opslagdatum. Zo ziet de studiecoach hoe oud de planning is.
+9. **PDF inlezen**: kies het PDF (of sleep het op de pagina), dan wordt het plan weer opgebouwd. Is het aanbod sindsdien gewijzigd, dan ziet de student meteen welke blokken verplaatst moeten worden. De app toont wanneer het plan is opgeslagen ("… dagen geleden"). Is het plan ouder dan 90 dagen, dan volgt een melding om te bespreken of het herzien moet worden.
 
 ### Hoe het PDF ingelezen kan worden
 
@@ -44,8 +46,9 @@ Ga naar `/beheer` en log in met de pincode (`ADMIN_PIN`).
   - *Doorlopend*: start in elke periode
   - *Elk schooljaar in vaste periodes*, bijvoorbeeld P1 en P3
   - *Specifieke startmomenten per schooljaar*: een raster van schooljaar × periode, voor aanbod dat per jaar verschilt. Met *Vul met vaste periodes* zet je snel een patroon neer en pas je daarna uitzonderingen aan.
+- **Aanbod nog niet bekend**: vink per EvL de schooljaren aan waarin nog niet vaststaat óf en wanneer hij gegeven wordt. Studenten kunnen hem daar in elke periode inplannen (met de leerwegen die de EvL heeft), maar het blok staat *onder voorbehoud*. In het aanbodoverzicht staat zo'n periode als **?**.
 - **Aanbodoverzicht**: alle EvL's × alle periodes in één tabel (F / L / F+L).
-- **Instellingen**: opleiding, totaal EC (standaard 240), de schooljaren waarvoor aanbod geldt, en het datumpatroon: de startdatum van elke periode plus het einde van het schooljaar in juli. Wijkt een schooljaar af (de jaarplanning schuift elk jaar iets), pas dan de datums van dat jaar aan in *Datums per schooljaar*. Een periode loopt tot de dag vóór de volgende. Deze datums bepalen welke periodes voorbij zijn en of een EvL binnen zijn looptijd valt.
+- **Instellingen**: opleiding, totaal EC (standaard 240), de schooljaren waarvoor aanbod geldt, en het datumpatroon: de startdatum van elke periode plus het einde van het schooljaar in juli. Wijkt een schooljaar af (de jaarplanning schuift elk jaar iets), pas dan de datums van dat jaar aan in *Datums per schooljaar*. Zijn de datums van een schooljaar nog niet bekend, vink dan *nog niet bekend* aan. Studenten zien dan "± sep – nov (datum volgt)", en de app rekent met het patroon als schatting. Een periode loopt tot de dag vóór de volgende. Deze datums bepalen welke periodes voorbij zijn en of een EvL binnen zijn looptijd valt.
 
 **Opslaan** schrijft de catalogus naar `data/catalogus.json`, en de vorige versie gaat naar `data/backups/` (de laatste 50 blijven bewaard). Studenten zien de wijziging direct na het herladen van de pagina.
 

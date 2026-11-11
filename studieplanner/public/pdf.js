@@ -40,14 +40,19 @@ const StudiePdf = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.text(`${cat.instituut} · ${cat.opleiding}`, M, 16.5);
-    doc.text(`Gemaakt op ${datumNL()}`, W - M, 10, { align: 'right' });
-    doc.text(`Aanbod (catalogus) versie: ${cat.versie || '-'}`, W - M, 16.5, { align: 'right' });
+    const opgeslagen = new Date(data.gemaakt);
+    const tijd = opgeslagen.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Opgeslagen op ${datumNL(opgeslagen)} om ${tijd}`, W - M, 10, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    const eerste = data.eersteVersie && data.eersteVersie !== data.gemaakt ? `Eerste versie: ${datumNL(new Date(data.eersteVersie))} · ` : '';
+    doc.text(`${eerste}Aanbod versie: ${cat.versie || '-'}`, W - M, 16.5, { align: 'right' });
 
     doc.setTextColor(30, 27, 34);
     const st = plan.student;
     const regels = [
       ['Student', st.naam || '-'], ['Studentnummer', st.nummer || '-'], ['Studiecoach', st.coach || '-'],
-      ['Instroom', `${S.momentLabel(api.hStart())} (${S.datumLang(S.periodeStart(cat, api.hStart()))})`],
+      ['Instroom', `${S.momentLabel(api.hStart())} (${S.startTekst(cat, api.hStart())})`],
       ['EC', `${t.totaal} van ${cat.totaalEC} in plan (behaald ${t.behaald}, vrijstelling ${t.vrijstelling}, loopt ${t.bezig}, gepland ${t.gepland})`],
     ];
     let y = 30;
@@ -62,47 +67,88 @@ const StudiePdf = (() => {
     y += 12;
 
     // ---- overzicht per schooljaar ----
+    // EvL's die tegelijk lopen staan onder elkaar (één tabelrij per baan).
     const h0 = api.hStart(), h1 = api.hEind();
+    const bereik = (begin, eind) => (S.datumsVoorlopig(cat, S.jaarVan(begin))
+      ? `± ${S.maandKort(S.periodeStart(cat, begin))} – ${S.maandKort(S.periodeEind(cat, eind))} (datum volgt)`
+      : `${S.datumKort(S.periodeStart(cat, begin))} – ${S.datumKort(S.periodeEind(cat, eind))}`);
+    const GRIJS = [140, 135, 150];
     const body = [];
+    const rijJaar = []; // tabelrij -> schooljaar (voor de vandaag-lijn)
     for (let j = S.jaarVan(h0); j <= S.jaarVan(h1); j++) {
-      const rij = [{ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}`, styles: { fontStyle: 'bold' } }];
-      for (let p = 1; p <= S.PER; p++) {
-        const i = S.abs(j, p);
-        const datums = S.periodeDatums(cat, i);
-        if (i < h0) { rij.push({ content: `${datums}\nvóór instroom`, styles: { fillColor: [243, 242, 245], textColor: [140, 135, 150] } }); continue; }
-        const b = plan.blokken.find((x) => x.start != null && i >= x.start && i <= api.blokEind(x));
-        if (!b) { rij.push({ content: `${datums}${i === h0 ? '\ninstroom' : ''}`, styles: { textColor: [140, 135, 150] } }); continue; }
-        const begin = Math.max(b.start, S.abs(j, 1));
-        if (i !== begin) continue; // valt onder colSpan
-        const eind = Math.min(api.blokEind(b), S.abs(j, S.PER));
-        const e = api.blokEvl(b);
-        const fout = api.blokMeldingen(b).some((m) => m.niveau === 'fout');
-        const vervolg = begin !== b.start;
-        rij.push({
-          content: `${S.datumKort(S.periodeStart(cat, begin))} – ${S.datumKort(S.periodeEind(cat, eind))}\n${e.code ? e.code + ' ' : ''}${e.naam}${vervolg ? ' (vervolg)' : ''}\n${e.ec} EC · ${S.leerwegNaam(b.leerweg)} · ${S.STATUS[b.status] || b.status}${fout ? ' · LET OP' : ''}`,
-          colSpan: eind - begin + 1,
-          styles: { fillColor: fout ? [254, 226, 226] : KLEUR_STATUS[b.status] || [255, 255, 255] },
-        });
+      const { segs, banen } = api.rijIndeling(j);
+      for (let L = 0; L < banen; L++) {
+        const rij = [];
+        if (L === 0) rij.push({ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}${S.datumsVoorlopig(cat, j) ? '\ndatums volgen' : ''}`, rowSpan: banen, styles: { fontStyle: 'bold' } });
+        for (let p = 1; p <= S.PER; p++) {
+          const i = S.abs(j, p);
+          const g = segs.find((x) => x.baan === L && x.s <= i && i <= x.eind);
+          if (g) {
+            if (i !== g.s) continue; // valt onder colSpan
+            const b = g.b, e = api.blokEvl(b);
+            const fout = api.blokMeldingen(b).some((m) => m.niveau === 'fout');
+            const vb = b.status === 'gepland' && S.onderVoorbehoud(e, b.start);
+            const druk = b.status !== 'behaald' && b.status !== 'niet-behaald' && [...Array(g.eind - g.s + 1).keys()].some((k) => api.blokkenIn(g.s + k).length > 1);
+            rij.push({
+              content: `${bereik(g.s, g.eind)}\n${e.code ? e.code + ' ' : ''}${e.naam}${g.vervolg ? ' (vervolg)' : ''}\n${e.ec} EC · ${S.leerwegNaam(b.leerweg)} · ${S.STATUS[b.status] || b.status}${vb ? ' · onder voorbehoud' : ''}${druk ? ' · tegelijk met andere EvL' : ''}${fout ? ' · LET OP' : ''}`,
+              colSpan: g.eind - g.s + 1,
+              styles: { fillColor: fout ? [254, 226, 226] : KLEUR_STATUS[b.status] || [255, 255, 255], lineColor: druk ? [251, 146, 60] : [210, 205, 218] },
+            });
+          } else if (i < h0) {
+            rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}\nvóór instroom` : '', styles: { fillColor: [243, 242, 245], textColor: GRIJS } });
+          } else {
+            rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}${i === h0 ? '\ninstroom' : ''}` : '', styles: { textColor: GRIJS } });
+          }
+        }
+        body.push(rij);
+        rijJaar.push(j);
       }
-      body.push(rij);
     }
+    const kolom = {}; // periode -> { x, w }
+    const jaarY = {}; // schooljaar -> { y1, y2 }
     tabel({
       startY: y,
       head: [['Schooljaar', 'Periode 1', 'Periode 2', 'Periode 3', 'Periode 4']],
       body,
       theme: 'grid',
       styles: { fontSize: 8.5, cellPadding: 2, valign: 'middle', lineColor: [210, 205, 218], minCellHeight: 12 },
-      headStyles: { fillColor: PAARS, textColor: 255 },
+      headStyles: { fillColor: PAARS, textColor: 255, minCellHeight: 8 },
       columnStyles: (() => { const pw = (W - 2 * M - 28) / 4; return { 0: { cellWidth: 28 }, 1: { cellWidth: pw }, 2: { cellWidth: pw }, 3: { cellWidth: pw }, 4: { cellWidth: pw } }; })(),
       margin: { left: M, right: M },
+      didDrawCell: (d) => {
+        if (d.section === 'head' && d.column.index > 0) kolom[d.column.index] = { x: d.cell.x, w: d.cell.width };
+        if (d.section === 'body') {
+          const j = rijJaar[d.row.index];
+          const r = jaarY[j] || (jaarY[j] = { y1: Infinity, y2: -Infinity, pagina: doc.internal.getCurrentPageInfo().pageNumber });
+          r.y1 = Math.min(r.y1, d.cell.y); r.y2 = Math.max(r.y2, d.cell.y + d.cell.height);
+        }
+      },
     });
+    // Rode lijn op de datum van opslaan ('vandaag'), zodat de coach ziet waar de student toen stond.
+    const vp = api.vandaagPositie();
+    if (vp && kolom[S.periodeVan(vp.i)] && jaarY[S.jaarVan(vp.i)]) {
+      const k = kolom[S.periodeVan(vp.i)], r = jaarY[S.jaarVan(vp.i)];
+      const x = k.x + k.w * vp.frac;
+      const huidig = doc.internal.getCurrentPageInfo().pageNumber;
+      doc.setPage(r.pagina);
+      doc.setDrawColor(220, 38, 38); doc.setLineWidth(0.6);
+      doc.line(x, r.y1 - 1, x, r.y2 + 1);
+      const label = `opgeslagen ${S.datumKort(S.iso(opgeslagen))}`;
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+      const lw = doc.getTextWidth(label) + 3;
+      doc.setFillColor(220, 38, 38); doc.roundedRect(x - lw / 2, r.y1 - 4, lw, 3.6, 1.2, 1.2, 'F');
+      doc.setTextColor(255, 255, 255); doc.text(label, x, r.y1 - 1.3, { align: 'center' });
+      doc.setTextColor(30, 27, 34); doc.setLineWidth(0.2);
+      doc.setPage(huidig);
+    }
 
     // ---- EvL's met contactpersonen ----
     const volgorde = [...plan.blokken].sort((a, b) => (a.start == null ? -1 : a.start) - (b.start == null ? -1 : b.start));
     const rijen = volgorde.map((b) => {
       const e = api.blokEvl(b);
       const wanneer = b.start == null ? 'Vrijstelling' : S.momentLabel(b.start) + (api.blokDuur(b) > 1 ? ' t/m ' + S.momentLabel(api.blokEind(b)) : '')
-        + `\n${S.datumLang(S.periodeStart(cat, b.start))} – ${S.datumLang(S.periodeEind(cat, api.blokEind(b)))}`;
+        + `\n${S.startTekst(cat, b.start)} – ${S.eindTekst(cat, api.blokEind(b))}`
+        + (b.status === 'gepland' && S.onderVoorbehoud(e, b.start) ? '\nonder voorbehoud' : '');
       const contacten = (e.contacten || []).map((c) => [c.naam, c.email].filter(Boolean).join(' – ')).join('\n') || '-';
       const lt = S.looptijdTekst(e);
       return [e.code || '', e.naam + (lt ? `\n(looptijd ${lt})` : ''), String(e.ec), wanneer, b.start == null ? '-' : S.leerwegNaam(b.leerweg), S.STATUS[b.status] || b.status, contacten];
@@ -168,7 +214,7 @@ const StudiePdf = (() => {
 
     const naam = (st.naam || 'student').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     doc.save(`studieplan-${naam || 'student'}-${new Date().toISOString().slice(0, 10)}.pdf`);
-    return doc;
+    return data;
   }
 
   return { maak };

@@ -40,7 +40,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "p02",
@@ -70,7 +71,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "p03",
@@ -102,7 +104,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "p04",
@@ -134,7 +137,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h01",
@@ -170,7 +174,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h02",
@@ -202,7 +207,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h03",
@@ -231,7 +237,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h04",
@@ -264,7 +271,8 @@
         }
       },
       "sluitingsdatum": "2027-07-10",
-      "ingangsdatum": ""
+      "ingangsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h09",
@@ -294,7 +302,8 @@
         "lwo": {
           "modus": "doorlopend"
         }
-      }
+      },
+      "onbekendeJaren": []
     },
     {
       "id": "h05",
@@ -325,7 +334,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h06",
@@ -355,7 +365,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h07",
@@ -381,7 +392,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "h08",
@@ -390,7 +402,7 @@
       "ec": 15,
       "categorie": "Keuzeruimte",
       "verplicht": false,
-      "beschrijving": "Wordt alleen op specifieke momenten aangeboden.",
+      "beschrijving": "Wordt alleen op specifieke momenten aangeboden. Voor 2029-2030 is nog niet bekend of en wanneer.",
       "vereist": [],
       "contacten": [
         {
@@ -411,7 +423,10 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": [
+        2029
+      ]
     },
     {
       "id": "a01",
@@ -447,7 +462,8 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     },
     {
       "id": "a02",
@@ -480,9 +496,14 @@
         }
       },
       "ingangsdatum": "",
-      "sluitingsdatum": ""
+      "sluitingsdatum": "",
+      "onbekendeJaren": []
     }
   ],
   "jaarEinde": "07-10",
-  "periodeData": {}
+  "periodeData": {},
+  "datumsOnbekend": [
+    2030,
+    2031
+  ]
 }
