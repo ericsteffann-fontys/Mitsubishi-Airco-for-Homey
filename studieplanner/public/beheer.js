@@ -69,7 +69,7 @@
         <td>${S.esc(e.code || '')}</td>
         <td><b>${S.esc(e.naam)}</b><br><small class="status-tekst">${S.esc(e.categorie || '')}${e.verplicht ? ' · verplicht' : ''}</small></td>
         <td>${e.ec}</td>
-        <td><small>${S.esc(S.aanbodTekst(e))}</small></td>
+        <td><small>${S.esc(S.aanbodTekst(e))}${S.looptijdTekst(e) ? `<br><b>${S.esc(S.uitgefaseerd(e) ? 'Uitgefaseerd: ' : 'Looptijd: ')}</b>${S.esc(S.looptijdTekst(e))}` : ''}</small></td>
         <td style="white-space:nowrap"><button class="btn klein" data-op="${idx}" title="Omhoog" type="button">↑</button><button class="btn klein" data-neer="${idx}" title="Omlaag" type="button">↓</button></td>
       </tr>`).join('') || '<tr><td colspan="5">Nog geen EvL\'s.</td></tr>';
   }
@@ -111,6 +111,9 @@
         <div class="veld"><label for="e-cat">Categorie / fase</label><input id="e-cat" data-veld="categorie" list="cat-lijst" value="${S.esc(e.categorie || '')}"><datalist id="cat-lijst">${cats.map((c) => `<option value="${S.esc(c)}">`).join('')}</datalist></div>
         <div class="veld"><label for="e-kleur">Kleur (optioneel)</label><input id="e-kleur" type="color" data-veld="kleur" value="${S.esc(e.kleur || S.kleurVoor(cat, e))}"></div>
         <div class="veld"><label>Verplicht onderdeel</label><label style="display:inline-flex;gap:6px;align-items:center;font-weight:400;font-size:.9rem;color:inherit;margin-top:6px"><input type="checkbox" data-veld="verplicht" style="width:auto"${e.verplicht ? ' checked' : ''}> Ja, iedere student moet deze EvL halen</label></div>
+        <div class="veld"><label for="e-in">Ingangsdatum (infaseren)</label><input id="e-in" type="date" data-veld="ingangsdatum" value="${S.esc(e.ingangsdatum || '')}"></div>
+        <div class="veld"><label for="e-uit">Sluitingsdatum (uitfaseren)</label><input id="e-uit" type="date" data-veld="sluitingsdatum" value="${S.esc(e.sluitingsdatum || '')}"></div>
+        <div class="veld breed"><p class="uitleg" id="e-looptijd" style="margin:0">${looptijdUitleg(e)}</p></div>
         <div class="veld breed"><label for="e-besch">Korte beschrijving</label><textarea id="e-besch" data-veld="beschrijving">${S.esc(e.beschrijving || '')}</textarea></div>
       </div>
 
@@ -124,6 +127,14 @@
       <h3 style="margin:14px 0 2px;font-size:.95rem">Aanbod</h3>
       <p class="uitleg">Stel per leerweg in wanneer de EvL kan <b>starten</b>.${e.ec === 30 ? ' Deze EvL duurt 2 periodes: bij start in P4 loopt hij door tot en met P1 van het volgende schooljaar.' : ''} Studenten kunnen een leerwegonafhankelijke variant kiezen als de fysieke variant op dat moment niet wordt aangeboden.</p>
       ${S.LEERWEGEN.map((l) => leerwegHtml(e, l)).join('')}`;
+  }
+
+  function looptijdUitleg(e) {
+    if (e.ingangsdatum && e.sluitingsdatum && e.ingangsdatum > e.sluitingsdatum) return '<b style="color:var(--fout)">De ingangsdatum ligt na de sluitingsdatum.</b>';
+    const t = S.looptijdTekst(e);
+    return (t ? `Looptijd: ${S.esc(t)}. ` : 'Leeg laten = geen begin- of einddatum. ')
+      + 'Studenten kunnen deze EvL alleen plaatsen als hij op of na de ingangsdatum start en vóór of op de sluitingsdatum helemaal is afgerond'
+      + (e.ec === 30 ? ' (bij 30 EC dus inclusief de tweede periode).' : '.');
   }
 
   function leerwegHtml(e, l) {
@@ -148,7 +159,10 @@
   editor.addEventListener('input', (ev) => {
     const e = evl(); if (!e) return;
     const t = ev.target;
-    if (t.dataset.veld && t.type !== 'checkbox' && t.tagName !== 'SELECT') { e[t.dataset.veld] = t.value; markeer(); renderTabel(); }
+    if (t.dataset.veld && t.type !== 'checkbox' && t.tagName !== 'SELECT') {
+      e[t.dataset.veld] = t.value; markeer(); renderTabel();
+      if (t.type === 'date') $('#e-looptijd').innerHTML = looptijdUitleg(e);
+    }
     if (t.dataset.cnaam) { e.contacten[t.dataset.cnaam].naam = t.value; markeer(); }
     if (t.dataset.cmail) { e.contacten[t.dataset.cmail].email = t.value; markeer(); }
   });
@@ -234,6 +248,8 @@
     $('#i-eerste').value = cat.eersteSchooljaar;
     $('#i-laatste').value = cat.laatsteSchooljaar;
     cat.periodeStart.forEach((d, k) => { $('#i-p' + (k + 1)).value = d; });
+    $('#i-einde').value = cat.jaarEinde;
+    renderJaardatums();
     $('#subtitel').textContent = `${cat.instituut} · ${cat.opleiding}`;
   }
   document.querySelector('[data-paneel="instellingen"]').addEventListener('change', () => {
@@ -245,14 +261,50 @@
     cat.eersteSchooljaar = j1; cat.laatsteSchooljaar = j2;
     const ps = [1, 2, 3, 4].map((k) => $('#i-p' + k).value.trim());
     if (ps.every((d) => /^\d\d-\d\d$/.test(d))) cat.periodeStart = ps;
+    if (/^\d\d-\d\d$/.test($('#i-einde').value.trim())) cat.jaarEinde = $('#i-einde').value.trim();
+    renderJaardatums();
     $('#subtitel').textContent = `${cat.instituut} · ${cat.opleiding}`;
     markeer(); renderEditor();
+  });
+
+  // Tabel met de werkelijke datums per schooljaar; een aangepaste datum overschrijft het patroon.
+  function renderJaardatums() {
+    const rijen = [];
+    for (let j = cat.eersteSchooljaar; j <= cat.laatsteSchooljaar; j++) {
+      const eigen = cat.periodeData[j] || [];
+      const cellen = [0, 1, 2, 3, 4].map((k) => {
+        const waarde = k < 4 ? S.periodeStart(cat, S.abs(j, k + 1)) : S.periodeEind(cat, S.abs(j, 4));
+        const aangepast = S.isIso(eigen[k]);
+        return `<td><input type="date" data-jaar="${j}" data-k="${k}" value="${waarde}" style="${aangepast ? 'font-weight:700' : ''}"></td>`;
+      }).join('');
+      const iets = eigen.some((x) => S.isIso(x));
+      rijen.push(`<tr><th>${S.jaarLabel(j)}</th>${cellen}<td>${iets ? `<button class="btn klein" data-herstel="${j}" type="button">Patroon</button>` : ''}</td></tr>`);
+    }
+    $('#jaardatums').innerHTML = `<thead><tr><th>Schooljaar</th><th>Start P1</th><th>Start P2</th><th>Start P3</th><th>Start P4</th><th>Einde P4</th><th></th></tr></thead><tbody>${rijen.join('')}</tbody>`;
+  }
+  $('#jaardatums').addEventListener('change', (ev) => {
+    const t = ev.target;
+    if (!t.dataset.jaar) return;
+    ev.stopPropagation();
+    const j = t.dataset.jaar, k = Number(t.dataset.k);
+    const rij = (cat.periodeData[j] || ['', '', '', '', '']).slice();
+    const patroon = k < 4 ? S.patroonDatum(cat.periodeStart[k], Number(j)) : S.patroonDatum(cat.jaarEinde, Number(j));
+    rij[k] = S.isIso(t.value) && t.value !== patroon ? t.value : '';
+    if (rij.some((x) => S.isIso(x))) cat.periodeData[j] = rij; else delete cat.periodeData[j];
+    markeer(); renderJaardatums();
+  });
+  $('#jaardatums').addEventListener('click', (ev) => {
+    const j = ev.target.dataset && ev.target.dataset.herstel;
+    if (!j) return;
+    delete cat.periodeData[j];
+    markeer(); renderJaardatums();
   });
 
   // ---------- opslaan / JSON ----------
   function controleer() {
     for (const e of cat.evls) {
       if (!e.naam.trim()) return 'Er is een EvL zonder naam.';
+      if (e.ingangsdatum && e.sluitingsdatum && e.ingangsdatum > e.sluitingsdatum) return `Bij "${e.naam}" ligt de ingangsdatum na de sluitingsdatum.`;
       e.contacten = e.contacten.filter((c) => (c.naam || '').trim() || (c.email || '').trim());
     }
     return null;

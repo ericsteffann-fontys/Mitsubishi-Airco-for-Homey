@@ -47,7 +47,7 @@ const StudiePdf = (() => {
     const st = plan.student;
     const regels = [
       ['Student', st.naam || '-'], ['Studentnummer', st.nummer || '-'], ['Studiecoach', st.coach || '-'],
-      ['Start studie', S.momentLabel(api.hStart())],
+      ['Instroom', `${S.momentLabel(api.hStart())} (${S.datumLang(S.periodeStart(cat, api.hStart()))})`],
       ['EC', `${t.totaal} van ${cat.totaalEC} in plan (behaald ${t.behaald}, vrijstelling ${t.vrijstelling}, loopt ${t.bezig}, gepland ${t.gepland})`],
     ];
     let y = 30;
@@ -68,9 +68,10 @@ const StudiePdf = (() => {
       const rij = [{ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}`, styles: { fontStyle: 'bold' } }];
       for (let p = 1; p <= S.PER; p++) {
         const i = S.abs(j, p);
-        if (i < h0 || i > h1) { rij.push({ content: '', styles: { fillColor: [243, 242, 245] } }); continue; }
+        const datums = S.periodeDatums(cat, i);
+        if (i < h0) { rij.push({ content: `${datums}\nvóór instroom`, styles: { fillColor: [243, 242, 245], textColor: [140, 135, 150] } }); continue; }
         const b = plan.blokken.find((x) => x.start != null && i >= x.start && i <= api.blokEind(x));
-        if (!b) { rij.push({ content: '' }); continue; }
+        if (!b) { rij.push({ content: `${datums}${i === h0 ? '\ninstroom' : ''}`, styles: { textColor: [140, 135, 150] } }); continue; }
         const begin = Math.max(b.start, S.abs(j, 1));
         if (i !== begin) continue; // valt onder colSpan
         const eind = Math.min(api.blokEind(b), S.abs(j, S.PER));
@@ -78,7 +79,7 @@ const StudiePdf = (() => {
         const fout = api.blokMeldingen(b).some((m) => m.niveau === 'fout');
         const vervolg = begin !== b.start;
         rij.push({
-          content: `${e.code ? e.code + ' ' : ''}${e.naam}${vervolg ? ' (vervolg)' : ''}\n${e.ec} EC · ${S.leerwegNaam(b.leerweg)} · ${S.STATUS[b.status] || b.status}${fout ? ' · LET OP' : ''}`,
+          content: `${S.datumKort(S.periodeStart(cat, begin))} – ${S.datumKort(S.periodeEind(cat, eind))}\n${e.code ? e.code + ' ' : ''}${e.naam}${vervolg ? ' (vervolg)' : ''}\n${e.ec} EC · ${S.leerwegNaam(b.leerweg)} · ${S.STATUS[b.status] || b.status}${fout ? ' · LET OP' : ''}`,
           colSpan: eind - begin + 1,
           styles: { fillColor: fout ? [254, 226, 226] : KLEUR_STATUS[b.status] || [255, 255, 255] },
         });
@@ -100,9 +101,11 @@ const StudiePdf = (() => {
     const volgorde = [...plan.blokken].sort((a, b) => (a.start == null ? -1 : a.start) - (b.start == null ? -1 : b.start));
     const rijen = volgorde.map((b) => {
       const e = api.blokEvl(b);
-      const wanneer = b.start == null ? 'Vrijstelling' : S.momentLabel(b.start) + (api.blokDuur(b) > 1 ? ' t/m ' + S.momentLabel(api.blokEind(b)) : '');
+      const wanneer = b.start == null ? 'Vrijstelling' : S.momentLabel(b.start) + (api.blokDuur(b) > 1 ? ' t/m ' + S.momentLabel(api.blokEind(b)) : '')
+        + `\n${S.datumLang(S.periodeStart(cat, b.start))} – ${S.datumLang(S.periodeEind(cat, api.blokEind(b)))}`;
       const contacten = (e.contacten || []).map((c) => [c.naam, c.email].filter(Boolean).join(' – ')).join('\n') || '-';
-      return [e.code || '', e.naam, String(e.ec), wanneer, b.start == null ? '-' : S.leerwegNaam(b.leerweg), S.STATUS[b.status] || b.status, contacten];
+      const lt = S.looptijdTekst(e);
+      return [e.code || '', e.naam + (lt ? `\n(looptijd ${lt})` : ''), String(e.ec), wanneer, b.start == null ? '-' : S.leerwegNaam(b.leerweg), S.STATUS[b.status] || b.status, contacten];
     });
     doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
     let y2 = doc.lastAutoTable.finalY + 10;

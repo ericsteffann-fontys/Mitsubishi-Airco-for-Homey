@@ -88,6 +88,10 @@ function validateCatalog(c) {
     ids.add(e.id);
     if (typeof e.naam !== 'string' || !e.naam.trim()) return 'EvL zonder naam (' + e.id + ')';
     if (![15, 30].includes(Number(e.ec))) return 'EC moet 15 of 30 zijn (' + e.naam + ')';
+    for (const k of ['ingangsdatum', 'sluitingsdatum']) {
+      if (e[k] && !/^\d{4}-\d\d-\d\d$/.test(e[k])) return 'Ongeldige ' + k + ' (' + e.naam + ')';
+    }
+    if (e.ingangsdatum && e.sluitingsdatum && e.ingangsdatum > e.sluitingsdatum) return 'Ingangsdatum na sluitingsdatum (' + e.naam + ')';
   }
   const j1 = Number(c.eersteSchooljaar), j2 = Number(c.laatsteSchooljaar);
   if (!(j1 >= 2000 && j2 <= 2100 && j1 <= j2)) return 'Ongeldige schooljaren';

@@ -2,7 +2,9 @@
 
 Een webapp waarmee een student, samen met de studiecoach, het eigen studieprogramma samenstelt uit **Eenheden van Leeruitkomsten (EvL's)** voor de hele duur van de studie.
 
+- Elk schooljaar heeft **4 periodes van 10 weken** tussen september en juli (start rond september, november, februari en april). De datums staan in het rooster.
 - EvL's van **15 EC (10 weken, 1 periode)** en **30 EC (20 weken, 2 periodes)**.
+- EvL's kunnen worden **ingefaseerd** (ingangsdatum) en **uitgefaseerd** (sluitingsdatum). Een student kan een EvL alleen plaatsen binnen die looptijd.
 - Per EvL stel je in **beheer** in wanneer hij kan starten, per leerweg: **fysiek** en/of **leerwegonafhankelijk (LWO)**.
 - De student kan alleen kiezen wat op dat moment wordt aangeboden. Wordt een EvL fysiek niet aangeboden maar wel LWO, dan kan de student LWO kiezen.
 - **Er wordt niets over studenten opgeslagen.** Het plan wordt bewaard als PDF, dat de app later weer kan inlezen.
@@ -16,15 +18,16 @@ Een webapp waarmee een student, samen met de studiecoach, het eigen studieprogra
 
 ## Werken met de planner (student)
 
-1. Vul naam, studentnummer, studiecoach en het **startmoment** van je studie in (schooljaar + periode, dus ook februari-instroom).
+1. Vul naam, studentnummer, studiecoach en je **instroommoment** in: schooljaar + periode (met startdatum). Tussentijds instromen kan dus in elke periode. Periodes vóór je instroom zijn gearceerd.
 2. **Inplannen**: sleep een EvL uit de lijst naar een periode. Of tik op een EvL en daarna op een periode (werkt ook op telefoon/tablet). Of tik op een lege periode: dan zie je welke EvL's je daar kunt starten, per leerweg.
    - Groen = fysiek mogelijk, blauw = alleen leerwegonafhankelijk, grijs/doorzichtig = niet mogelijk.
    - Een EvL van 30 EC beslaat 2 periodes. Bij start in P4 loopt hij door in P1 van het volgende jaar.
 3. **Schuiven**: sleep een blok naar een andere periode, of tik op het blok en kies *Verplaatsen*. Terugslepen naar de lijst = verwijderen.
 4. **Al bezig met de studie (instappen)**: periodes die voorbij zijn, zijn grijs. Zet daar de EvL's die je al gevolgd hebt en kies *Behaald* of *Niet behaald*. Een niet-behaalde EvL kun je opnieuw inplannen. Vrijstellingen sleep je naar *Vrijstellingen / elders behaald*.
-5. Onder **Overzicht** staan de EC-tellers en aandachtspunten: verplichte EvL's die nog ontbreken, voorwaarden ("eerst nodig") en blokken die niet (meer) worden aangeboden.
-6. **Opslaan als PDF**: je krijgt een PDF met het overzicht per schooljaar, alle gekozen EvL's met **contactpersonen** voor inhoudelijke vragen, de aandachtspunten en de afspraken met je studiecoach.
-7. **PDF inlezen**: kies het PDF (of sleep het op de pagina), dan wordt het plan weer opgebouwd. Is het aanbod sindsdien gewijzigd, dan ziet de student meteen welke blokken verplaatst moeten worden.
+5. Het rooster toont 4 periodes per schooljaar. Met **+ Schooljaar toevoegen** breid je het uit naar volgende schooljaren (bijvoorbeeld bij uitloop). Met *Laatste schooljaar weghalen* haal je een leeg jaar weer weg.
+6. Onder **Overzicht** staan de EC-tellers en aandachtspunten: verplichte EvL's die nog ontbreken, voorwaarden ("eerst nodig") en blokken die niet (meer) worden aangeboden.
+7. **Opslaan als PDF**: je krijgt een PDF met het overzicht per schooljaar, alle gekozen EvL's met **contactpersonen** voor inhoudelijke vragen, de aandachtspunten en de afspraken met je studiecoach.
+8. **PDF inlezen**: kies het PDF (of sleep het op de pagina), dan wordt het plan weer opgebouwd. Is het aanbod sindsdien gewijzigd, dan ziet de student meteen welke blokken verplaatst moeten worden.
 
 ### Hoe het PDF ingelezen kan worden
 
@@ -34,6 +37,7 @@ De keuzes worden, gecodeerd, in de documenteigenschappen van het PDF gezet (veld
 
 Ga naar `/beheer` en log in met de pincode (`ADMIN_PIN`).
 
+- **In- en uitfaseren**: per EvL een *ingangsdatum* en een *sluitingsdatum* (beide optioneel). Een student kan een EvL alleen plaatsen als hij op of na de ingangsdatum start en op of vóór de sluitingsdatum helemaal is afgerond. Bij 30 EC telt de tweede periode dus mee. Dat geldt ook voor eerder gevolgde EvL's: een EvL die toen nog niet bestond, kan daar niet staan. In de lijst ziet de student labels als *nieuw vanaf …*, *t/m …* en *uitgefaseerd*. Staat een uitgefaseerde EvL in een bestaand PDF op een moment dat niet meer kan, dan krijgt de student bij het inlezen een melding.
 - **EvL's**: code, naam, omvang (15/30 EC), categorie/fase (bepaalt de groepering en kleur), verplicht ja/nee, beschrijving, één of meer **contactpersonen**, en eventueel voorwaarden (*eerst nodig*).
 - **Aanbod per leerweg** (fysiek en LWO apart):
   - *Niet aangeboden*
@@ -41,7 +45,7 @@ Ga naar `/beheer` en log in met de pincode (`ADMIN_PIN`).
   - *Elk schooljaar in vaste periodes*, bijvoorbeeld P1 en P3
   - *Specifieke startmomenten per schooljaar*: een raster van schooljaar × periode, voor aanbod dat per jaar verschilt. Met *Vul met vaste periodes* zet je snel een patroon neer en pas je daarna uitzonderingen aan.
 - **Aanbodoverzicht**: alle EvL's × alle periodes in één tabel (F / L / F+L).
-- **Instellingen**: opleiding, totaal EC (standaard 240), de schooljaren waarvoor aanbod geldt, en de startdatum van elke periode. Daarmee bepaalt de app welke periodes voorbij zijn.
+- **Instellingen**: opleiding, totaal EC (standaard 240), de schooljaren waarvoor aanbod geldt, en het datumpatroon: de startdatum van elke periode plus het einde van het schooljaar in juli. Wijkt een schooljaar af (de jaarplanning schuift elk jaar iets), pas dan de datums van dat jaar aan in *Datums per schooljaar*. Een periode loopt tot de dag vóór de volgende. Deze datums bepalen welke periodes voorbij zijn en of een EvL binnen zijn looptijd valt.
 
 **Opslaan** schrijft de catalogus naar `data/catalogus.json`, en de vorige versie gaat naar `data/backups/` (de laatste 50 blijven bewaard). Studenten zien de wijziging direct na het herladen van de pagina.
 

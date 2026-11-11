@@ -38,7 +38,9 @@
         "lwo": {
           "modus": "doorlopend"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "p02",
@@ -66,7 +68,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "p03",
@@ -96,7 +100,9 @@
         "lwo": {
           "modus": "doorlopend"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "p04",
@@ -126,7 +132,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h01",
@@ -160,7 +168,9 @@
             "2027-4"
           ]
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h02",
@@ -190,7 +200,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h03",
@@ -217,7 +229,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h04",
@@ -226,7 +240,7 @@
       "ec": 15,
       "categorie": "Hoofdfase",
       "verplicht": false,
-      "beschrijving": "Keuze-verdieping, ook leerwegonafhankelijk te volgen.",
+      "beschrijving": "Keuze-verdieping, ook leerwegonafhankelijk te volgen. Wordt uitgefaseerd: laatste kans in schooljaar 2026-2027.",
       "vereist": [],
       "contacten": [
         {
@@ -247,6 +261,38 @@
             2,
             4
           ]
+        }
+      },
+      "sluitingsdatum": "2027-07-10",
+      "ingangsdatum": ""
+    },
+    {
+      "id": "h09",
+      "code": "H-09",
+      "naam": "Verdieping B (vernieuwd)",
+      "ec": 15,
+      "categorie": "Hoofdfase",
+      "verplicht": false,
+      "beschrijving": "Opvolger van Verdieping B. Wordt ingefaseerd vanaf schooljaar 2027-2028.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-09",
+          "email": "evl-h-09@voorbeeld.nl"
+        }
+      ],
+      "ingangsdatum": "2027-09-01",
+      "sluitingsdatum": "",
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            2,
+            4
+          ]
+        },
+        "lwo": {
+          "modus": "doorlopend"
         }
       }
     },
@@ -277,7 +323,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h06",
@@ -305,7 +353,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h07",
@@ -329,7 +379,9 @@
         "lwo": {
           "modus": "doorlopend"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "h08",
@@ -357,7 +409,9 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "a01",
@@ -391,7 +445,9 @@
             3
           ]
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     },
     {
       "id": "a02",
@@ -422,7 +478,11 @@
         "lwo": {
           "modus": "geen"
         }
-      }
+      },
+      "ingangsdatum": "",
+      "sluitingsdatum": ""
     }
-  ]
+  ],
+  "jaarEinde": "07-10",
+  "periodeData": {}
 }
