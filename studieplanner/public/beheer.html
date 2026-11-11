@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Studieplanner – beheer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="kop">
+    <div>
+      <h1>Studieplanner · beheer</h1>
+      <div class="sub" id="subtitel">Aanbod van EvL's instellen</div>
+    </div>
+    <div class="acties" id="acties" hidden>
+      <span class="sub" id="status"></span>
+      <button class="btn" id="btn-json-in" type="button">JSON inladen</button>
+      <input type="file" id="json-bestand" accept="application/json,.json" hidden>
+      <button class="btn" id="btn-json-uit" type="button">Download JSON</button>
+      <button class="btn primair" id="btn-opslaan" type="button">Opslaan</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="kaart inlog" id="inlog">
+      <h2>Inloggen</h2>
+      <p class="uitleg">Voer de beheerpincode in (ADMIN_PIN van de server).</p>
+      <form id="inlog-form" class="velden" style="grid-template-columns:1fr auto">
+        <div class="veld"><label for="pin">Pincode</label><input id="pin" type="password" autocomplete="current-password" required></div>
+        <div class="veld" style="align-self:end"><button class="btn primair" type="submit">Inloggen</button></div>
+      </form>
+      <p class="uitleg" id="inlog-fout"></p>
+      <p class="uitleg">Geen server (statische hosting)? <a href="#" id="zonder-server">Werk zonder server</a>: je past de catalogus hier aan en downloadt het JSON-bestand om <code>catalogus.json</code> te vervangen.</p>
+    </section>
+
+    <div id="beheer" hidden>
+      <div class="rij" style="margin-bottom:12px">
+        <button class="btn primair" data-tab="evls" type="button">EvL's</button>
+        <button class="btn" data-tab="overzicht" type="button">Aanbodoverzicht</button>
+        <button class="btn" data-tab="instellingen" type="button">Instellingen</button>
+      </div>
+
+      <section data-paneel="evls" class="beheer-grid">
+        <div class="kaart">
+          <div class="rij" style="justify-content:space-between;margin-bottom:8px"><h2>Eenheden van Leeruitkomsten</h2><button class="btn" id="btn-nieuw" type="button">+ Nieuwe EvL</button></div>
+          <table class="tabel"><thead><tr><th>Code</th><th>Naam</th><th>EC</th><th>Aanbod</th><th></th></tr></thead><tbody id="evl-tabel"></tbody></table>
+        </div>
+        <div class="kaart" id="editor"><p class="uitleg">Kies links een EvL om te bewerken.</p></div>
+      </section>
+
+      <section data-paneel="overzicht" class="kaart" hidden>
+        <h2>Aanbodoverzicht: startmomenten per periode</h2>
+        <p class="uitleg"><b>F</b> = fysiek, <b>L</b> = leerwegonafhankelijk. Een EvL van 30 EC loopt vanaf het startmoment twee periodes (20 weken).</p>
+        <div class="overzicht" id="overzicht"></div>
+      </section>
+
+      <section data-paneel="instellingen" class="kaart" hidden>
+        <h2>Instellingen</h2>
+        <div class="velden">
+          <div class="veld"><label for="i-instituut">Instituut</label><input id="i-instituut"></div>
+          <div class="veld"><label for="i-opleiding">Opleiding</label><input id="i-opleiding"></div>
+          <div class="veld"><label for="i-totaal">Totaal EC opleiding</label><input id="i-totaal" type="number" min="15" step="15"></div>
+          <div class="veld"><label for="i-eerste">Eerste schooljaar (aanbod)</label><select id="i-eerste"></select></div>
+          <div class="veld"><label for="i-laatste">Laatste schooljaar (aanbod)</label><select id="i-laatste"></select></div>
+        </div>
+        <h3 style="margin:16px 0 6px;font-size:.95rem">Startdatum van elke periode (maand-dag)</h3>
+        <p class="uitleg">Hiermee bepaalt de app welke periodes al voorbij zijn. Formaat MM-DD, bijvoorbeeld 09-01.</p>
+        <div class="velden">
+          <div class="veld"><label for="i-p1">Periode 1</label><input id="i-p1" pattern="\d\d-\d\d"></div>
+          <div class="veld"><label for="i-p2">Periode 2</label><input id="i-p2" pattern="\d\d-\d\d"></div>
+          <div class="veld"><label for="i-p3">Periode 3</label><input id="i-p3" pattern="\d\d-\d\d"></div>
+          <div class="veld"><label for="i-p4">Periode 4</label><input id="i-p4" pattern="\d\d-\d\d"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="common.js"></script>
+  <script src="beheer.js"></script>
+</body>
+</html>

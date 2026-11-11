@@ -1,0 +1,428 @@
+{
+  "opleiding": "Voorbeeldopleiding (pas aan via /beheer)",
+  "instituut": "Fontys",
+  "versie": "voorbeeld",
+  "totaalEC": 240,
+  "eersteSchooljaar": 2022,
+  "laatsteSchooljaar": 2031,
+  "periodeStart": [
+    "09-01",
+    "11-09",
+    "02-01",
+    "04-19"
+  ],
+  "evls": [
+    {
+      "id": "p01",
+      "code": "P-01",
+      "naam": "Oriëntatie op het beroep",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "Kennismaken met het werkveld en je eigen rol als professional.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon P-01",
+          "email": "evl-p-01@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            3
+          ]
+        },
+        "lwo": {
+          "modus": "doorlopend"
+        }
+      }
+    },
+    {
+      "id": "p02",
+      "code": "P-02",
+      "naam": "Basisvaardigheden",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "Fundament van kennis en vaardigheden voor de rest van de opleiding.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon P-02",
+          "email": "evl-p-02@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            2,
+            4
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "p03",
+      "code": "P-03",
+      "naam": "Professioneel communiceren",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "Schrijven, presenteren en samenwerken.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon P-03",
+          "email": "evl-p-03@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "lwo": {
+          "modus": "doorlopend"
+        }
+      }
+    },
+    {
+      "id": "p04",
+      "code": "P-04",
+      "naam": "Project 1: van vraag naar ontwerp",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "Eerste beroepsproject met een echte opdrachtgever.",
+      "vereist": [
+        "p01"
+      ],
+      "contacten": [
+        {
+          "naam": "Contactpersoon P-04",
+          "email": "evl-p-04@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            2,
+            4
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "h01",
+      "code": "H-01",
+      "naam": "Onderzoekend vermogen",
+      "ec": 15,
+      "categorie": "Hoofdfase",
+      "verplicht": true,
+      "beschrijving": "Praktijkgericht onderzoek opzetten en uitvoeren.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-01",
+          "email": "evl-h-01@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            3
+          ]
+        },
+        "lwo": {
+          "modus": "specifiek",
+          "momenten": [
+            "2026-2",
+            "2026-4",
+            "2027-2",
+            "2027-4"
+          ]
+        }
+      }
+    },
+    {
+      "id": "h02",
+      "code": "H-02",
+      "naam": "Project 2: complexe beroepsopdracht",
+      "ec": 30,
+      "categorie": "Hoofdfase",
+      "verplicht": true,
+      "beschrijving": "Twintig weken werken aan een complexe opdracht in een team.",
+      "vereist": [
+        "p04"
+      ],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-02",
+          "email": "evl-h-02@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            3
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "h03",
+      "code": "H-03",
+      "naam": "Verdieping A",
+      "ec": 15,
+      "categorie": "Hoofdfase",
+      "verplicht": false,
+      "beschrijving": "Keuze-verdieping.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-03",
+          "email": "evl-h-03@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            2
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "h04",
+      "code": "H-04",
+      "naam": "Verdieping B",
+      "ec": 15,
+      "categorie": "Hoofdfase",
+      "verplicht": false,
+      "beschrijving": "Keuze-verdieping, ook leerwegonafhankelijk te volgen.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-04",
+          "email": "evl-h-04@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            4
+          ]
+        },
+        "lwo": {
+          "modus": "jaarlijks",
+          "periodes": [
+            2,
+            4
+          ]
+        }
+      }
+    },
+    {
+      "id": "h05",
+      "code": "H-05",
+      "naam": "Stage",
+      "ec": 30,
+      "categorie": "Hoofdfase",
+      "verplicht": true,
+      "beschrijving": "Twintig weken stage bij een erkend stagebedrijf. Start in overleg.",
+      "vereist": [
+        "p01",
+        "p02",
+        "p03",
+        "p04"
+      ],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-05",
+          "email": "evl-h-05@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend"
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "h06",
+      "code": "H-06",
+      "naam": "Minor",
+      "ec": 30,
+      "categorie": "Keuzeruimte",
+      "verplicht": false,
+      "beschrijving": "Minor binnen of buiten Fontys.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-06",
+          "email": "evl-h-06@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            3
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "h07",
+      "code": "H-07",
+      "naam": "Ondernemerschap",
+      "ec": 15,
+      "categorie": "Keuzeruimte",
+      "verplicht": false,
+      "beschrijving": "Alleen leerwegonafhankelijk: in je eigen tempo, toetsing op aanvraag.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-07",
+          "email": "evl-h-07@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "geen"
+        },
+        "lwo": {
+          "modus": "doorlopend"
+        }
+      }
+    },
+    {
+      "id": "h08",
+      "code": "H-08",
+      "naam": "Internationale week & project",
+      "ec": 15,
+      "categorie": "Keuzeruimte",
+      "verplicht": false,
+      "beschrijving": "Wordt alleen op specifieke momenten aangeboden.",
+      "vereist": [],
+      "contacten": [
+        {
+          "naam": "Contactpersoon H-08",
+          "email": "evl-h-08@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "specifiek",
+          "momenten": [
+            "2027-1",
+            "2028-3"
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    },
+    {
+      "id": "a01",
+      "code": "A-01",
+      "naam": "Afstudeervoorbereiding",
+      "ec": 15,
+      "categorie": "Afstuderen",
+      "verplicht": true,
+      "beschrijving": "Afstudeervoorstel en opdracht vinden.",
+      "vereist": [
+        "h01"
+      ],
+      "contacten": [
+        {
+          "naam": "Contactpersoon A-01",
+          "email": "evl-a-01@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            2,
+            4
+          ]
+        },
+        "lwo": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            3
+          ]
+        }
+      }
+    },
+    {
+      "id": "a02",
+      "code": "A-02",
+      "naam": "Afstuderen",
+      "ec": 30,
+      "categorie": "Afstuderen",
+      "verplicht": true,
+      "beschrijving": "Afstudeeropdracht van twintig weken.",
+      "vereist": [
+        "a01",
+        "h05"
+      ],
+      "contacten": [
+        {
+          "naam": "Contactpersoon A-02",
+          "email": "evl-a-02@voorbeeld.nl"
+        }
+      ],
+      "aanbod": {
+        "fysiek": {
+          "modus": "jaarlijks",
+          "periodes": [
+            1,
+            3
+          ]
+        },
+        "lwo": {
+          "modus": "geen"
+        }
+      }
+    }
+  ]
+}

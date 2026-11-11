@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studieplanner</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="kop">
+    <div>
+      <h1 id="titel">Studieplanner</h1>
+      <div class="sub" id="subtitel">Stel je eigen studieprogramma samen</div>
+    </div>
+    <div class="acties">
+      <button class="btn" id="btn-nieuw" type="button">Nieuw plan</button>
+      <button class="btn" id="btn-inlezen" type="button">PDF inlezen</button>
+      <input type="file" id="pdf-bestand" accept="application/pdf,.pdf" hidden>
+      <button class="btn primair" id="btn-opslaan" type="button">Opslaan als PDF</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <details class="kaart" id="gegevens" open>
+      <summary>Gegevens en start van je studie</summary>
+      <p class="uitleg">Deze gegevens komen alleen in je PDF te staan. De app slaat niets op: als je de pagina sluit zonder PDF, is je plan weg.</p>
+      <div class="velden">
+        <div class="veld"><label for="f-naam">Naam student</label><input id="f-naam" autocomplete="off"></div>
+        <div class="veld"><label for="f-nummer">Studentnummer</label><input id="f-nummer" autocomplete="off"></div>
+        <div class="veld"><label for="f-coach">Studiecoach</label><input id="f-coach" autocomplete="off"></div>
+        <div class="veld"><label for="f-startjaar">Gestart in schooljaar</label><select id="f-startjaar"></select></div>
+        <div class="veld"><label for="f-startperiode">Startperiode</label>
+          <select id="f-startperiode">
+            <option value="1">P1 (september)</option>
+            <option value="2">P2 (november)</option>
+            <option value="3">P3 (februari)</option>
+            <option value="4">P4 (april)</option>
+          </select>
+        </div>
+        <div class="veld"><label for="f-jaren">Aantal studiejaren in beeld</label><input id="f-jaren" type="number" min="1" max="8" value="4"></div>
+        <div class="veld breed"><label for="f-opmerkingen">Afspraken / opmerkingen (met je studiecoach)</label><textarea id="f-opmerkingen"></textarea></div>
+      </div>
+      <p class="uitleg" id="instap-uitleg"></p>
+    </details>
+
+    <div class="planner">
+      <aside class="kaart lijst">
+        <h2>Eenheden van Leeruitkomsten</h2>
+        <p class="uitleg">Sleep een EvL naar een periode, of tik op een EvL en daarna op een periode. Tik op een lege periode om te zien wat je daar kunt volgen.</p>
+        <div class="filters">
+          <input id="zoek" type="search" placeholder="Zoeken op naam of code…">
+          <select id="filter">
+            <option value="alle">Alle EvL's</option>
+            <option value="open">Nog niet in mijn plan</option>
+            <option value="verplicht">Alleen verplicht</option>
+          </select>
+        </div>
+        <div class="evl-lijst" id="evl-lijst"></div>
+      </aside>
+
+      <section>
+        <div class="hint-balk" id="hint" hidden>
+          <span id="hint-tekst"></span>
+          <button class="btn klein" id="hint-annuleer" type="button">Annuleren</button>
+        </div>
+        <div class="kaart">
+          <h2>Mijn studieprogramma</h2>
+          <div class="legenda">
+            <span style="--c: var(--ok-l)">kan fysiek</span>
+            <span style="--c: var(--lwo-l)">alleen leerwegonafhankelijk</span>
+            <span style="--c: #ede9fe">verleden (wat je al gedaan hebt)</span>
+            <span style="--c: var(--verleden)">periode is voorbij</span>
+          </div>
+          <div class="kolomkop"><div></div><div>P1 · 10 wk</div><div>P2 · 10 wk</div><div>P3 · 10 wk</div><div>P4 · 10 wk</div></div>
+          <div class="rooster" id="rooster"></div>
+        </div>
+
+        <div class="kaart">
+          <h2>Vrijstellingen / elders behaald</h2>
+          <p class="uitleg">Sleep hier EvL's naartoe waarvoor je vrijstelling hebt (bijvoorbeeld door een eerdere opleiding).</p>
+          <div class="vrij-zone" id="vrij-zone"></div>
+        </div>
+
+        <div class="kaart">
+          <h2>Overzicht</h2>
+          <div class="tellers" id="tellers"></div>
+          <div class="balk" id="balk"></div>
+          <ul class="meldingen" id="meldingen"></ul>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="dlg-keuze">
+    <div class="dkop"><h2 id="keuze-titel">Kies een EvL</h2><button class="btn klein" data-sluit type="button">Sluiten</button></div>
+    <div class="dinhoud"><p class="uitleg" id="keuze-uitleg"></p><div class="keuze-lijst" id="keuze-lijst"></div></div>
+  </dialog>
+
+  <dialog id="dlg-info">
+    <div class="dkop"><h2 id="info-titel"></h2><button class="btn klein" data-sluit type="button">Sluiten</button></div>
+    <div class="dinhoud" id="info-inhoud"></div>
+    <div class="dvoet" id="info-voet"></div>
+  </dialog>
+
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="vendor/jspdf.plugin.autotable.min.js"></script>
+  <script src="common.js"></script>
+  <script src="planner.js"></script>
+  <script src="pdf.js"></script>
+</body>
+</html>
