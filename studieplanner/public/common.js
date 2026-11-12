@@ -117,9 +117,16 @@ const SP = (() => {
   // maar het blok staat 'onder voorbehoud'.
   const onderVoorbehoud = (evl, i) => !!(evl && Array.isArray(evl.onbekendeJaren) && evl.onbekendeJaren.includes(jaarVan(i)));
 
+  // Een EvL van 30 EC (2 periodes) start altijd in P1 of P3 en loopt één periode door
+  // (P1+P2 of P3+P4). Hij loopt dus nooit over de grens van een schooljaar.
+  const START_30EC = [1, 3];
+  const geldigeStart = (evl, i) => duur(evl) < 2 || START_30EC.includes(periodeVan(i));
+  const startPeriodes = (evl) => (duur(evl) < 2 ? [1, 2, 3, 4] : START_30EC);
+
   function aangeboden(cat, evl, leerweg, i) {
     const a = evl && evl.aanbod && evl.aanbod[leerweg];
     if (!a) return false;
+    if (!geldigeStart(evl, i)) return false;
     const j = jaarVan(i);
     if (cat && (j < cat.eersteSchooljaar || j > cat.laatsteSchooljaar)) return false;
     if (!binnenLooptijd(cat, evl, i)) return false;
@@ -219,6 +226,10 @@ const SP = (() => {
         a.modus = a.modus || 'geen';
         a.periodes = Array.isArray(a.periodes) ? a.periodes.map(Number) : [];
         a.momenten = Array.isArray(a.momenten) ? a.momenten : [];
+        if (e.ec === 30) {
+          a.periodes = a.periodes.filter((p) => p === 1 || p === 3);
+          a.momenten = a.momenten.filter((m) => /-[13]$/.test(m));
+        }
         e.aanbod[l.id] = a;
       }
     }
@@ -229,7 +240,7 @@ const SP = (() => {
     PER, LEERWEGEN, STATUS, leerwegNaam, leerwegKort,
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
-    binnenLooptijd, looptijdTekst, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
+    binnenLooptijd, looptijdTekst, geldigeStart, startPeriodes, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
     encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, KLEUR_NAMEN, laadCatalogus, normaliseerCatalogus, ingebouwd,
   };
 })();

@@ -979,9 +979,16 @@ const SP = (() => {
   // maar het blok staat 'onder voorbehoud'.
   const onderVoorbehoud = (evl, i) => !!(evl && Array.isArray(evl.onbekendeJaren) && evl.onbekendeJaren.includes(jaarVan(i)));
 
+  // Een EvL van 30 EC (2 periodes) start altijd in P1 of P3 en loopt één periode door
+  // (P1+P2 of P3+P4). Hij loopt dus nooit over de grens van een schooljaar.
+  const START_30EC = [1, 3];
+  const geldigeStart = (evl, i) => duur(evl) < 2 || START_30EC.includes(periodeVan(i));
+  const startPeriodes = (evl) => (duur(evl) < 2 ? [1, 2, 3, 4] : START_30EC);
+
   function aangeboden(cat, evl, leerweg, i) {
     const a = evl && evl.aanbod && evl.aanbod[leerweg];
     if (!a) return false;
+    if (!geldigeStart(evl, i)) return false;
     const j = jaarVan(i);
     if (cat && (j < cat.eersteSchooljaar || j > cat.laatsteSchooljaar)) return false;
     if (!binnenLooptijd(cat, evl, i)) return false;
@@ -1081,6 +1088,10 @@ const SP = (() => {
         a.modus = a.modus || 'geen';
         a.periodes = Array.isArray(a.periodes) ? a.periodes.map(Number) : [];
         a.momenten = Array.isArray(a.momenten) ? a.momenten : [];
+        if (e.ec === 30) {
+          a.periodes = a.periodes.filter((p) => p === 1 || p === 3);
+          a.momenten = a.momenten.filter((m) => /-[13]$/.test(m));
+        }
         e.aanbod[l.id] = a;
       }
     }
@@ -1091,7 +1102,7 @@ const SP = (() => {
     PER, LEERWEGEN, STATUS, leerwegNaam, leerwegKort,
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
-    binnenLooptijd, looptijdTekst, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
+    binnenLooptijd, looptijdTekst, geldigeStart, startPeriodes, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
     encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, KLEUR_NAMEN, laadCatalogus, normaliseerCatalogus, ingebouwd,
   };
 })();
@@ -1176,6 +1187,7 @@ const Planner = (() => {
     const d = S.duur(e);
     if (i < hStart()) return { ok: false, reden: 'Vóór de start van je studie' };
     if (i + d - 1 > hEind()) return { ok: false, reden: 'Past niet meer binnen de getoonde schooljaren. Voeg een schooljaar toe.' };
+    if (!S.geldigeStart(e, i)) return { ok: false, reden: `Een EvL van 30 EC start altijd in periode 1 of 3 (en loopt door in periode 2 of 4).` };
     if (!S.binnenLooptijd(state.cat, e, i)) return { ok: false, reden: `${e.naam} bestaat dan niet: looptijd ${S.looptijdTekst(e)}.` };
     const extraDruk = [];
     for (let k = i; k < i + d; k++) if (blokkenIn(k, skipUid).length) extraDruk.push(k);
@@ -1260,7 +1272,9 @@ const Planner = (() => {
     if (b.start == null) return m;
     if (b.start < hStart() || blokEind(b) > hEind()) m.push({ niveau: 'let', t: 'valt (deels) buiten de getoonde studiejaren.' });
     const looptijdOk = S.binnenLooptijd(state.cat, e, b.start);
-    if (!looptijdOk && actief(b) && b.status !== 'bezig') {
+    if (!S.geldigeStart(e, b.start) && actief(b)) {
+      m.push({ niveau: 'fout', t: `start in ${S.momentLabel(b.start)}, maar een EvL van 30 EC start altijd in periode 1 of 3. Verplaats deze EvL.` });
+    } else if (!looptijdOk && actief(b) && b.status !== 'bezig') {
       m.push({ niveau: 'fout', t: `valt buiten de looptijd van deze EvL (${S.looptijdTekst(e)}). Verplaats deze EvL of overleg met je studiecoach.` });
     } else if (b.start >= state.nu && b.status !== 'bezig' && !S.aangeboden(state.cat, e, b.leerweg, b.start)) {
       const anders = S.leerwegenOp(state.cat, e, b.start);

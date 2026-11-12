@@ -76,6 +76,7 @@ const Planner = (() => {
     const d = S.duur(e);
     if (i < hStart()) return { ok: false, reden: 'Vóór de start van je studie' };
     if (i + d - 1 > hEind()) return { ok: false, reden: 'Past niet meer binnen de getoonde schooljaren. Voeg een schooljaar toe.' };
+    if (!S.geldigeStart(e, i)) return { ok: false, reden: `Een EvL van 30 EC start altijd in periode 1 of 3 (en loopt door in periode 2 of 4).` };
     if (!S.binnenLooptijd(state.cat, e, i)) return { ok: false, reden: `${e.naam} bestaat dan niet: looptijd ${S.looptijdTekst(e)}.` };
     const extraDruk = [];
     for (let k = i; k < i + d; k++) if (blokkenIn(k, skipUid).length) extraDruk.push(k);
@@ -160,7 +161,9 @@ const Planner = (() => {
     if (b.start == null) return m;
     if (b.start < hStart() || blokEind(b) > hEind()) m.push({ niveau: 'let', t: 'valt (deels) buiten de getoonde studiejaren.' });
     const looptijdOk = S.binnenLooptijd(state.cat, e, b.start);
-    if (!looptijdOk && actief(b) && b.status !== 'bezig') {
+    if (!S.geldigeStart(e, b.start) && actief(b)) {
+      m.push({ niveau: 'fout', t: `start in ${S.momentLabel(b.start)}, maar een EvL van 30 EC start altijd in periode 1 of 3. Verplaats deze EvL.` });
+    } else if (!looptijdOk && actief(b) && b.status !== 'bezig') {
       m.push({ niveau: 'fout', t: `valt buiten de looptijd van deze EvL (${S.looptijdTekst(e)}). Verplaats deze EvL of overleg met je studiecoach.` });
     } else if (b.start >= state.nu && b.status !== 'bezig' && !S.aangeboden(state.cat, e, b.leerweg, b.start)) {
       const anders = S.leerwegenOp(state.cat, e, b.start);

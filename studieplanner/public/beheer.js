@@ -125,7 +125,7 @@
       <div class="vereist-lijst">${cat.evls.filter((x) => x.id !== e.id).map((x) => `<label><input type="checkbox" data-vereist="${S.esc(x.id)}"${e.vereist.includes(x.id) ? ' checked' : ''}> ${S.esc((x.code ? x.code + ' ' : '') + x.naam)}</label>`).join('') || '<span class="status-tekst">Geen andere EvL\'s.</span>'}</div>
 
       <h3 style="margin:14px 0 2px;font-size:.95rem">Aanbod</h3>
-      <p class="uitleg">Stel per leerweg in wanneer de EvL kan <b>starten</b>.${e.ec === 30 ? ' Deze EvL duurt 2 periodes: bij start in P4 loopt hij door tot en met P1 van het volgende schooljaar.' : ''} Studenten kunnen een leerwegonafhankelijke variant kiezen als de fysieke variant op dat moment niet wordt aangeboden.</p>
+      <p class="uitleg">Stel per leerweg in wanneer de EvL kan <b>starten</b>.${e.ec === 30 ? ' Deze EvL duurt 2 periodes en start daarom altijd in <b>P1</b> (loopt door in P2) of <b>P3</b> (loopt door in P4). Hij loopt nooit over een schooljaar heen.' : ''} Studenten kunnen een leerwegonafhankelijke variant kiezen als de fysieke variant op dat moment niet wordt aangeboden.</p>
       ${S.LEERWEGEN.map((l) => leerwegHtml(e, l)).join('')}
       <div class="leerweg-blok"><h3>Aanbod nog niet bekend</h3>
         <p class="uitleg" style="margin-top:0">Vink de schooljaren aan waarin nog niet vaststaat óf en wanneer deze EvL gegeven wordt. Studenten kunnen hem in die jaren in elke periode inplannen (met de leerwegen die hierboven aan staan), maar het blok staat dan <b>onder voorbehoud</b>.</p>
@@ -147,14 +147,16 @@
     const a = e.aanbod[l.id];
     let extra = '';
     if (a.modus === 'jaarlijks') {
-      extra = `<div class="checks" style="margin-top:6px">${[1, 2, 3, 4].map((p) => `<label><input type="checkbox" data-lw="${l.id}" data-per="${p}"${a.periodes.includes(p) ? ' checked' : ''}> P${p}</label>`).join('')}</div>
+      extra = `<div class="checks" style="margin-top:6px">${S.startPeriodes(e).map((p) => `<label><input type="checkbox" data-lw="${l.id}" data-per="${p}"${a.periodes.includes(p) ? ' checked' : ''}> P${p}${e.ec === 30 ? ` + P${p + 1}` : ''}</label>`).join('')}</div>
         <p class="uitleg">Geldt voor alle schooljaren ${S.jaarLabel(cat.eersteSchooljaar)} t/m ${S.jaarLabel(cat.laatsteSchooljaar)}.</p>`;
     } else if (a.modus === 'specifiek') {
       const rijen = [];
       for (let j = cat.eersteSchooljaar; j <= cat.laatsteSchooljaar; j++) {
-        rijen.push(`<tr><th>${S.jaarLabel(j)}</th>${[1, 2, 3, 4].map((p) => { const k = `${j}-${p}`; const aan = a.momenten.includes(k); return `<td class="${aan ? 'aan' : ''}"><input type="checkbox" data-lw="${l.id}" data-moment="${k}"${aan ? ' checked' : ''} aria-label="${S.jaarLabel(j)} P${p}"></td>`; }).join('')}</tr>`);
+        rijen.push(`<tr><th>${S.jaarLabel(j)}</th>${[1, 2, 3, 4].map((p) => { const k = `${j}-${p}`; const aan = a.momenten.includes(k);
+          if (!S.startPeriodes(e).includes(p)) return `<td title="30 EC start alleen in P1 of P3">${p === 2 || p === 4 ? (aan ? '' : '↳') : ''}</td>`;
+          return `<td class="${aan ? 'aan' : ''}"><input type="checkbox" data-lw="${l.id}" data-moment="${k}"${aan ? ' checked' : ''} aria-label="${S.jaarLabel(j)} P${p}"></td>`; }).join('')}</tr>`);
       }
-      extra = `<div class="rij" style="margin:6px 0"><button class="btn klein" data-patroon="${l.id}" type="button">Vul met vaste periodes:</button>${[1, 2, 3, 4].map((p) => `<label class="checks"><input type="checkbox" data-patroonp="${l.id}" value="${p}"> P${p}</label>`).join('')}<button class="btn klein" data-leeg="${l.id}" type="button">Alles uit</button></div>
+      extra = `<div class="rij" style="margin:6px 0"><button class="btn klein" data-patroon="${l.id}" type="button">Vul met vaste periodes:</button>${S.startPeriodes(e).map((p) => `<label class="checks"><input type="checkbox" data-patroonp="${l.id}" value="${p}"> P${p}</label>`).join('')}<button class="btn klein" data-leeg="${l.id}" type="button">Alles uit</button></div>
         <table class="aanbod-raster"><thead><tr><th>Schooljaar</th><th>P1</th><th>P2</th><th>P3</th><th>P4</th></tr></thead><tbody>${rijen.join('')}</tbody></table>`;
     }
     return `<div class="leerweg-blok"><h3>${S.esc(l.lang)}</h3>
@@ -176,7 +178,22 @@
     const e = evl(); if (!e) return;
     const t = ev.target;
     if (t.dataset.veld === 'verplicht') e.verplicht = t.checked;
-    else if (t.dataset.veld === 'ec') { e.ec = Number(t.value); renderEditor(); }
+    else if (t.dataset.veld === 'ec') {
+      e.ec = Number(t.value);
+      if (e.ec === 30) {
+        // 30 EC start alleen in P1 of P3: andere startmomenten vervallen
+        let weg = 0;
+        for (const l of S.LEERWEGEN) {
+          const a = e.aanbod[l.id];
+          const voor = a.periodes.length + a.momenten.length;
+          a.periodes = a.periodes.filter((p) => p === 1 || p === 3);
+          a.momenten = a.momenten.filter((m) => /-[13]$/.test(m));
+          weg += voor - a.periodes.length - a.momenten.length;
+        }
+        if (weg) alert(`Een EvL van 30 EC start alleen in P1 of P3. ${weg} startmoment(en) in P2/P4 zijn verwijderd.`);
+      }
+      renderEditor();
+    }
     else if (t.dataset.veld === 'kleur') e.kleur = t.value;
     else if (t.dataset.vereist) {
       e.vereist = t.checked ? [...new Set([...e.vereist, t.dataset.vereist])] : e.vereist.filter((x) => x !== t.dataset.vereist);
