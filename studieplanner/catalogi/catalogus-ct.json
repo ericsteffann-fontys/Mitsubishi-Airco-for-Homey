@@ -1,0 +1,361 @@
+{
+  "opleiding": "Leraar Consumptieve Techniek",
+  "instituut": "Fontys",
+  "versie": "onderwijscatalogus-2026-2027-v15",
+  "totaalEC": 240,
+  "eersteSchooljaar": 2022,
+  "laatsteSchooljaar": 2031,
+  "periodeStart": [
+    "09-01",
+    "11-09",
+    "02-01",
+    "04-19"
+  ],
+  "jaarEinde": "07-10",
+  "periodeData": {},
+  "datumsOnbekend": [],
+  "evls": [
+    {
+      "id": "ct-realisatie-van-leeractiviteiten",
+      "code": "",
+      "naam": "Realisatie van leeractiviteiten",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het cyclisch proces van ontwerpen, realiseren en evalueren van leeractiviteiten gebaseerd op bestaande werkwijzen en/of binnen bestaande programma’s. Afhankelijk van de context, de complexiteit en de mate van ondersteuning, kan het gaan om op zichzelf staande of samenhangende leeractiviteiten. Bij deze leeractiviteiten houd je rekening met de doelen van het programma, groepskenmerken, de beginsituatie en de leer- en ontwikkelbehoeften van de lerenden, de (school)omgeving en de actualiteit.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-ontwikkeling-professionele-identiteit",
+      "code": "",
+      "naam": "Ontwikkeling professionele identiteit",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het kunnen expliciteren van je professionele identiteit, jouw opvattingen over goed leraarschap gerelateerd aan het beroepsbeeld startbekwame leraar en de landelijke bekwaamheidseisen voor leraren. Je reflecteert systematisch en kritisch op het eigen professioneel handelen, identificeert ontwikkelkansen en werkt planmatig aan de eigen professionele (door)ontwikkeling gedurende je (studie)loopbaan.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-vakinhoudelijke-expertise-didactiseren",
+      "code": "",
+      "naam": "Vakinhoudelijke expertise didactiseren",
+      "ec": 30,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "In deze onderwijseenheid staat jouw vakinhoudelijke expertise centraal. Je ontwikkelt inzicht in je vakgebied, past je kennis doelgericht toe, breidt deze uit en leert hoe je deze op een begrijpelijke en didactisch verantwoorde manier overdraagt aan leerlingen in het (voorbereidend) middelbaar beroepsonderwijs ((v)mbo). Een professionele houding is hierbij essentieel. Je wordt geacht nieuwsgierig en gepassioneerd te zijn over je vakgebied. Je toont betrokkenheid bij maatschappelijke vraagstukken en hebt oprechte interesse in mensen. Met jouw inzet draag je bij aan de opleiding van een nieuwe generatie vakmensen in de horeca- en bakkerijsector. Je reflecteert kritisch op je eigen vakkennis en onderzoekt hoe je deze effectief kunt vertalen naar het leerproces van je leerlingen. Wendbaarheid is een kerncompetentie in je professionele ontwikkeling. Je verbreedt actief je vakgebied, signaleert relevante ontwikkelingen en speelt hierop in. Je toont veerkracht bij uitdagingen en handelt vanuit een constructieve en oplossingsgerichte mindset. Als toekomstig professional formuleer en realiseer je je ambities. Je durft hulp te vragen, maakt weloverwogen keuzes, neemt initiatief en bewaakt je professionele grenzen. Daarnaast is verbinding met je omgeving van groot belang. Je werkt samen met collega’s en externe partners, deelt actief je kennis en ontwikkelt communicatieve vaardigheden waarmee je op respectvolle wijze interacteert. Je erkent en waardeert de gevoelens en perspectieven van anderen. Het uiteindelijke doel is het realiseren van verbondenheid door actief te verbinden: met je vak, je leerlingen, je collega’s en de bredere beroepspraktijk.",
+      "kleur": "#008387",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-leer-en-ontwikkelomgeving",
+      "code": "",
+      "naam": "Leer- en ontwikkelomgeving",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het kunnen creëren van omstandigheden waarin het leren en de ontwikkeling van de lerenden zo optimaal mogelijk kan verlopen en waarmee adequaat wordt ingespeeld op de ontwikkelbehoeften en talenten van lerenden.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-onderzoekend-vermogen",
+      "code": "",
+      "naam": "Onderzoekend vermogen",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het doorlopend en systematisch kunnen verbeteren van het eigen professioneel handelen en/of de (eigen) beroepspraktijk.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-vakinhoudelijke-expertise-verbreden-verdiepen",
+      "code": "",
+      "naam": "Vakinhoudelijke expertise verbreden / verdiepen",
+      "ec": 30,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "In deze set van leeruitkomsten gaat het primair om jouw bestaande vakkennis en hoe je deze toepast maar ook uit te breiden, te begrijpen en uit te leggen aan leerlingen/studenten in het (v)mbo. Om dit te kunnen ontwikkelen vinden we het belangrijk dat je een passende houding hebt en deze verder ontwikkelt. Het is belangrijk dat je nieuwsgierig bent en passie hebt voor de ontwikkelingen in jouw vakgebied. Ook ben je geïnteresseerd in je medemens en straal je enthousiasme uit. Je leidt immers de nieuwe generatie vakmensen in de horeca en bakkerij op. Tot slot ben je in staat te reflecteren op jouw vakkennis en de wijze waarop je jouw vak vertaalt voor de lerende (vakdidactiek). Je zult hiervoor wendbaar moeten zijn wat betekent dat je je gaat verbreden op jouw vakgebied, ontwikkelingen hierbinnen erkent en herkent. Je blijft dus in beweging en gaat op professionele wijze om met tegenslagen. Als professional ben je in staat om je ambitie uit te spreken, deze vorm te geven, durf je hulp te vragen en keuzes te maken. Je neemt initiatieven maar stelt wel grenzen. Het is essentieel dat je kunt verbinden en verbonden voelt met je omgeving. Hiervoor moet je samenwerken en kennis delen. Je beheerst de juiste communicatieve vaardigheden waarin je respectvol handelt en andermans gevoelens en je eigen gevoelens erkent en herkent. Met andere woorden verbondenheid door te verbinden is waar het hier om gaat.",
+      "kleur": "#008387",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-vakinhoudelijke-expertise-innoveren",
+      "code": "",
+      "naam": "Vakinhoudelijke expertise innoveren",
+      "ec": 30,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "In deze set leeruitkomsten wordt van jou, als toekomstig docent Consumptieve Techniek (CT) in het (v)mbo, verwacht dat je – aanvullend op je eerder verworven werkervaring als kok, gastheer/gastvrouw of bakker – in staat bent om specialistische vakkennis en -vaardigheden te verwerven. Je past deze kennis en vaardigheden toe door betekenisvolle verbanden te leggen tussen de actuele ontwikkelingen in de beroepspraktijk en de leerinhouden en kwalificatiedossiers binnen het (v)mbo. Om dit te realiseren, zoek je actief de samenwerking op met vakspecialisten uit zowel het beroepsonderwijs als de beroepspraktijk. Deze samenwerking stelt je in staat om de verworven specialistische kennis op een verantwoorde en onderbouwde wijze vakdidactisch te vertalen naar het onderwijs in CT. Je draagt daarmee bij aan een krachtige leeromgeving waarin vakinhoud en didactiek op elkaar zijn afgestemd. Gedurende dit proces reflecteer je systematisch op je eigen professionele ontwikkeling. Je maakt expliciet welke ambities je hebt op het gebied van vakinhoudelijke kennisoverdracht en hoe je deze ambities vormgeeft binnen jouw rol als docent. Deze reflectie draagt bij aan je groei als kritisch denkende en vakbekwame onderwijsprofessional. Deze EvL omvat ook het onderdeel \"Realiseren van leertrajecten\".",
+      "kleur": "#008387",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-verantwoordelijkheid-primair-proces",
+      "code": "",
+      "naam": "Verantwoordelijkheid primair proces",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het zelfstandig kunnen realiseren van leertrajecten en dragen van verantwoordelijkheid voor het primaire proces. Je functioneert als volwaardig lid van een schoolbreed team van onderwijsprofessionals en weet adequaat te communiceren met alle betrokken stakeholders binnen en buiten de school. Je dient daarbij kritisch te kunnen reflecteren op jouw handelen en functioneren, en betrekt daar jouw begeleiders/ leidinggevende(n) bij.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ct-professionele-identiteit",
+      "code": "",
+      "naam": "Professionele identiteit",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het kunnen expliciteren van de professionele identiteit. Aspecten die iets zeggen over de leraar als persoon in relatie tot de eisen die aan de leraar worden gesteld bij de beroepsuitoefening in een bepaalde onderwijscontext.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    }
+  ]
+}

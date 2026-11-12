@@ -1,0 +1,361 @@
+{
+  "opleiding": "Leraar Technisch Beroepsonderwijs",
+  "instituut": "Fontys",
+  "versie": "onderwijscatalogus-2026-2027-v15",
+  "totaalEC": 240,
+  "eersteSchooljaar": 2022,
+  "laatsteSchooljaar": 2031,
+  "periodeStart": [
+    "09-01",
+    "11-09",
+    "02-01",
+    "04-19"
+  ],
+  "jaarEinde": "07-10",
+  "periodeData": {},
+  "datumsOnbekend": [],
+  "evls": [
+    {
+      "id": "ltb-realisatie-van-leeractiviteiten",
+      "code": "",
+      "naam": "Realisatie van leeractiviteiten",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het cyclisch proces van ontwerpen, realiseren en evalueren van leeractiviteiten gebaseerd op bestaande werkwijzen en/of binnen bestaande programma’s. Afhankelijk van de context, de complexiteit en de mate van ondersteuning, kan het gaan om op zichzelf staande of samenhangende leeractiviteiten. Bij deze leeractiviteiten houd je rekening met de doelen van het programma, groepskenmerken, de beginsituatie en de leer- en ontwikkelbehoeften van de lerenden, de (school)omgeving en de actualiteit.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-ontwikkeling-professionele-identiteit",
+      "code": "",
+      "naam": "Ontwikkeling professionele identiteit",
+      "ec": 15,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het kunnen expliciteren van je professionele identiteit, jouw opvattingen over goed leraarschap gerelateerd aan het beroepsbeeld startbekwame leraar en de landelijke bekwaamheidseisen voor leraren. Je reflecteert systematisch en kritisch op het eigen professioneel handelen, identificeert ontwikkelkansen en werkt planmatig aan de eigen professionele (door)ontwikkeling gedurende je (studie)loopbaan.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-vakinhoudelijke-expertise-didactiseren",
+      "code": "",
+      "naam": "Vakinhoudelijke expertise didactiseren",
+      "ec": 30,
+      "categorie": "Propedeuse",
+      "verplicht": true,
+      "beschrijving": "In een wereld waarin techniek en technologie razendsnel evolueert en beroepen continu in beweging zijn, vraagt goed onderwijs om professionals die vakinhoud, didactiek en loopbaanontwikkeling moeiteloos met elkaar verbinden. In deze EvL ontwikkel je je tot een docent of onderwijsondersteuner die niet alleen up-to-date is in zijn technisch vakgebied, maar die deze expertise ook weet te vertalen naar betekenisvol, contextrijk onderwijs dat leerlingen écht voorbereidt op hun toekomstige beroep. We verkennen hoe actuele technische systemen, processen en normen een bewuste en doordachte plek krijgen in jouw onderwijspraktijk. Je leert authentieke beroepssituaties analyseren en deze om te zetten naar krachtig didactisch ontwerp, afgestemd op het curriculum en de behoeften van jouw doelgroep. Tegelijkertijd onderzoek je kritisch hoe jouw school invulling geeft aan loopbaanontwikkeling, en wat dit betekent voor jouw rol als begeleider van leerlingen of studenten. Door theorie, praktijk en regionale beroepsperspectieven met elkaar te verbinden, positioneer je jezelf als een professioneel en toekomstgericht loopbaanbegeleider. Deze onderwijseenheid daagt je uit om niet alleen je vak, maar ook je leerlingen én jezelf beter te begrijpen. Zo leg je de basis voor onderwijs dat relevant is, inspireert en richting geeft aan de toekomst van jouw studenten.",
+      "kleur": "#008387",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-leer-en-ontwikkelomgeving",
+      "code": "",
+      "naam": "Leer- en ontwikkelomgeving",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het kunnen creëren van omstandigheden waarin het leren en de ontwikkeling van de lerenden zo optimaal mogelijk kan verlopen en waarmee adequaat wordt ingespeeld op de ontwikkelbehoeften en talenten van lerenden.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-onderzoekend-vermogen",
+      "code": "",
+      "naam": "Onderzoekend vermogen",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het doorlopend en systematisch kunnen verbeteren van het eigen professioneel handelen en/of de (eigen) beroepspraktijk.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-vakinhoudelijke-expertise-verbreden-verdiepen",
+      "code": "",
+      "naam": "Vakinhoudelijke expertise verbreden / verdiepen",
+      "ec": 30,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "Technisch beroepsonderwijs staat nooit stil. Nieuwe systemen, slimme technologieën en innovatieve werkwijzen volgen elkaar in hoog tempo op. Van docenten vraagt dit niet alleen actuele vakkennis, maar ook het vermogen om deze kennis om te zetten in betekenisvolle leerervaringen die leerlingen uitdagen én richting geven aan hun toekomst. In deze onderwijseenheid ga je aan de slag als technisch expert, didactisch ontwerper en loopbaanbegeleider in één. Je verdiept je in moderne technische systemen, processen en hulpmiddelen, en leert deze op een bewuste en verantwoorde manier te integreren in een authentieke leeromgeving. Vanuit relevante didactische modellen ontwerp en realiseer je krachtige werkvormen die techniek tastbaar, begrijpelijk en motiverend maken voor jouw leerlingen of studenten. Daarbij leg je steeds de koppeling met actuele technologische ontwikkelingen en de realiteit van het werkveld. Daarnaast ontwikkel je je verder als professionele LOB-begeleider. Je ontwerpt en voert dialogische, vraaggerichte loopbaanactiviteiten uit—altijd in samenwerking met bedrijven of instellingen uit de regio. Je stimuleert loopbaancompetenties als kwaliteiten- en motievenreflectie, werkexploratie, netwerken en loopbaansturing, en je voert loopbaangesprekken waarin deze competenties doelgericht worden verdiept. Door theorie, beroepspraktijk en jouw eigen handelen kritisch te verbinden, groei je zichtbaar in jouw rol als begeleider van leerlingen op weg naar hun toekomst. Deze onderwijseenheid daagt je uit om techniek, didactiek en loopbaanleren te vervlechten tot een krachtige en praktijkgerichte leerervaring—waar niet alleen jouw studenten beter van worden, maar jijzelf als professional ook.",
+      "kleur": "#008387",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-vakinhoudelijke-expertise-innoveren",
+      "code": "",
+      "naam": "Vakinhoudelijke expertise innoveren",
+      "ec": 30,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "Leeruitkomst één heeft betrekking op de vakspecifieke dekking vanuit de kennisbasis LTB of D&P. De leeruitkomsten twee, drie en vier in deze eenheid hebben betrekking op de verschillende aspecten van het succesvol ontwerpen, realiseren en evalueren van leertrajecten bestaande uit verschillende samenhangende leerplanaspecten. Deze aspecten worden ingekleurd vanuit een inhoudelijk vakgebied. Technologische ontwikkelingen volgen elkaar sneller op dan ooit. Voor de professional in het technisch beroepsonderwijs betekent dit dat vakinhoudelijke expertise nooit stil mag staan. Deze EvL richt zich op het versterken en vernieuwen van jouw expertise, zodat je vakkennis, didactiek en innovatie op een doordachte en professionele manier kunt verbinden. In deze EvL ontwikkel je je tot een docent die actuele technische systemen, processen en hulpmiddelen niet alleen beheerst, maar deze ook bewust en verantwoord inzet om betekenisvol onderwijs te creëren. Je ontwerpt zelfstandig complete leertrajecten voor verschillende niveaugroepen, gebaseerd op solide vakdidactische modellen, actuele inzichten en passende leerdoelen. Daarbij laat je zien dat je in staat bent om leeractiviteiten, werkvormen, (digitale) leermiddelen en evaluatievormen in onderlinge samenhang te ontwerpen én te verantwoorden. Vervolgens breng je deze ontwerpen zelf tot leven. Je organiseert en realiseert leertrajecten waarin je inspeelt op verschillen tussen lerenden, hun zelfregulatie bevordert en hun ontwikkeling zichtbaar stimuleert. Je creëert een leeromgeving waarin leerlingen actief, taakgericht en met eigenaarschap kunnen groeien. Tot slot evalueer je de effectiviteit van je leertrajecten door het inzetten van passende formatieve en summatieve evaluatieactiviteiten. Je monitort en analyseert de leerprogressie, begeleidt leerlingen in reflectie en maakt onderbouwde keuzes om leertrajecten verder te verbeteren. Daarmee toon je aan dat je in staat bent om op basis van actuele vakinhoudelijke en vakdidactische inzichten je onderwijs continu te vernieuwen en te versterken. Deze EvL daagt je uit om jezelf te ontwikkelen tot een innovatieve vakspecialist die eigentijds onderwijs vormgeeft—onderbouwd, doordacht en met zichtbare impact op het leren van jouw studenten. Deze EvL omvat ook het onderdeel \"Realiseren van leertrajecten\".",
+      "kleur": "#008387",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-verantwoordelijkheid-primair-proces",
+      "code": "",
+      "naam": "Verantwoordelijkheid primair proces",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het zelfstandig kunnen realiseren van leertrajecten en dragen van verantwoordelijkheid voor het primaire proces. Je functioneert als volwaardig lid van een schoolbreed team van onderwijsprofessionals en weet adequaat te communiceren met alle betrokken stakeholders binnen en buiten de school. Je dient daarbij kritisch te kunnen reflecteren op jouw handelen en functioneren, en betrekt daar jouw begeleiders/ leidinggevende(n) bij.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    },
+    {
+      "id": "ltb-professionele-identiteit",
+      "code": "",
+      "naam": "Professionele identiteit",
+      "ec": 15,
+      "categorie": "Bachelor",
+      "verplicht": true,
+      "beschrijving": "De leeruitkomsten in deze eenheid hebben betrekking op het kunnen expliciteren van de professionele identiteit. Aspecten die iets zeggen over de leraar als persoon in relatie tot de eisen die aan de leraar worden gesteld bij de beroepsuitoefening in een bepaalde onderwijscontext.",
+      "kleur": "#663366",
+      "ingangsdatum": "",
+      "sluitingsdatum": "",
+      "vereist": [],
+      "contacten": [],
+      "aanbod": {
+        "fysiek": {
+          "modus": "doorlopend",
+          "periodes": [],
+          "momenten": []
+        },
+        "lwo": {
+          "modus": "geen",
+          "periodes": [],
+          "momenten": []
+        }
+      },
+      "onbekendeJaren": [
+        2022,
+        2023,
+        2024,
+        2025,
+        2026,
+        2027,
+        2028,
+        2029,
+        2030,
+        2031
+      ]
+    }
+  ]
+}
