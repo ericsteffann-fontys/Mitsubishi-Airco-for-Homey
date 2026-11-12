@@ -190,6 +190,11 @@ const SP = (() => {
 
   // In de losse HTML-versie zit de catalogus in de pagina zelf (geen server nodig).
   const ingebouwd = () => document.getElementById('catalogus-data');
+  // De container van de app (in WordPress staat de planner binnen een pagina van het thema).
+  const wortel = () => document.querySelector('.sp-app') || document.body;
+  // Voer uit zodra de pagina klaar is, ook als dat moment al voorbij is.
+  const zodraKlaar = (fn) => (document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', fn) : fn());
+  const inWordPress = () => !!(window.SP_WP || document.querySelector('.sp-app[data-wp]'));
   async function laadCatalogus() {
     const el = ingebouwd();
     if (el) return normaliseerCatalogus(JSON.parse(el.textContent));
@@ -241,6 +246,6 @@ const SP = (() => {
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
     binnenLooptijd, looptijdTekst, geldigeStart, startPeriodes, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
-    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, KLEUR_NAMEN, laadCatalogus, normaliseerCatalogus, ingebouwd,
+    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, KLEUR_NAMEN, laadCatalogus, normaliseerCatalogus, ingebouwd, wortel, inWordPress, zodraKlaar,
   };
 })();

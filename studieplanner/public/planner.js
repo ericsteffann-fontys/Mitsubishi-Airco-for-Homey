@@ -513,7 +513,7 @@ const Planner = (() => {
   let toastTimer = null;
   function toast(t, ms = 4500) {
     let el = document.querySelector('.melding-toast');
-    if (!el) { el = document.createElement('div'); el.className = 'melding-toast'; document.body.appendChild(el); }
+    if (!el) { el = document.createElement('div'); el.className = 'melding-toast'; S.wortel().appendChild(el); }
     el.textContent = t;
     el.hidden = false;
     clearTimeout(toastTimer);
@@ -530,7 +530,7 @@ const Planner = (() => {
     state.sel = sel;
     render();
   }
-  function annuleer() { state.sel = null; state.drag = null; document.body.classList.remove('sleept'); render(); }
+  function annuleer() { state.sel = null; state.drag = null; S.wortel().classList.remove('sleept'); render(); }
 
   function doelBereikt(i, sel = state.sel) {
     if (!sel) return false;
@@ -716,19 +716,19 @@ const Planner = (() => {
         g.style.width = Math.round(w * d + 6 * (d - 1)) + 'px';
         g.style.setProperty('--kleur', S.kleurVoor(state.cat, se));
         g.innerHTML = `<b>${S.esc((se.code ? se.code + ' ' : '') + se.naam)}</b><span>${se.ec} EC · ${S.weken(se)} weken</span>`;
-        document.body.appendChild(g);
+        S.wortel().appendChild(g);
         ev.dataTransfer.setDragImage(g, 24, 20);
         setTimeout(() => g.remove(), 0);
       }
       // klasse pas na de start zetten, anders annuleert Chrome het slepen
-      setTimeout(() => { document.body.classList.add('sleept'); markeer(); }, 0);
+      setTimeout(() => { S.wortel().classList.add('sleept'); markeer(); }, 0);
     });
     // Let op: na een drop wordt de lijst opnieuw getekend, waardoor 'dragend' op een
     // losgekoppeld element kan vallen en niet bij document aankomt. Daarom ruimen we
     // ook direct in elke drop-handler op.
     const eindeSleep = () => {
       state.drag = null;
-      document.body.classList.remove('sleept');
+      S.wortel().classList.remove('sleept');
       document.querySelectorAll('.drop').forEach((x) => x.classList.remove('drop'));
       markeer();
     };
@@ -801,7 +801,7 @@ const Planner = (() => {
     });
 
     // dialogen
-    document.querySelectorAll('dialog').forEach((d) => {
+    document.querySelectorAll('#dlg-keuze, #dlg-info').forEach((d) => {
       d.addEventListener('click', (ev) => { if (ev.target === d || ev.target.closest('[data-sluit]')) d.close(); });
     });
     $('#keuze-lijst').addEventListener('click', (ev) => {
@@ -867,12 +867,12 @@ const Planner = (() => {
     try {
       state.cat = await S.laadCatalogus();
     } catch (e) {
-      document.querySelector('main').innerHTML = `<div class="kaart"><h2>De catalogus kon niet geladen worden</h2><p>${S.esc(e.message)}</p></div>`;
+      document.querySelector('#sp-main').innerHTML = `<div class="kaart"><h2>De catalogus kon niet geladen worden</h2><p>${S.esc(e.message)}</p></div>`;
       return;
     }
     state.nu = S.huidigeMoment(state.cat);
     state.plan = leegPlan();
-    document.title = `Studieplanner – ${state.cat.opleiding}`;
+    if (!S.inWordPress()) document.title = `Studieplanner – ${state.cat.opleiding}`;
     $('#titel').textContent = 'Studieplanner';
     $('#subtitel').textContent = `${state.cat.instituut} · ${state.cat.opleiding} · nu: ${S.momentLabel(state.nu)}`;
     vulFormulier();
@@ -881,6 +881,7 @@ const Planner = (() => {
   }
 
   const api = { coachVoor, doelEC, TRAJECTEN, rijIndeling, vandaagPositie, blokkenIn, state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
-  document.addEventListener('DOMContentLoaded', start);
+  // Ook starten als het script pas na DOMContentLoaded geladen wordt (bijv. in WordPress).
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
   return api;
 })();

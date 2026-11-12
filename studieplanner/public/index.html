@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="sp-app">
   <header class="kop">
     <div>
       <h1 id="titel">Studieplanner</h1>
@@ -20,7 +21,7 @@
     </div>
   </header>
 
-  <main class="wrap">
+  <main class="wrap" id="sp-main">
     <details class="kaart" id="gegevens" open>
       <summary>Gegevens en start van je studie</summary>
       <p class="plan-info" id="plan-info" hidden></p>
@@ -111,6 +112,7 @@
     <div class="dinhoud" id="info-inhoud"></div>
     <div class="dvoet" id="info-voet"></div>
   </dialog>
+</div>
 
   <script src="vendor/jspdf.umd.min.js"></script>
   <script src="vendor/jspdf.plugin.autotable.min.js"></script>

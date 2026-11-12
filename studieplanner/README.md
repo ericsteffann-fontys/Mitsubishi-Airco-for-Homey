@@ -67,6 +67,22 @@ Zolang er in beheer nog niets is opgeslagen, gebruikt de app de voorbeeldcatalog
 
 Gebruik HTTPS als je de app online zet (bijvoorbeeld achter de webserver of reverse proxy van de opleiding).
 
+### Als WordPress-plugin
+
+`dist/fontys-studieplanner.zip` is een WordPress-plugin (WordPress 6.0+, PHP 7.4+).
+
+1. Ga naar **Plugins > Nieuwe plugin > Plugin uploaden**, kies de zip en activeer de plugin.
+2. Ga naar het menu **Studieplanner** in het dashboard. Daar staat dezelfde beheeromgeving als hierboven. **Opslaan** bewaart het aanbod in WordPress, en de vorige 20 versies blijven als back-up bewaard.
+3. Zet de planner op een pagina met de shortcode `[studieplanner]`, bijvoorbeeld in een Shortcode-blok. De planner wordt standaard breder dan de tekstkolom van het thema, tot maximaal 1500 px. Met `[studieplanner breedte="normaal"]` blijft hij binnen de kolom.
+
+Hoe de plugin werkt:
+- **Rechten:** alleen gebruikers met `manage_options` (beheerders) kunnen het aanbod wijzigen. Aan te passen met het filter `fontys_studieplanner_capability`. Opslaan gaat via de WordPress REST API met een nonce. De invoer wordt gecontroleerd en opgeschoond.
+- **Privacy:** de plugin slaat alleen het aanbod op. Studentgegevens komen niet op de server; het plan blijft een PDF bij de student.
+- **Opmaak:** de stijlen zijn afgeschermd (`.sp-app`), zodat de planner en het thema elkaar zo min mogelijk beïnvloeden.
+- **Verwijderen:** bij het verwijderen van de plugin worden het aanbod en de back-ups ook verwijderd.
+
+De plugin opnieuw bouwen na een codewijziging: `node build-wordpress.js`. De PHP-bron staat in `wordpress/`.
+
 ### Als losse HTML-bestanden (geen server, geen installatie)
 
 In `dist/` staan twee bestanden die je opent door erop te dubbelklikken:

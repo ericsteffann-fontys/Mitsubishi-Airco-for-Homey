@@ -350,9 +350,13 @@
     if (f) { alert(f); return; }
     $('#status').textContent = 'Opslaan…';
     try {
-      const r = await fetch('api/catalogus', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Admin-Pin': pin }, body: JSON.stringify(cat) });
+      // WordPress: REST API met nonce (rechten regelt WordPress). Anders: eigen server met pincode.
+      const WP = window.SP_WP;
+      const r = WP
+        ? await fetch(WP.restUrl, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': WP.nonce }, body: JSON.stringify(cat) })
+        : await fetch('api/catalogus', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Admin-Pin': pin }, body: JSON.stringify(cat) });
       const d = await r.json().catch(() => ({}));
-      if (!r.ok) { $('#status').textContent = 'Niet opgeslagen: ' + (d.error || r.status); return; }
+      if (!r.ok) { $('#status').textContent = 'Niet opgeslagen: ' + (d.error || d.message || r.status); return; }
       cat.versie = d.versie;
       markeer(false);
       renderEditor();
@@ -428,8 +432,15 @@
     markeer(false);
     $('#status').textContent = 'Beheerbestand gedownload. Vervang het oude bestand.';
   });
-  if (S.ingebouwd() && document.getElementById('planner-sjabloon')) {
-    document.addEventListener('DOMContentLoaded', async () => {
+  if (window.SP_WP) {
+    // In het WordPress-dashboard: direct openen, opslaan gaat naar de WordPress-database.
+    S.zodraKlaar(async () => {
+      $('#inlog').hidden = true;
+      await openBeheer();
+      $('#subtitel').textContent += ' · opgeslagen in WordPress';
+    });
+  } else if (S.ingebouwd() && document.getElementById('planner-sjabloon')) {
+    S.zodraKlaar(async () => {
       zonderServer = true;
       $('#btn-opslaan').hidden = true;
       $('#btn-json-uit').hidden = true;
