@@ -171,9 +171,11 @@ const SP = (() => {
   // ---- hulpjes ----
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Math.random().toString(36).slice(2, 10);
-  const KLEUREN = ['#2563eb', '#7c3aed', '#db2777', '#ea580c', '#16a34a', '#0891b2', '#ca8a04', '#4f46e5', '#be123c', '#0d9488'];
+  // Fontys huisstijlkleuren voor categorieën/EvL's.
+  const KLEUREN = ['#663366', '#0076e0', '#e5007d', '#339933', '#ee7425', '#008387', '#0099cc', '#ff9900', '#39b54a', '#855c85'];
+  const KLEUR_NAMEN = { '#663366': 'Paars', '#855c85': 'Paars 80%', '#e5007d': 'Magenta', '#0076e0': 'Blauw', '#0099cc': 'Lichtblauw', '#008387': 'Petrol', '#339933': 'Groen', '#39b54a': 'Lichtgroen', '#ee7425': 'Oranje', '#ff9900': 'Lichtoranje', '#ffcc00': 'Geel' };
   function kleurVoor(cat, evl) {
-    if (evl && evl.kleur) return evl.kleur;
+    if (evl && evl.kleur && KLEUR_NAMEN[String(evl.kleur).toLowerCase()]) return evl.kleur; // alleen huisstijlkleuren
     const cats = [...new Set(((cat && cat.evls) || []).map((e) => e.categorie || ''))];
     const idx = cats.indexOf((evl && evl.categorie) || '');
     return KLEUREN[(idx < 0 ? 0 : idx) % KLEUREN.length];
@@ -228,6 +230,6 @@ const SP = (() => {
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
     binnenLooptijd, looptijdTekst, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
-    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, laadCatalogus, normaliseerCatalogus, ingebouwd,
+    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, KLEUR_NAMEN, laadCatalogus, normaliseerCatalogus, ingebouwd,
   };
 })();

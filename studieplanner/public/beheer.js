@@ -109,7 +109,7 @@
         <div class="veld"><label for="e-naam">Naam</label><input id="e-naam" data-veld="naam" value="${S.esc(e.naam)}"></div>
         <div class="veld"><label for="e-ec">Omvang</label><select id="e-ec" data-veld="ec"><option value="15"${e.ec === 15 ? ' selected' : ''}>15 EC · 10 weken (1 periode)</option><option value="30"${e.ec === 30 ? ' selected' : ''}>30 EC · 20 weken (2 periodes)</option></select></div>
         <div class="veld"><label for="e-cat">Categorie / fase</label><input id="e-cat" data-veld="categorie" list="cat-lijst" value="${S.esc(e.categorie || '')}"><datalist id="cat-lijst">${cats.map((c) => `<option value="${S.esc(c)}">`).join('')}</datalist></div>
-        <div class="veld"><label for="e-kleur">Kleur (optioneel)</label><input id="e-kleur" type="color" data-veld="kleur" value="${S.esc(e.kleur || S.kleurVoor(cat, e))}"></div>
+        <div class="veld"><label for="e-kleur">Kleur (Fontys huisstijl)</label><select id="e-kleur" data-veld="kleur"><option value="">Automatisch (per categorie)</option>${Object.entries(S.KLEUR_NAMEN).map(([hex, naam]) => `<option value="${hex}"${(e.kleur || '').toLowerCase() === hex ? ' selected' : ''}>${naam}</option>`).join('')}</select></div>
         <div class="veld"><label>Verplicht onderdeel</label><label style="display:inline-flex;gap:6px;align-items:center;font-weight:400;font-size:.9rem;color:inherit;margin-top:6px"><input type="checkbox" data-veld="verplicht" style="width:auto"${e.verplicht ? ' checked' : ''}> Ja, iedere student moet deze EvL halen</label></div>
         <div class="veld"><label for="e-in">Ingangsdatum (infaseren)</label><input id="e-in" type="date" data-veld="ingangsdatum" value="${S.esc(e.ingangsdatum || '')}"></div>
         <div class="veld"><label for="e-uit">Sluitingsdatum (uitfaseren)</label><input id="e-uit" type="date" data-veld="sluitingsdatum" value="${S.esc(e.sluitingsdatum || '')}"></div>
@@ -177,6 +177,7 @@
     const t = ev.target;
     if (t.dataset.veld === 'verplicht') e.verplicht = t.checked;
     else if (t.dataset.veld === 'ec') { e.ec = Number(t.value); renderEditor(); }
+    else if (t.dataset.veld === 'kleur') e.kleur = t.value;
     else if (t.dataset.vereist) {
       e.vereist = t.checked ? [...new Set([...e.vereist, t.dataset.vereist])] : e.vereist.filter((x) => x !== t.dataset.vereist);
     } else if (t.dataset.modus) {

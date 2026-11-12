@@ -6,29 +6,45 @@
   <title>Studieplanner</title>
   <style>
 :root {
-  --paars: #663399;
-  --paars-d: #4b2370;
-  --paars-l: #f1eaf8;
-  --tekst: #1d1b22;
-  --zacht: #625d6b;
-  --lijn: #ddd8e3;
-  --vlak: #ffffff;
-  --achter: #f6f4f8;
-  --ok: #15803d;
-  --ok-l: #dcfce7;
-  --lwo: #0369a1;
-  --lwo-l: #e0f2fe;
-  --fout: #b91c1c;
-  --fout-l: #fee2e2;
-  --let: #a16207;
-  --let-l: #fef3c7;
-  --verleden: #eeecf1;
+  /* Fontys huisstijlkleuren (bron: 'Kleurcodes Fontys'). Alleen deze kleuren en hun
+     officiële gradaties (80/60/40/20%) gebruiken. */
+  --f-paars: #663366;  --f-paars-80: #855c85; --f-paars-60: #a384a3; --f-paars-40: #c2adc2; --f-paars-20: #e0d6e0;
+  --f-magenta: #e5007d; --f-magenta-20: #facce5;
+  --f-blauw: #0076e0;   --f-blauw-20: #cce4f9;
+  --f-lichtblauw: #0099cc;
+  --f-petrol: #008387;
+  --f-groen: #339933;   --f-groen-20: #d6ebd6;
+  --f-lichtgroen: #39b54a;
+  --f-oranje: #ee7425;  --f-oranje-20: #fce3d3;
+  --f-lichtoranje: #ff9900; --f-lichtoranje-20: #ffebcc;
+  --f-geel: #ffcc00;    --f-geel-20: #fff5cc;
+  --f-zwart: #000000; --f-zwart-80: #333333; --f-zwart-60: #666666; --f-zwart-40: #999999; --f-zwart-20: #cccccc;
+  --f-wit: #ffffff;
+
+  /* Rollen in de app */
+  --paars: var(--f-paars);
+  --paars-d: var(--f-paars-80);
+  --paars-l: var(--f-paars-20);
+  --tekst: var(--f-zwart-80);
+  --zacht: var(--f-zwart-60);
+  --lijn: var(--f-zwart-20);
+  --vlak: var(--f-wit);
+  --achter: var(--f-paars-20);
+  --ok: var(--f-groen);
+  --ok-l: var(--f-groen-20);
+  --lwo: var(--f-blauw);
+  --lwo-l: var(--f-blauw-20);
+  --fout: var(--f-magenta);
+  --fout-l: var(--f-magenta-20);
+  --let: var(--f-oranje);
+  --let-l: var(--f-lichtoranje-20);
+  --verleden: var(--f-paars-20);
   --radius: 10px;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font: 15px/1.45 Roboto, Arial, Helvetica, sans-serif;
   color: var(--tekst);
   background: var(--achter);
 }
@@ -132,12 +148,12 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .tag.f { background: var(--ok-l); color: var(--ok); }
 .tag.lwo { background: var(--lwo-l); color: var(--lwo); }
 .tag.verpl { background: var(--let-l); color: var(--let); }
-.tag.grijs { background: #eee; color: #555; }
+.tag.grijs { background: var(--f-zwart-20); color: var(--f-zwart-80); }
 
 /* ---- rooster ---- */
 .hint-balk {
   background: var(--paars-l);
-  border: 1px solid #d6c5ea;
+  border: 1px solid var(--f-paars-40);
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 10px;
@@ -182,21 +198,21 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .cel:hover { border-color: var(--paars); }
 .cel.verleden { background: var(--verleden); }
 .cel.nu { border-color: var(--paars); border-style: solid; }
-.cel.buiten { background: repeating-linear-gradient(45deg, #f3f2f5, #f3f2f5 6px, #ebe9ee 6px, #ebe9ee 12px); cursor: default; border-style: solid; border-color: transparent; }
+.cel.buiten { background: repeating-linear-gradient(45deg, var(--f-wit), var(--f-wit) 7px, var(--f-zwart-20) 7px, var(--f-zwart-20) 9px); cursor: default; border-style: solid; border-color: transparent; }
 .cel.kan-f { background: var(--ok-l); border-color: var(--ok); border-style: solid; }
 .cel.kan-lwo { background: var(--lwo-l); border-color: var(--lwo); border-style: solid; }
-.cel.kan-verleden { background: #ede9fe; border-color: var(--paars); border-style: solid; }
+.cel.kan-verleden { background: var(--f-paars-40); border-color: var(--paars); border-style: solid; }
 .cel.kan-niet { opacity: .45; }
 .cel.drop { box-shadow: 0 0 0 3px var(--paars) inset; }
-.cel.druk { background: #fff7ed; border-color: #fb923c; border-style: solid; }
-.cel.druk .datum { color: #c2410c; font-weight: 600; }
-.cel.kan-druk { box-shadow: 0 0 0 3px #fb923c inset; }
+.cel.druk { background: var(--f-oranje-20); border-color: var(--f-oranje); border-style: solid; }
+.cel.druk .datum { color: var(--f-zwart-80); font-weight: 600; }
+.cel.kan-druk { box-shadow: 0 0 0 3px var(--f-oranje) inset; }
 .cel.kan-vb::before { content: '?'; position: absolute; top: 4px; left: 7px; font-weight: 800; color: var(--let); }
 .jaar { position: relative; grid-template-rows: repeat(var(--banen, 1), minmax(64px, auto)) var(--voet, 22px); }
 .vandaag { position: relative; pointer-events: none; z-index: 6; }
-.vandaag::before { content: ''; position: absolute; top: -5px; bottom: -5px; left: var(--pos); border-left: 2px solid #dc2626; }
-.vandaag span { position: absolute; top: -9px; left: var(--pos); transform: translateX(-50%); background: #dc2626; color: #fff; font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 99px; white-space: nowrap; }
-.legenda .lijn-legenda::before { width: 0; height: 12px; border: 0; border-left: 2px solid #dc2626; border-radius: 0; }
+.vandaag::before { content: ''; position: absolute; top: -5px; bottom: -5px; left: var(--pos); border-left: 2px solid var(--f-magenta); }
+.vandaag span { position: absolute; top: -9px; left: var(--pos); transform: translateX(-50%); background: var(--f-magenta); color: #fff; font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 99px; white-space: nowrap; }
+.legenda .lijn-legenda::before { width: 0; height: 12px; border: 0; border-left: 2px solid var(--f-magenta); border-radius: 0; }
 .jaar .label .voorlopig { color: var(--let); font-weight: 600; }
 .tag.vb { background: var(--let-l); color: var(--let); }
 .sleep-ghost { position: fixed; top: -500px; left: 0; height: 64px; background: #fff; border: 1px solid rgba(0,0,0,.15); border-left: 6px solid var(--kleur, var(--paars)); border-radius: 8px; padding: 6px 9px; font-size: .85rem; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
@@ -224,9 +240,9 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .sleept .blok { pointer-events: none; }
 .blok.verplaatsen { outline: 3px solid var(--paars); }
 .blok.fout { background: var(--fout-l); border-color: var(--fout); }
-.blok.let { background: #fffbeb; }
-.blok.behaald { background: #f0fdf4; }
-.blok.niet-behaald { background: #f5f5f5; opacity: .8; }
+.blok.let { background: var(--f-geel-20); }
+.blok.behaald { background: var(--f-groen-20); }
+.blok.niet-behaald { background: var(--f-wit); opacity: .8; }
 .blok.niet-behaald .t { text-decoration: line-through; }
 .blok .t { font-weight: 650; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; line-height: 1.25; }
 .blok .r.kopregel { flex-wrap: nowrap; align-items: flex-start; }
@@ -256,7 +272,7 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .teller { background: var(--achter); border-radius: 8px; padding: 8px 10px; }
 .teller b { display: block; font-size: 1.35rem; }
 .teller span { font-size: .8rem; color: var(--zacht); }
-.balk { height: 10px; border-radius: 99px; background: #e9e6ee; overflow: hidden; display: flex; margin-bottom: 12px; }
+.balk { height: 10px; border-radius: 99px; background: var(--f-zwart-20); overflow: hidden; display: flex; margin-bottom: 12px; }
 .balk i { display: block; height: 100%; }
 .meldingen { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 4px; font-size: .9rem; }
 .meldingen li { padding: 5px 9px; border-radius: 6px; background: var(--let-l); }
@@ -266,7 +282,7 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 
 /* ---- dialogen ---- */
 dialog { border: 0; border-radius: 12px; padding: 0; width: min(640px, calc(100vw - 32px)); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
-dialog::backdrop { background: rgba(30, 20, 40, .45); }
+dialog::backdrop { background: rgba(51, 51, 51, .5); }
 dialog .dkop { padding: 14px 18px; border-bottom: 1px solid var(--lijn); display: flex; align-items: center; gap: 10px; }
 dialog .dkop h2 { flex: 1; }
 dialog .dinhoud { padding: 14px 18px; max-height: 65vh; overflow: auto; }
@@ -279,7 +295,7 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
 
 .melding-toast {
   position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-  background: #2a2333; color: #fff; padding: 10px 16px; border-radius: 9px; z-index: 100;
+  background: var(--f-zwart-80); color: #fff; padding: 10px 16px; border-radius: 9px; z-index: 100;
   box-shadow: 0 8px 24px rgba(0,0,0,.3); max-width: calc(100vw - 32px);
 }
 
@@ -339,6 +355,13 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
   .blok .melding { font-size: .65rem; }
 }
 
+/* studiecoach per schooljaar */
+.coach-lijst { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px 12px; }
+.coach-lijst .coach { display: flex; gap: 8px; align-items: center; font-size: .85rem; color: var(--zacht); }
+.coach-lijst .coach span { min-width: 74px; font-weight: 600; }
+.coach-lijst input { flex: 1; min-width: 0; border: 1px solid var(--lijn); border-radius: 7px; padding: 5px 8px; }
+.jaar .label .coach-naam { color: var(--paars); overflow: hidden; text-overflow: ellipsis; }
+
 </style>
 </head>
 <body>
@@ -363,9 +386,18 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
       <div class="velden">
         <div class="veld"><label for="f-naam">Naam student</label><input id="f-naam" autocomplete="off"></div>
         <div class="veld"><label for="f-nummer">Studentnummer</label><input id="f-nummer" autocomplete="off"></div>
-        <div class="veld"><label for="f-coach">Studiecoach</label><input id="f-coach" autocomplete="off"></div>
+        <div class="veld"><label for="f-traject">Traject</label>
+          <select id="f-traject">
+            <option value="voltijd">Voltijd</option>
+            <option value="deeltijd">Deeltijd</option>
+            <option value="maatwerk">Maatwerk / verkort traject</option>
+            <option value="modules">Losse modules</option>
+          </select>
+        </div>
+        <div class="veld"><label for="f-doel">EC-doel van jouw programma</label><input id="f-doel" type="number" min="0" step="15" placeholder="geen vast doel"></div>
         <div class="veld"><label for="f-startjaar">Instroom: schooljaar</label><select id="f-startjaar"></select></div>
         <div class="veld"><label for="f-startperiode">Instroom: periode</label><select id="f-startperiode"></select></div>
+        <div class="veld breed"><label>Studiecoach per schooljaar</label><div class="coach-lijst" id="coaches"></div></div>
         <div class="veld breed"><label for="f-opmerkingen">Afspraken / opmerkingen (met je studiecoach)</label><textarea id="f-opmerkingen"></textarea></div>
       </div>
       <p class="uitleg" id="instap-uitleg"></p>
@@ -396,10 +428,10 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
           <div class="legenda">
             <span style="--c: var(--ok-l)">kan fysiek</span>
             <span style="--c: var(--lwo-l)">alleen leerwegonafhankelijk</span>
-            <span style="--c: #ede9fe">verleden (wat je al gedaan hebt)</span>
+            <span style="--c: var(--f-paars-40)">hier kun je invullen wat je al gedaan hebt</span>
             <span style="--c: var(--verleden)">periode is voorbij</span>
-            <span style="--c: #ebe9ee">vóór je instroom</span>
-            <span style="--c: #fed7aa">meerdere EvL's tegelijk (extra studiedruk)</span>
+            <span style="--c: var(--f-zwart-20)">vóór je instroom</span>
+            <span style="--c: var(--f-oranje-20)">meerdere EvL's tegelijk (extra studiedruk)</span>
             <span class="lijn-legenda">vandaag</span>
           </div>
           <div class="kolomkop" id="kolomkop"></div>
@@ -1001,9 +1033,11 @@ const SP = (() => {
   // ---- hulpjes ----
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const uid = () => Math.random().toString(36).slice(2, 10);
-  const KLEUREN = ['#2563eb', '#7c3aed', '#db2777', '#ea580c', '#16a34a', '#0891b2', '#ca8a04', '#4f46e5', '#be123c', '#0d9488'];
+  // Fontys huisstijlkleuren voor categorieën/EvL's.
+  const KLEUREN = ['#663366', '#0076e0', '#e5007d', '#339933', '#ee7425', '#008387', '#0099cc', '#ff9900', '#39b54a', '#855c85'];
+  const KLEUR_NAMEN = { '#663366': 'Paars', '#855c85': 'Paars 80%', '#e5007d': 'Magenta', '#0076e0': 'Blauw', '#0099cc': 'Lichtblauw', '#008387': 'Petrol', '#339933': 'Groen', '#39b54a': 'Lichtgroen', '#ee7425': 'Oranje', '#ff9900': 'Lichtoranje', '#ffcc00': 'Geel' };
   function kleurVoor(cat, evl) {
-    if (evl && evl.kleur) return evl.kleur;
+    if (evl && evl.kleur && KLEUR_NAMEN[String(evl.kleur).toLowerCase()]) return evl.kleur; // alleen huisstijlkleuren
     const cats = [...new Set(((cat && cat.evls) || []).map((e) => e.categorie || ''))];
     const idx = cats.indexOf((evl && evl.categorie) || '');
     return KLEUREN[(idx < 0 ? 0 : idx) % KLEUREN.length];
@@ -1058,7 +1092,7 @@ const SP = (() => {
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
     binnenLooptijd, looptijdTekst, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
-    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, laadCatalogus, normaliseerCatalogus, ingebouwd,
+    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, KLEUR_NAMEN, laadCatalogus, normaliseerCatalogus, ingebouwd,
   };
 })();
 
@@ -1086,7 +1120,7 @@ const Planner = (() => {
   function leegPlan() {
     const nu = state.nu;
     return {
-      student: { naam: '', nummer: '', coach: '', opmerkingen: '' },
+      student: { naam: '', nummer: '', traject: 'voltijd', doelEC: state.cat.totaalEC, coaches: {}, opmerkingen: '' },
       startJaar: S.jaarVan(nu),
       startPeriode: S.periodeVan(nu), // tussentijds instromen kan: elke periode is een instroommoment
       jaren: 4, // aantal schooljaren (rijen) in beeld; uit te breiden met '+ Schooljaar toevoegen'
@@ -1102,6 +1136,16 @@ const Planner = (() => {
   const hStart = () => S.abs(state.plan.startJaar, state.plan.startPeriode);
   const hEind = () => S.abs(state.plan.startJaar + state.plan.jaren - 1, S.PER);
   const actief = (b) => b.status !== 'niet-behaald';
+  // EC-doel verschilt per student (voltijd, deeltijd, maatwerk, losse modules); leeg = geen vast doel.
+  const doelEC = () => { const d = Number(state.plan.student.doelEC); return d > 0 ? d : null; };
+  const standaardTraject = () => ['voltijd', 'deeltijd'].includes(state.plan.student.traject || 'voltijd');
+  const TRAJECTEN = { voltijd: 'Voltijd', deeltijd: 'Deeltijd', maatwerk: 'Maatwerk / verkort traject', modules: 'Losse modules' };
+  // Studiecoach per schooljaar; zonder invulling geldt de coach van het jaar ervoor.
+  function coachVoor(j) {
+    const c = state.plan.student.coaches || {};
+    for (let k = j; k >= state.plan.startJaar; k--) if ((c[k] || '').trim()) return { naam: c[k].trim(), geerfd: k !== j };
+    return { naam: '', geerfd: false };
+  }
 
   function snapshot(b) {
     const e = evlVan(b.evl);
@@ -1261,11 +1305,16 @@ const Planner = (() => {
       if (dagen >= 90) meldingen.push({ niveau: 'let', t: `Dit plan is ${dagen} dagen geleden voor het laatst opgeslagen. Bespreek met je studiecoach of het herzien moet worden.` });
     }
     const ontbreekt = state.cat.evls.filter((e) => e.verplicht && !state.plan.blokken.some((b) => b.evl === e.id && actief(b)));
-    if (ontbreekt.length) meldingen.push({ niveau: 'let', t: `Nog niet ingepland (verplicht): ${ontbreekt.map((e) => e.naam).join(', ')}.` });
-    const doel = state.cat.totaalEC;
-    if (t.totaal < doel) meldingen.push({ niveau: 'info', t: `Nog ${doel - t.totaal} EC te plannen om op ${doel} EC te komen.` });
-    if (t.totaal > doel) meldingen.push({ niveau: 'let', t: `Je plan telt ${t.totaal} EC, meer dan de ${doel} EC van de opleiding.` });
-    if (!meldingen.length || (t.totaal === doel && !meldingen.some((x) => x.niveau !== 'info'))) meldingen.push({ niveau: 'ok', t: `Je plan is compleet: ${doel} EC zonder aandachtspunten.` });
+    if (ontbreekt.length) {
+      meldingen.push(standaardTraject()
+        ? { niveau: 'let', t: `Nog niet ingepland (verplicht): ${ontbreekt.map((e) => e.naam).join(', ')}.` }
+        : { niveau: 'info', t: `Verplicht in het standaardprogramma, niet in jouw plan: ${ontbreekt.map((e) => e.naam).join(', ')}. Controleer met je studiecoach of dit klopt voor jouw traject.` });
+    }
+    const doel = doelEC();
+    if (!doel) meldingen.push({ niveau: 'info', t: `Geen vast EC-doel: je plan telt ${t.totaal} EC.` });
+    else if (t.totaal < doel) meldingen.push({ niveau: 'info', t: `Nog ${doel - t.totaal} EC te plannen om op jouw doel van ${doel} EC te komen.` });
+    else if (t.totaal > doel) meldingen.push({ niveau: 'let', t: `Je plan telt ${t.totaal} EC, meer dan jouw doel van ${doel} EC.` });
+    if (doel && t.totaal === doel && !meldingen.some((x) => x.niveau !== 'info')) meldingen.push({ niveau: 'ok', t: `Je plan is compleet: ${doel} EC zonder aandachtspunten.` });
     return { t, meldingen };
   }
 
@@ -1292,6 +1341,7 @@ const Planner = (() => {
 
   function render() {
     renderPlanInfo();
+    renderCoaches();
     renderLijst();
     renderRooster();
     renderVrij();
@@ -1362,6 +1412,24 @@ const Planner = (() => {
     return res;
   }
 
+  function coachLabel(j) {
+    const c = coachVoor(j);
+    return c.naam ? `<small class="coach-naam" title="Studiecoach ${S.esc(S.jaarLabel(j))}">coach: ${S.esc(c.naam)}</small>` : '';
+  }
+
+  function renderCoaches() {
+    const box = $('#coaches');
+    const actiefVeld = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.coachJaar;
+    if (actiefVeld) return; // niet herschrijven terwijl iemand typt
+    const c = state.plan.student.coaches || {};
+    const html = [];
+    for (let j = state.plan.startJaar; j < state.plan.startJaar + state.plan.jaren; j++) {
+      const vorige = j > state.plan.startJaar ? coachVoor(j - 1).naam : '';
+      html.push(`<label class="coach"><span>${S.jaarLabel(j)}</span><input data-coach-jaar="${j}" autocomplete="off" value="${S.esc(c[j] || '')}" placeholder="${S.esc(vorige ? 'zelfde: ' + vorige : 'naam studiecoach')}"></label>`);
+    }
+    box.innerHTML = html.join('');
+  }
+
   function renderRooster() {
     const h0 = hStart(), h1 = hEind();
     const rijen = [];
@@ -1387,7 +1455,7 @@ const Planner = (() => {
       }
       const jaarNr = j - S.jaarVan(h0) + 1;
       const voorlopig = S.datumsVoorlopig(state.cat, j) ? '<small class="voorlopig">datums volgen</small>' : '';
-      rijen.push(`<div class="jaar" style="--banen:${banen}"><div class="label" style="grid-row:1 / -1">${S.jaarLabel(j)}<small>studiejaar ${jaarNr}</small>${voorlopig}</div>${cel.join('')}${blokken.join('')}${lijn}</div>`);
+      rijen.push(`<div class="jaar" style="--banen:${banen}"><div class="label" style="grid-row:1 / -1">${S.jaarLabel(j)}<small>studiejaar ${jaarNr}</small>${coachLabel(j)}${voorlopig}</div>${cel.join('')}${blokken.join('')}${lijn}</div>`);
     }
     $('#rooster').innerHTML = rijen.join('');
     $('#kolomkop').innerHTML = '<div></div>' + [1, 2, 3, 4].map((p) => `<div>Periode ${p} · ${S.maandVan(state.cat, p)}<br><small>10 weken</small></div>`).join('');
@@ -1400,7 +1468,7 @@ const Planner = (() => {
       ? `Let op: er is nog geen aanbod ingesteld na ${S.jaarLabel(state.cat.laatsteSchooljaar)}.` : '';
     const instap = h0 < state.nu;
     $('#instap-uitleg').textContent = instap
-      ? 'Je bent al met je studie bezig. Zet in de grijze periodes (verleden) de EvL\'s die je al gevolgd hebt en geef aan of je ze behaald hebt. Daarna plan je de rest.'
+      ? 'Je bent al met je studie bezig. Zet in de voorbije periodes (lichtpaars) de EvL\'s die je al gevolgd hebt en geef aan of je ze behaald hebt. Daarna plan je de rest.'
       : '';
   }
 
@@ -1442,12 +1510,13 @@ const Planner = (() => {
 
   function renderOverzicht() {
     const { t, meldingen } = overzicht();
-    const doel = state.cat.totaalEC;
+    const doel = doelEC();
     $('#tellers').innerHTML = [
-      ['Behaald', t.behaald], ['Vrijstelling', t.vrijstelling], ['Loopt nu', t.bezig], ['Gepland', t.gepland], ['Totaal in plan', `${t.totaal} / ${doel}`],
+      ['Behaald', t.behaald], ['Vrijstelling', t.vrijstelling], ['Loopt nu', t.bezig], ['Gepland', t.gepland], [doel ? 'Totaal in plan / jouw doel' : 'Totaal in plan', doel ? `${t.totaal} / ${doel}` : t.totaal],
     ].map(([n, v]) => `<div class="teller"><b>${v} EC</b><span>${n}</span></div>`).join('');
-    const pct = (x) => Math.min(100, (x / doel) * 100) + '%';
-    $('#balk').innerHTML = `<i style="width:${pct(t.behaald + t.vrijstelling)};background:var(--ok)"></i><i style="width:${pct(t.bezig)};background:#f59e0b"></i><i style="width:${pct(t.gepland)};background:var(--paars)"></i>`;
+    const basis = Math.max(doel || 0, t.totaal, 1);
+    const pct = (x) => Math.min(100, (x / basis) * 100) + '%';
+    $('#balk').innerHTML = `<i style="width:${pct(t.behaald + t.vrijstelling)};background:var(--ok)"></i><i style="width:${pct(t.bezig)};background:var(--f-lichtoranje)"></i><i style="width:${pct(t.gepland)};background:var(--paars)"></i>`;
     $('#meldingen').innerHTML = meldingen.map((m) => `<li class="${m.niveau}">${S.esc(m.t)}</li>`).join('');
   }
 
@@ -1576,7 +1645,8 @@ const Planner = (() => {
     const p = state.plan;
     $('#f-naam').value = p.student.naam || '';
     $('#f-nummer').value = p.student.nummer || '';
-    $('#f-coach').value = p.student.coach || '';
+    $('#f-traject').value = p.student.traject || 'voltijd';
+    $('#f-doel').value = p.student.doelEC || '';
     $('#f-opmerkingen').value = p.student.opmerkingen || '';
     const sj = $('#f-startjaar');
     sj.innerHTML = '';
@@ -1598,7 +1668,14 @@ const Planner = (() => {
     const p = state.plan;
     p.student.naam = $('#f-naam').value.trim();
     p.student.nummer = $('#f-nummer').value.trim();
-    p.student.coach = $('#f-coach').value.trim();
+    p.student.traject = $('#f-traject').value;
+    const d = $('#f-doel').value.trim();
+    p.student.doelEC = d === '' ? '' : Math.max(0, Number(d) || 0);
+    p.student.coaches = p.student.coaches || {};
+    document.querySelectorAll('[data-coach-jaar]').forEach((el) => {
+      const v = el.value.trim();
+      if (v) p.student.coaches[el.dataset.coachJaar] = v; else delete p.student.coaches[el.dataset.coachJaar];
+    });
     p.student.opmerkingen = $('#f-opmerkingen').value;
     p.startJaar = Number($('#f-startjaar').value);
     p.startPeriode = Number($('#f-startperiode').value);
@@ -1621,7 +1698,11 @@ const Planner = (() => {
     if (!d || d.app !== 'fontys-studieplanner' || !Array.isArray(d.blokken)) throw new Error('Dit PDF bevat geen studieplan van deze app.');
     const start = S.parseMoment(d.start);
     const p = leegPlan();
-    p.student = { naam: '', nummer: '', coach: '', opmerkingen: '', ...(d.student || {}) };
+    p.student = { naam: '', nummer: '', traject: 'voltijd', doelEC: state.cat.totaalEC, coaches: {}, opmerkingen: '', ...(d.student || {}) };
+    if (p.student.coach && !Object.keys(p.student.coaches || {}).length && start != null) {
+      p.student.coaches = { [S.jaarVan(start)]: p.student.coach }; // oudere PDF's: één coach
+    }
+    delete p.student.coach;
     if (start != null) { p.startJaar = S.jaarVan(start); p.startPeriode = S.periodeVan(start); }
     p.jaren = Math.min(12, Math.max(1, Number(d.jaren) || 4));
     p.eersteVersie = d.eersteVersie || d.gemaakt || null;
@@ -1661,7 +1742,29 @@ const Planner = (() => {
   // ---------- events ----------
   function koppel() {
     // formulier
-    ['#f-naam', '#f-nummer', '#f-coach', '#f-opmerkingen'].forEach((s) => $(s).addEventListener('input', () => { leesFormulier(); state.gewijzigd = true; }));
+    ['#f-naam', '#f-nummer', '#f-opmerkingen'].forEach((s) => $(s).addEventListener('input', () => { leesFormulier(); state.gewijzigd = true; }));
+    $('#coaches').addEventListener('input', () => {
+      leesFormulier(); state.gewijzigd = true;
+      // placeholders van latere jaren en de labels in het rooster bijwerken
+      document.querySelectorAll('[data-coach-jaar]').forEach((el) => {
+        const j = Number(el.dataset.coachJaar);
+        const vorige = j > state.plan.startJaar ? coachVoor(j - 1).naam : '';
+        el.placeholder = vorige ? 'zelfde: ' + vorige : 'naam studiecoach';
+      });
+      renderRooster();
+    });
+    $('#coaches').addEventListener('focusout', () => setTimeout(renderCoaches, 0));
+    $('#f-doel').addEventListener('input', () => { leesFormulier(); state.gewijzigd = true; renderOverzicht(); });
+    $('#f-traject').addEventListener('change', () => {
+      const oud = state.plan.student.traject;
+      leesFormulier();
+      const t = state.plan.student.traject, d = state.plan.student.doelEC;
+      // Doel alleen automatisch aanpassen als het nog op de standaardwaarde stond.
+      if (['voltijd', 'deeltijd'].includes(t) && (d === '' || !d)) state.plan.student.doelEC = state.cat.totaalEC;
+      if (t === 'modules' && Number(d) === state.cat.totaalEC) state.plan.student.doelEC = '';
+      if (oud !== t) $('#f-doel').value = state.plan.student.doelEC || '';
+      wijzig();
+    });
     ['#f-startjaar', '#f-startperiode'].forEach((s) => $(s).addEventListener('change', () => {
       const oudJaar = state.plan.startJaar;
       if (s === '#f-startjaar') vulPeriodes(Number($('#f-startjaar').value));
@@ -1874,7 +1977,7 @@ const Planner = (() => {
     render();
   }
 
-  const api = { rijIndeling, vandaagPositie, blokkenIn, state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
+  const api = { coachVoor, doelEC, TRAJECTEN, rijIndeling, vandaagPositie, blokkenIn, state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
   document.addEventListener('DOMContentLoaded', start);
   return api;
 })();
@@ -1888,13 +1991,17 @@ const Planner = (() => {
 
 const StudiePdf = (() => {
   const S = SP;
-  const PAARS = [102, 51, 153];
+  // Fontys huisstijlkleuren (RGB) en hun officiële gradaties.
+  const PAARS = [102, 51, 102];       // #663366
+  const MAGENTA = [229, 0, 125];      // #e5007d
+  const ORANJE = [238, 116, 37];      // #ee7425
+  const GRIJS_LIJN = [204, 204, 204]; // zwart 20%
   const KLEUR_STATUS = {
-    behaald: [220, 252, 231],
-    vrijstelling: [220, 252, 231],
-    bezig: [254, 243, 199],
-    gepland: [241, 234, 248],
-    'niet-behaald': [235, 235, 235],
+    behaald: [214, 235, 214],      // groen 20%
+    vrijstelling: [214, 235, 214],
+    bezig: [255, 235, 204],        // lichtoranje 20%
+    gepland: [224, 214, 224],      // paars 20%
+    'niet-behaald': [204, 204, 204], // zwart 20%
   };
 
   function datumNL(d = new Date()) {
@@ -1931,23 +2038,25 @@ const StudiePdf = (() => {
     const eerste = data.eersteVersie && data.eersteVersie !== data.gemaakt ? `Eerste versie: ${datumNL(new Date(data.eersteVersie))} · ` : '';
     doc.text(`${eerste}Aanbod versie: ${cat.versie || '-'}`, W - M, 16.5, { align: 'right' });
 
-    doc.setTextColor(30, 27, 34);
+    doc.setTextColor(51, 51, 51);
     const st = plan.student;
     const regels = [
-      ['Student', st.naam || '-'], ['Studentnummer', st.nummer || '-'], ['Studiecoach', st.coach || '-'],
+      ['Student', st.naam || '-'], ['Studentnummer', st.nummer || '-'], ['Studiecoach nu', api.coachVoor(Math.max(plan.startJaar, S.jaarVan(state.nu))).naam || '-'],
       ['Instroom', `${S.momentLabel(api.hStart())} (${S.startTekst(cat, api.hStart())})`],
-      ['EC', `${t.totaal} van ${cat.totaalEC} in plan (behaald ${t.behaald}, vrijstelling ${t.vrijstelling}, loopt ${t.bezig}, gepland ${t.gepland})`],
+      ['Traject', `${api.TRAJECTEN[st.traject] || 'Voltijd'} · EC-doel: ${api.doelEC() ? api.doelEC() + ' EC' : 'geen vast doel'}`],
+      ['EC', `${t.totaal}${api.doelEC() ? ' van ' + api.doelEC() : ''} in plan (behaald ${t.behaald}, vrijstelling ${t.vrijstelling}, loopt ${t.bezig}, gepland ${t.gepland})`],
     ];
     let y = 30;
     doc.setFontSize(10);
     regels.forEach(([k, v], idx) => {
-      const x = idx < 3 ? M + idx * 80 : M + (idx - 3) * 80;
-      const yy = idx < 3 ? y : y + 6;
+      // de EC-regel is lang en krijgt een eigen regel
+      const x = k === 'EC' ? M : M + (idx % 3) * 80;
+      const yy = k === 'EC' ? y + 12 : y + Math.floor(idx / 3) * 6;
       doc.setFont('helvetica', 'bold'); doc.text(k + ':', x, yy);
       const bw = doc.getTextWidth(k + ':');
       doc.setFont('helvetica', 'normal'); doc.text(String(v), x + bw + 2, yy);
     });
-    y += 12;
+    y += 18;
 
     // ---- overzicht per schooljaar ----
     // EvL's die tegelijk lopen staan onder elkaar (één tabelrij per baan).
@@ -1955,14 +2064,14 @@ const StudiePdf = (() => {
     const bereik = (begin, eind) => (S.datumsVoorlopig(cat, S.jaarVan(begin))
       ? `± ${S.maandKort(S.periodeStart(cat, begin))} – ${S.maandKort(S.periodeEind(cat, eind))} (datum volgt)`
       : `${S.datumKort(S.periodeStart(cat, begin))} – ${S.datumKort(S.periodeEind(cat, eind))}`);
-    const GRIJS = [140, 135, 150];
+    const GRIJS = [102, 102, 102]; // zwart 60%
     const body = [];
     const rijJaar = []; // tabelrij -> schooljaar (voor de vandaag-lijn)
     for (let j = S.jaarVan(h0); j <= S.jaarVan(h1); j++) {
       const { segs, banen } = api.rijIndeling(j);
       for (let L = 0; L < banen; L++) {
         const rij = [];
-        if (L === 0) rij.push({ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}${S.datumsVoorlopig(cat, j) ? '\ndatums volgen' : ''}`, rowSpan: banen, styles: { fontStyle: 'bold' } });
+        if (L === 0) rij.push({ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}${api.coachVoor(j).naam ? '\ncoach: ' + api.coachVoor(j).naam : ''}${S.datumsVoorlopig(cat, j) ? '\ndatums volgen' : ''}`, rowSpan: banen, styles: { fontStyle: 'bold' } });
         for (let p = 1; p <= S.PER; p++) {
           const i = S.abs(j, p);
           const g = segs.find((x) => x.baan === L && x.s <= i && i <= x.eind);
@@ -1975,10 +2084,10 @@ const StudiePdf = (() => {
             rij.push({
               content: `${bereik(g.s, g.eind)}\n${e.code ? e.code + ' ' : ''}${e.naam}${g.vervolg ? ' (vervolg)' : ''}\n${e.ec} EC · ${S.leerwegNaam(b.leerweg)} · ${S.STATUS[b.status] || b.status}${vb ? ' · onder voorbehoud' : ''}${druk ? ' · tegelijk met andere EvL' : ''}${fout ? ' · LET OP' : ''}`,
               colSpan: g.eind - g.s + 1,
-              styles: { fillColor: fout ? [254, 226, 226] : KLEUR_STATUS[b.status] || [255, 255, 255], lineColor: druk ? [251, 146, 60] : [210, 205, 218] },
+              styles: { fillColor: fout ? [250, 204, 229] : KLEUR_STATUS[b.status] || [255, 255, 255], lineColor: druk ? ORANJE : GRIJS_LIJN },
             });
           } else if (i < h0) {
-            rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}\nvóór instroom` : '', styles: { fillColor: [243, 242, 245], textColor: GRIJS } });
+            rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}\nvóór instroom` : '', styles: { fillColor: [255, 255, 255], textColor: [153, 153, 153] } });
           } else {
             rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}${i === h0 ? '\ninstroom' : ''}` : '', styles: { textColor: GRIJS } });
           }
@@ -1994,7 +2103,7 @@ const StudiePdf = (() => {
       head: [['Schooljaar', 'Periode 1', 'Periode 2', 'Periode 3', 'Periode 4']],
       body,
       theme: 'grid',
-      styles: { fontSize: 8.5, cellPadding: 2, valign: 'middle', lineColor: [210, 205, 218], minCellHeight: 12 },
+      styles: { fontSize: 8.5, cellPadding: 2, valign: 'middle', lineColor: GRIJS_LIJN, minCellHeight: 12 },
       headStyles: { fillColor: PAARS, textColor: 255, minCellHeight: 8 },
       columnStyles: (() => { const pw = (W - 2 * M - 28) / 4; return { 0: { cellWidth: 28 }, 1: { cellWidth: pw }, 2: { cellWidth: pw }, 3: { cellWidth: pw }, 4: { cellWidth: pw } }; })(),
       margin: { left: M, right: M },
@@ -2014,14 +2123,14 @@ const StudiePdf = (() => {
       const x = k.x + k.w * vp.frac;
       const huidig = doc.internal.getCurrentPageInfo().pageNumber;
       doc.setPage(r.pagina);
-      doc.setDrawColor(220, 38, 38); doc.setLineWidth(0.6);
+      doc.setDrawColor(...MAGENTA); doc.setLineWidth(0.6);
       doc.line(x, r.y1 - 1, x, r.y2 + 1);
       const label = `opgeslagen ${S.datumKort(S.iso(opgeslagen))}`;
       doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
       const lw = doc.getTextWidth(label) + 3;
-      doc.setFillColor(220, 38, 38); doc.roundedRect(x - lw / 2, r.y1 - 4, lw, 3.6, 1.2, 1.2, 'F');
+      doc.setFillColor(...MAGENTA); doc.roundedRect(x - lw / 2, r.y1 - 4, lw, 3.6, 1.2, 1.2, 'F');
       doc.setTextColor(255, 255, 255); doc.text(label, x, r.y1 - 1.3, { align: 'center' });
-      doc.setTextColor(30, 27, 34); doc.setLineWidth(0.2);
+      doc.setTextColor(51, 51, 51); doc.setLineWidth(0.2);
       doc.setPage(huidig);
     }
 
@@ -2055,7 +2164,7 @@ const StudiePdf = (() => {
     const punten = meldingen.map((m) => [m.niveau === 'fout' ? 'Moet aangepast' : m.niveau === 'let' ? 'Let op' : m.niveau === 'ok' ? 'In orde' : 'Info', m.t]);
     let y3 = doc.lastAutoTable.finalY + 10;
     if (y3 > doc.internal.pageSize.getHeight() - 30) { doc.addPage(); y3 = 16; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(30, 27, 34);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(51, 51, 51);
     doc.text('Aandachtspunten', M, y3);
     tabel({
       startY: y3 + 2,
@@ -2082,7 +2191,7 @@ const StudiePdf = (() => {
     const H = doc.internal.pageSize.getHeight();
     for (let k = 1; k <= n; k++) {
       doc.setPage(k);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(98, 93, 107);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(102, 102, 102);
       doc.text('De studieplanner bewaart zelf geen gegevens. Bewaar dit PDF en lees het in met "PDF inlezen" om je plan later verder aan te passen.', M, H - 6);
       doc.text(`Pagina ${k} van ${n}`, W - M, H - 6, { align: 'right' });
     }

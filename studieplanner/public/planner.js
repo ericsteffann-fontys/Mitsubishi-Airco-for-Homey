@@ -20,7 +20,7 @@ const Planner = (() => {
   function leegPlan() {
     const nu = state.nu;
     return {
-      student: { naam: '', nummer: '', coach: '', opmerkingen: '' },
+      student: { naam: '', nummer: '', traject: 'voltijd', doelEC: state.cat.totaalEC, coaches: {}, opmerkingen: '' },
       startJaar: S.jaarVan(nu),
       startPeriode: S.periodeVan(nu), // tussentijds instromen kan: elke periode is een instroommoment
       jaren: 4, // aantal schooljaren (rijen) in beeld; uit te breiden met '+ Schooljaar toevoegen'
@@ -36,6 +36,16 @@ const Planner = (() => {
   const hStart = () => S.abs(state.plan.startJaar, state.plan.startPeriode);
   const hEind = () => S.abs(state.plan.startJaar + state.plan.jaren - 1, S.PER);
   const actief = (b) => b.status !== 'niet-behaald';
+  // EC-doel verschilt per student (voltijd, deeltijd, maatwerk, losse modules); leeg = geen vast doel.
+  const doelEC = () => { const d = Number(state.plan.student.doelEC); return d > 0 ? d : null; };
+  const standaardTraject = () => ['voltijd', 'deeltijd'].includes(state.plan.student.traject || 'voltijd');
+  const TRAJECTEN = { voltijd: 'Voltijd', deeltijd: 'Deeltijd', maatwerk: 'Maatwerk / verkort traject', modules: 'Losse modules' };
+  // Studiecoach per schooljaar; zonder invulling geldt de coach van het jaar ervoor.
+  function coachVoor(j) {
+    const c = state.plan.student.coaches || {};
+    for (let k = j; k >= state.plan.startJaar; k--) if ((c[k] || '').trim()) return { naam: c[k].trim(), geerfd: k !== j };
+    return { naam: '', geerfd: false };
+  }
 
   function snapshot(b) {
     const e = evlVan(b.evl);
@@ -195,11 +205,16 @@ const Planner = (() => {
       if (dagen >= 90) meldingen.push({ niveau: 'let', t: `Dit plan is ${dagen} dagen geleden voor het laatst opgeslagen. Bespreek met je studiecoach of het herzien moet worden.` });
     }
     const ontbreekt = state.cat.evls.filter((e) => e.verplicht && !state.plan.blokken.some((b) => b.evl === e.id && actief(b)));
-    if (ontbreekt.length) meldingen.push({ niveau: 'let', t: `Nog niet ingepland (verplicht): ${ontbreekt.map((e) => e.naam).join(', ')}.` });
-    const doel = state.cat.totaalEC;
-    if (t.totaal < doel) meldingen.push({ niveau: 'info', t: `Nog ${doel - t.totaal} EC te plannen om op ${doel} EC te komen.` });
-    if (t.totaal > doel) meldingen.push({ niveau: 'let', t: `Je plan telt ${t.totaal} EC, meer dan de ${doel} EC van de opleiding.` });
-    if (!meldingen.length || (t.totaal === doel && !meldingen.some((x) => x.niveau !== 'info'))) meldingen.push({ niveau: 'ok', t: `Je plan is compleet: ${doel} EC zonder aandachtspunten.` });
+    if (ontbreekt.length) {
+      meldingen.push(standaardTraject()
+        ? { niveau: 'let', t: `Nog niet ingepland (verplicht): ${ontbreekt.map((e) => e.naam).join(', ')}.` }
+        : { niveau: 'info', t: `Verplicht in het standaardprogramma, niet in jouw plan: ${ontbreekt.map((e) => e.naam).join(', ')}. Controleer met je studiecoach of dit klopt voor jouw traject.` });
+    }
+    const doel = doelEC();
+    if (!doel) meldingen.push({ niveau: 'info', t: `Geen vast EC-doel: je plan telt ${t.totaal} EC.` });
+    else if (t.totaal < doel) meldingen.push({ niveau: 'info', t: `Nog ${doel - t.totaal} EC te plannen om op jouw doel van ${doel} EC te komen.` });
+    else if (t.totaal > doel) meldingen.push({ niveau: 'let', t: `Je plan telt ${t.totaal} EC, meer dan jouw doel van ${doel} EC.` });
+    if (doel && t.totaal === doel && !meldingen.some((x) => x.niveau !== 'info')) meldingen.push({ niveau: 'ok', t: `Je plan is compleet: ${doel} EC zonder aandachtspunten.` });
     return { t, meldingen };
   }
 
@@ -226,6 +241,7 @@ const Planner = (() => {
 
   function render() {
     renderPlanInfo();
+    renderCoaches();
     renderLijst();
     renderRooster();
     renderVrij();
@@ -296,6 +312,24 @@ const Planner = (() => {
     return res;
   }
 
+  function coachLabel(j) {
+    const c = coachVoor(j);
+    return c.naam ? `<small class="coach-naam" title="Studiecoach ${S.esc(S.jaarLabel(j))}">coach: ${S.esc(c.naam)}</small>` : '';
+  }
+
+  function renderCoaches() {
+    const box = $('#coaches');
+    const actiefVeld = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.coachJaar;
+    if (actiefVeld) return; // niet herschrijven terwijl iemand typt
+    const c = state.plan.student.coaches || {};
+    const html = [];
+    for (let j = state.plan.startJaar; j < state.plan.startJaar + state.plan.jaren; j++) {
+      const vorige = j > state.plan.startJaar ? coachVoor(j - 1).naam : '';
+      html.push(`<label class="coach"><span>${S.jaarLabel(j)}</span><input data-coach-jaar="${j}" autocomplete="off" value="${S.esc(c[j] || '')}" placeholder="${S.esc(vorige ? 'zelfde: ' + vorige : 'naam studiecoach')}"></label>`);
+    }
+    box.innerHTML = html.join('');
+  }
+
   function renderRooster() {
     const h0 = hStart(), h1 = hEind();
     const rijen = [];
@@ -321,7 +355,7 @@ const Planner = (() => {
       }
       const jaarNr = j - S.jaarVan(h0) + 1;
       const voorlopig = S.datumsVoorlopig(state.cat, j) ? '<small class="voorlopig">datums volgen</small>' : '';
-      rijen.push(`<div class="jaar" style="--banen:${banen}"><div class="label" style="grid-row:1 / -1">${S.jaarLabel(j)}<small>studiejaar ${jaarNr}</small>${voorlopig}</div>${cel.join('')}${blokken.join('')}${lijn}</div>`);
+      rijen.push(`<div class="jaar" style="--banen:${banen}"><div class="label" style="grid-row:1 / -1">${S.jaarLabel(j)}<small>studiejaar ${jaarNr}</small>${coachLabel(j)}${voorlopig}</div>${cel.join('')}${blokken.join('')}${lijn}</div>`);
     }
     $('#rooster').innerHTML = rijen.join('');
     $('#kolomkop').innerHTML = '<div></div>' + [1, 2, 3, 4].map((p) => `<div>Periode ${p} · ${S.maandVan(state.cat, p)}<br><small>10 weken</small></div>`).join('');
@@ -334,7 +368,7 @@ const Planner = (() => {
       ? `Let op: er is nog geen aanbod ingesteld na ${S.jaarLabel(state.cat.laatsteSchooljaar)}.` : '';
     const instap = h0 < state.nu;
     $('#instap-uitleg').textContent = instap
-      ? 'Je bent al met je studie bezig. Zet in de grijze periodes (verleden) de EvL\'s die je al gevolgd hebt en geef aan of je ze behaald hebt. Daarna plan je de rest.'
+      ? 'Je bent al met je studie bezig. Zet in de voorbije periodes (lichtpaars) de EvL\'s die je al gevolgd hebt en geef aan of je ze behaald hebt. Daarna plan je de rest.'
       : '';
   }
 
@@ -376,12 +410,13 @@ const Planner = (() => {
 
   function renderOverzicht() {
     const { t, meldingen } = overzicht();
-    const doel = state.cat.totaalEC;
+    const doel = doelEC();
     $('#tellers').innerHTML = [
-      ['Behaald', t.behaald], ['Vrijstelling', t.vrijstelling], ['Loopt nu', t.bezig], ['Gepland', t.gepland], ['Totaal in plan', `${t.totaal} / ${doel}`],
+      ['Behaald', t.behaald], ['Vrijstelling', t.vrijstelling], ['Loopt nu', t.bezig], ['Gepland', t.gepland], [doel ? 'Totaal in plan / jouw doel' : 'Totaal in plan', doel ? `${t.totaal} / ${doel}` : t.totaal],
     ].map(([n, v]) => `<div class="teller"><b>${v} EC</b><span>${n}</span></div>`).join('');
-    const pct = (x) => Math.min(100, (x / doel) * 100) + '%';
-    $('#balk').innerHTML = `<i style="width:${pct(t.behaald + t.vrijstelling)};background:var(--ok)"></i><i style="width:${pct(t.bezig)};background:#f59e0b"></i><i style="width:${pct(t.gepland)};background:var(--paars)"></i>`;
+    const basis = Math.max(doel || 0, t.totaal, 1);
+    const pct = (x) => Math.min(100, (x / basis) * 100) + '%';
+    $('#balk').innerHTML = `<i style="width:${pct(t.behaald + t.vrijstelling)};background:var(--ok)"></i><i style="width:${pct(t.bezig)};background:var(--f-lichtoranje)"></i><i style="width:${pct(t.gepland)};background:var(--paars)"></i>`;
     $('#meldingen').innerHTML = meldingen.map((m) => `<li class="${m.niveau}">${S.esc(m.t)}</li>`).join('');
   }
 
@@ -510,7 +545,8 @@ const Planner = (() => {
     const p = state.plan;
     $('#f-naam').value = p.student.naam || '';
     $('#f-nummer').value = p.student.nummer || '';
-    $('#f-coach').value = p.student.coach || '';
+    $('#f-traject').value = p.student.traject || 'voltijd';
+    $('#f-doel').value = p.student.doelEC || '';
     $('#f-opmerkingen').value = p.student.opmerkingen || '';
     const sj = $('#f-startjaar');
     sj.innerHTML = '';
@@ -532,7 +568,14 @@ const Planner = (() => {
     const p = state.plan;
     p.student.naam = $('#f-naam').value.trim();
     p.student.nummer = $('#f-nummer').value.trim();
-    p.student.coach = $('#f-coach').value.trim();
+    p.student.traject = $('#f-traject').value;
+    const d = $('#f-doel').value.trim();
+    p.student.doelEC = d === '' ? '' : Math.max(0, Number(d) || 0);
+    p.student.coaches = p.student.coaches || {};
+    document.querySelectorAll('[data-coach-jaar]').forEach((el) => {
+      const v = el.value.trim();
+      if (v) p.student.coaches[el.dataset.coachJaar] = v; else delete p.student.coaches[el.dataset.coachJaar];
+    });
     p.student.opmerkingen = $('#f-opmerkingen').value;
     p.startJaar = Number($('#f-startjaar').value);
     p.startPeriode = Number($('#f-startperiode').value);
@@ -555,7 +598,11 @@ const Planner = (() => {
     if (!d || d.app !== 'fontys-studieplanner' || !Array.isArray(d.blokken)) throw new Error('Dit PDF bevat geen studieplan van deze app.');
     const start = S.parseMoment(d.start);
     const p = leegPlan();
-    p.student = { naam: '', nummer: '', coach: '', opmerkingen: '', ...(d.student || {}) };
+    p.student = { naam: '', nummer: '', traject: 'voltijd', doelEC: state.cat.totaalEC, coaches: {}, opmerkingen: '', ...(d.student || {}) };
+    if (p.student.coach && !Object.keys(p.student.coaches || {}).length && start != null) {
+      p.student.coaches = { [S.jaarVan(start)]: p.student.coach }; // oudere PDF's: één coach
+    }
+    delete p.student.coach;
     if (start != null) { p.startJaar = S.jaarVan(start); p.startPeriode = S.periodeVan(start); }
     p.jaren = Math.min(12, Math.max(1, Number(d.jaren) || 4));
     p.eersteVersie = d.eersteVersie || d.gemaakt || null;
@@ -595,7 +642,29 @@ const Planner = (() => {
   // ---------- events ----------
   function koppel() {
     // formulier
-    ['#f-naam', '#f-nummer', '#f-coach', '#f-opmerkingen'].forEach((s) => $(s).addEventListener('input', () => { leesFormulier(); state.gewijzigd = true; }));
+    ['#f-naam', '#f-nummer', '#f-opmerkingen'].forEach((s) => $(s).addEventListener('input', () => { leesFormulier(); state.gewijzigd = true; }));
+    $('#coaches').addEventListener('input', () => {
+      leesFormulier(); state.gewijzigd = true;
+      // placeholders van latere jaren en de labels in het rooster bijwerken
+      document.querySelectorAll('[data-coach-jaar]').forEach((el) => {
+        const j = Number(el.dataset.coachJaar);
+        const vorige = j > state.plan.startJaar ? coachVoor(j - 1).naam : '';
+        el.placeholder = vorige ? 'zelfde: ' + vorige : 'naam studiecoach';
+      });
+      renderRooster();
+    });
+    $('#coaches').addEventListener('focusout', () => setTimeout(renderCoaches, 0));
+    $('#f-doel').addEventListener('input', () => { leesFormulier(); state.gewijzigd = true; renderOverzicht(); });
+    $('#f-traject').addEventListener('change', () => {
+      const oud = state.plan.student.traject;
+      leesFormulier();
+      const t = state.plan.student.traject, d = state.plan.student.doelEC;
+      // Doel alleen automatisch aanpassen als het nog op de standaardwaarde stond.
+      if (['voltijd', 'deeltijd'].includes(t) && (d === '' || !d)) state.plan.student.doelEC = state.cat.totaalEC;
+      if (t === 'modules' && Number(d) === state.cat.totaalEC) state.plan.student.doelEC = '';
+      if (oud !== t) $('#f-doel').value = state.plan.student.doelEC || '';
+      wijzig();
+    });
     ['#f-startjaar', '#f-startperiode'].forEach((s) => $(s).addEventListener('change', () => {
       const oudJaar = state.plan.startJaar;
       if (s === '#f-startjaar') vulPeriodes(Number($('#f-startjaar').value));
@@ -808,7 +877,7 @@ const Planner = (() => {
     render();
   }
 
-  const api = { rijIndeling, vandaagPositie, blokkenIn, state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
+  const api = { coachVoor, doelEC, TRAJECTEN, rijIndeling, vandaagPositie, blokkenIn, state, evlVan, blokEvl, blokDuur, blokEind, hStart, hEind, overzicht, exportData, blokMeldingen, importData, toast };
   document.addEventListener('DOMContentLoaded', start);
   return api;
 })();

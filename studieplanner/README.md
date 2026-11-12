@@ -19,7 +19,7 @@ Een webapp waarmee een student, samen met de studiecoach, het eigen studieprogra
 
 ## Werken met de planner (student)
 
-1. Vul naam, studentnummer, studiecoach en je **instroommoment** in: schooljaar + periode (met startdatum). Tussentijds instromen kan dus in elke periode. Periodes vóór je instroom zijn gearceerd.
+1. Vul naam, studentnummer, **traject** (voltijd, deeltijd, maatwerk/verkort, losse modules) en je eigen **EC-doel** in. Het EC-doel verschilt per student. Voltijd en deeltijd beginnen met het standaarddoel van de opleiding, bij losse modules mag het leeg blijven (geen vast doel). Vul de **studiecoach per schooljaar** in: een jaar zonder naam neemt de coach van het jaar ervoor over. Kies daarna je **instroommoment**: schooljaar + periode (met startdatum). Tussentijds instromen kan dus in elke periode. Periodes vóór je instroom zijn gearceerd.
 2. **Inplannen**: sleep een EvL uit de lijst naar een periode. Of tik op een EvL en daarna op een periode (werkt ook op telefoon/tablet). Of tik op een lege periode: dan zie je welke EvL's je daar kunt starten, per leerweg.
    - Groen = fysiek mogelijk, blauw = alleen leerwegonafhankelijk, grijs/doorzichtig = niet mogelijk.
    - Een EvL van 30 EC beslaat 2 periodes. Bij start in P4 loopt hij door in P1 van het volgende jaar.
@@ -48,7 +48,7 @@ Ga naar `/beheer` en log in met de pincode (`ADMIN_PIN`).
   - *Specifieke startmomenten per schooljaar*: een raster van schooljaar × periode, voor aanbod dat per jaar verschilt. Met *Vul met vaste periodes* zet je snel een patroon neer en pas je daarna uitzonderingen aan.
 - **Aanbod nog niet bekend**: vink per EvL de schooljaren aan waarin nog niet vaststaat óf en wanneer hij gegeven wordt. Studenten kunnen hem daar in elke periode inplannen (met de leerwegen die de EvL heeft), maar het blok staat *onder voorbehoud*. In het aanbodoverzicht staat zo'n periode als **?**.
 - **Aanbodoverzicht**: alle EvL's × alle periodes in één tabel (F / L / F+L).
-- **Instellingen**: opleiding, totaal EC (standaard 240), de schooljaren waarvoor aanbod geldt, en het datumpatroon: de startdatum van elke periode plus het einde van het schooljaar in juli. Wijkt een schooljaar af (de jaarplanning schuift elk jaar iets), pas dan de datums van dat jaar aan in *Datums per schooljaar*. Zijn de datums van een schooljaar nog niet bekend, vink dan *nog niet bekend* aan. Studenten zien dan "± sep – nov (datum volgt)", en de app rekent met het patroon als schatting. Een periode loopt tot de dag vóór de volgende. Deze datums bepalen welke periodes voorbij zijn en of een EvL binnen zijn looptijd valt.
+- **Instellingen**: opleiding, het standaard EC-doel voor voltijd/deeltijd (de student kan dit per persoon aanpassen), de schooljaren waarvoor aanbod geldt, en het datumpatroon: de startdatum van elke periode plus het einde van het schooljaar in juli. Wijkt een schooljaar af (de jaarplanning schuift elk jaar iets), pas dan de datums van dat jaar aan in *Datums per schooljaar*. Zijn de datums van een schooljaar nog niet bekend, vink dan *nog niet bekend* aan. Studenten zien dan "± sep – nov (datum volgt)", en de app rekent met het patroon als schatting. Een periode loopt tot de dag vóór de volgende. Deze datums bepalen welke periodes voorbij zijn en of een EvL binnen zijn looptijd valt.
 
 **Opslaan** schrijft de catalogus naar `data/catalogus.json`, en de vorige versie gaat naar `data/backups/` (de laatste 50 blijven bewaard). Studenten zien de wijziging direct na het herladen van de pagina.
 
@@ -109,3 +109,14 @@ studieplanner/
     vendor/                  jsPDF + AutoTable
   data/                  (niet in git) opgeslagen catalogus + back-ups
 ```
+
+## Huisstijl
+
+Alle kleuren in de app en het PDF komen uit de Fontys-huisstijl (*Kleurcodes Fontys*):
+
+- **Hoofdkleur:** paars `#663366`.
+- **Accentkleuren:** magenta `#E5007D` (fouten, vandaag-lijn) en blauw `#0076E0` (leerwegonafhankelijk).
+- **Secundaire kleuren:** groen `#339933` (behaald/fysiek), oranje `#EE7425` en lichtoranje `#FF9900` (aandachtspunten, extra studiedruk).
+- **Overig:** de officiële gradaties (80/60/40/20%) en grijstinten.
+
+In `public/style.css` staan ze als `--f-…`-variabelen bovenaan. In beheer kies je de kleur van een EvL alleen uit deze huisstijlkleuren. Lettertype: Roboto (met Arial als terugval).

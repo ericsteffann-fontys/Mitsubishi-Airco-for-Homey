@@ -1,27 +1,43 @@
 :root {
-  --paars: #663399;
-  --paars-d: #4b2370;
-  --paars-l: #f1eaf8;
-  --tekst: #1d1b22;
-  --zacht: #625d6b;
-  --lijn: #ddd8e3;
-  --vlak: #ffffff;
-  --achter: #f6f4f8;
-  --ok: #15803d;
-  --ok-l: #dcfce7;
-  --lwo: #0369a1;
-  --lwo-l: #e0f2fe;
-  --fout: #b91c1c;
-  --fout-l: #fee2e2;
-  --let: #a16207;
-  --let-l: #fef3c7;
-  --verleden: #eeecf1;
+  /* Fontys huisstijlkleuren (bron: 'Kleurcodes Fontys'). Alleen deze kleuren en hun
+     officiële gradaties (80/60/40/20%) gebruiken. */
+  --f-paars: #663366;  --f-paars-80: #855c85; --f-paars-60: #a384a3; --f-paars-40: #c2adc2; --f-paars-20: #e0d6e0;
+  --f-magenta: #e5007d; --f-magenta-20: #facce5;
+  --f-blauw: #0076e0;   --f-blauw-20: #cce4f9;
+  --f-lichtblauw: #0099cc;
+  --f-petrol: #008387;
+  --f-groen: #339933;   --f-groen-20: #d6ebd6;
+  --f-lichtgroen: #39b54a;
+  --f-oranje: #ee7425;  --f-oranje-20: #fce3d3;
+  --f-lichtoranje: #ff9900; --f-lichtoranje-20: #ffebcc;
+  --f-geel: #ffcc00;    --f-geel-20: #fff5cc;
+  --f-zwart: #000000; --f-zwart-80: #333333; --f-zwart-60: #666666; --f-zwart-40: #999999; --f-zwart-20: #cccccc;
+  --f-wit: #ffffff;
+
+  /* Rollen in de app */
+  --paars: var(--f-paars);
+  --paars-d: var(--f-paars-80);
+  --paars-l: var(--f-paars-20);
+  --tekst: var(--f-zwart-80);
+  --zacht: var(--f-zwart-60);
+  --lijn: var(--f-zwart-20);
+  --vlak: var(--f-wit);
+  --achter: var(--f-paars-20);
+  --ok: var(--f-groen);
+  --ok-l: var(--f-groen-20);
+  --lwo: var(--f-blauw);
+  --lwo-l: var(--f-blauw-20);
+  --fout: var(--f-magenta);
+  --fout-l: var(--f-magenta-20);
+  --let: var(--f-oranje);
+  --let-l: var(--f-lichtoranje-20);
+  --verleden: var(--f-paars-20);
   --radius: 10px;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font: 15px/1.45 Roboto, Arial, Helvetica, sans-serif;
   color: var(--tekst);
   background: var(--achter);
 }
@@ -125,12 +141,12 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .tag.f { background: var(--ok-l); color: var(--ok); }
 .tag.lwo { background: var(--lwo-l); color: var(--lwo); }
 .tag.verpl { background: var(--let-l); color: var(--let); }
-.tag.grijs { background: #eee; color: #555; }
+.tag.grijs { background: var(--f-zwart-20); color: var(--f-zwart-80); }
 
 /* ---- rooster ---- */
 .hint-balk {
   background: var(--paars-l);
-  border: 1px solid #d6c5ea;
+  border: 1px solid var(--f-paars-40);
   border-radius: 8px;
   padding: 8px 12px;
   margin-bottom: 10px;
@@ -175,21 +191,21 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .cel:hover { border-color: var(--paars); }
 .cel.verleden { background: var(--verleden); }
 .cel.nu { border-color: var(--paars); border-style: solid; }
-.cel.buiten { background: repeating-linear-gradient(45deg, #f3f2f5, #f3f2f5 6px, #ebe9ee 6px, #ebe9ee 12px); cursor: default; border-style: solid; border-color: transparent; }
+.cel.buiten { background: repeating-linear-gradient(45deg, var(--f-wit), var(--f-wit) 7px, var(--f-zwart-20) 7px, var(--f-zwart-20) 9px); cursor: default; border-style: solid; border-color: transparent; }
 .cel.kan-f { background: var(--ok-l); border-color: var(--ok); border-style: solid; }
 .cel.kan-lwo { background: var(--lwo-l); border-color: var(--lwo); border-style: solid; }
-.cel.kan-verleden { background: #ede9fe; border-color: var(--paars); border-style: solid; }
+.cel.kan-verleden { background: var(--f-paars-40); border-color: var(--paars); border-style: solid; }
 .cel.kan-niet { opacity: .45; }
 .cel.drop { box-shadow: 0 0 0 3px var(--paars) inset; }
-.cel.druk { background: #fff7ed; border-color: #fb923c; border-style: solid; }
-.cel.druk .datum { color: #c2410c; font-weight: 600; }
-.cel.kan-druk { box-shadow: 0 0 0 3px #fb923c inset; }
+.cel.druk { background: var(--f-oranje-20); border-color: var(--f-oranje); border-style: solid; }
+.cel.druk .datum { color: var(--f-zwart-80); font-weight: 600; }
+.cel.kan-druk { box-shadow: 0 0 0 3px var(--f-oranje) inset; }
 .cel.kan-vb::before { content: '?'; position: absolute; top: 4px; left: 7px; font-weight: 800; color: var(--let); }
 .jaar { position: relative; grid-template-rows: repeat(var(--banen, 1), minmax(64px, auto)) var(--voet, 22px); }
 .vandaag { position: relative; pointer-events: none; z-index: 6; }
-.vandaag::before { content: ''; position: absolute; top: -5px; bottom: -5px; left: var(--pos); border-left: 2px solid #dc2626; }
-.vandaag span { position: absolute; top: -9px; left: var(--pos); transform: translateX(-50%); background: #dc2626; color: #fff; font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 99px; white-space: nowrap; }
-.legenda .lijn-legenda::before { width: 0; height: 12px; border: 0; border-left: 2px solid #dc2626; border-radius: 0; }
+.vandaag::before { content: ''; position: absolute; top: -5px; bottom: -5px; left: var(--pos); border-left: 2px solid var(--f-magenta); }
+.vandaag span { position: absolute; top: -9px; left: var(--pos); transform: translateX(-50%); background: var(--f-magenta); color: #fff; font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 99px; white-space: nowrap; }
+.legenda .lijn-legenda::before { width: 0; height: 12px; border: 0; border-left: 2px solid var(--f-magenta); border-radius: 0; }
 .jaar .label .voorlopig { color: var(--let); font-weight: 600; }
 .tag.vb { background: var(--let-l); color: var(--let); }
 .sleep-ghost { position: fixed; top: -500px; left: 0; height: 64px; background: #fff; border: 1px solid rgba(0,0,0,.15); border-left: 6px solid var(--kleur, var(--paars)); border-radius: 8px; padding: 6px 9px; font-size: .85rem; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
@@ -217,9 +233,9 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .sleept .blok { pointer-events: none; }
 .blok.verplaatsen { outline: 3px solid var(--paars); }
 .blok.fout { background: var(--fout-l); border-color: var(--fout); }
-.blok.let { background: #fffbeb; }
-.blok.behaald { background: #f0fdf4; }
-.blok.niet-behaald { background: #f5f5f5; opacity: .8; }
+.blok.let { background: var(--f-geel-20); }
+.blok.behaald { background: var(--f-groen-20); }
+.blok.niet-behaald { background: var(--f-wit); opacity: .8; }
 .blok.niet-behaald .t { text-decoration: line-through; }
 .blok .t { font-weight: 650; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; line-height: 1.25; }
 .blok .r.kopregel { flex-wrap: nowrap; align-items: flex-start; }
@@ -249,7 +265,7 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 .teller { background: var(--achter); border-radius: 8px; padding: 8px 10px; }
 .teller b { display: block; font-size: 1.35rem; }
 .teller span { font-size: .8rem; color: var(--zacht); }
-.balk { height: 10px; border-radius: 99px; background: #e9e6ee; overflow: hidden; display: flex; margin-bottom: 12px; }
+.balk { height: 10px; border-radius: 99px; background: var(--f-zwart-20); overflow: hidden; display: flex; margin-bottom: 12px; }
 .balk i { display: block; height: 100%; }
 .meldingen { margin: 0; padding-left: 0; list-style: none; display: grid; gap: 4px; font-size: .9rem; }
 .meldingen li { padding: 5px 9px; border-radius: 6px; background: var(--let-l); }
@@ -259,7 +275,7 @@ details.kaart[open] > summary { margin-bottom: 10px; }
 
 /* ---- dialogen ---- */
 dialog { border: 0; border-radius: 12px; padding: 0; width: min(640px, calc(100vw - 32px)); box-shadow: 0 20px 50px rgba(0,0,0,.25); }
-dialog::backdrop { background: rgba(30, 20, 40, .45); }
+dialog::backdrop { background: rgba(51, 51, 51, .5); }
 dialog .dkop { padding: 14px 18px; border-bottom: 1px solid var(--lijn); display: flex; align-items: center; gap: 10px; }
 dialog .dkop h2 { flex: 1; }
 dialog .dinhoud { padding: 14px 18px; max-height: 65vh; overflow: auto; }
@@ -272,7 +288,7 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
 
 .melding-toast {
   position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-  background: #2a2333; color: #fff; padding: 10px 16px; border-radius: 9px; z-index: 100;
+  background: var(--f-zwart-80); color: #fff; padding: 10px 16px; border-radius: 9px; z-index: 100;
   box-shadow: 0 8px 24px rgba(0,0,0,.3); max-width: calc(100vw - 32px);
 }
 
@@ -331,3 +347,10 @@ dialog .dvoet { padding: 12px 18px; border-top: 1px solid var(--lijn); display: 
   .blok select { width: 100%; font-size: .65rem; }
   .blok .melding { font-size: .65rem; }
 }
+
+/* studiecoach per schooljaar */
+.coach-lijst { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px 12px; }
+.coach-lijst .coach { display: flex; gap: 8px; align-items: center; font-size: .85rem; color: var(--zacht); }
+.coach-lijst .coach span { min-width: 74px; font-weight: 600; }
+.coach-lijst input { flex: 1; min-width: 0; border: 1px solid var(--lijn); border-radius: 7px; padding: 5px 8px; }
+.jaar .label .coach-naam { color: var(--paars); overflow: hidden; text-overflow: ellipsis; }

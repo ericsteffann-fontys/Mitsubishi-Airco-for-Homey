@@ -28,9 +28,18 @@
       <div class="velden">
         <div class="veld"><label for="f-naam">Naam student</label><input id="f-naam" autocomplete="off"></div>
         <div class="veld"><label for="f-nummer">Studentnummer</label><input id="f-nummer" autocomplete="off"></div>
-        <div class="veld"><label for="f-coach">Studiecoach</label><input id="f-coach" autocomplete="off"></div>
+        <div class="veld"><label for="f-traject">Traject</label>
+          <select id="f-traject">
+            <option value="voltijd">Voltijd</option>
+            <option value="deeltijd">Deeltijd</option>
+            <option value="maatwerk">Maatwerk / verkort traject</option>
+            <option value="modules">Losse modules</option>
+          </select>
+        </div>
+        <div class="veld"><label for="f-doel">EC-doel van jouw programma</label><input id="f-doel" type="number" min="0" step="15" placeholder="geen vast doel"></div>
         <div class="veld"><label for="f-startjaar">Instroom: schooljaar</label><select id="f-startjaar"></select></div>
         <div class="veld"><label for="f-startperiode">Instroom: periode</label><select id="f-startperiode"></select></div>
+        <div class="veld breed"><label>Studiecoach per schooljaar</label><div class="coach-lijst" id="coaches"></div></div>
         <div class="veld breed"><label for="f-opmerkingen">Afspraken / opmerkingen (met je studiecoach)</label><textarea id="f-opmerkingen"></textarea></div>
       </div>
       <p class="uitleg" id="instap-uitleg"></p>
@@ -61,10 +70,10 @@
           <div class="legenda">
             <span style="--c: var(--ok-l)">kan fysiek</span>
             <span style="--c: var(--lwo-l)">alleen leerwegonafhankelijk</span>
-            <span style="--c: #ede9fe">verleden (wat je al gedaan hebt)</span>
+            <span style="--c: var(--f-paars-40)">hier kun je invullen wat je al gedaan hebt</span>
             <span style="--c: var(--verleden)">periode is voorbij</span>
-            <span style="--c: #ebe9ee">vóór je instroom</span>
-            <span style="--c: #fed7aa">meerdere EvL's tegelijk (extra studiedruk)</span>
+            <span style="--c: var(--f-zwart-20)">vóór je instroom</span>
+            <span style="--c: var(--f-oranje-20)">meerdere EvL's tegelijk (extra studiedruk)</span>
             <span class="lijn-legenda">vandaag</span>
           </div>
           <div class="kolomkop" id="kolomkop"></div>

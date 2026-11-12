@@ -5,13 +5,17 @@
 
 const StudiePdf = (() => {
   const S = SP;
-  const PAARS = [102, 51, 153];
+  // Fontys huisstijlkleuren (RGB) en hun officiële gradaties.
+  const PAARS = [102, 51, 102];       // #663366
+  const MAGENTA = [229, 0, 125];      // #e5007d
+  const ORANJE = [238, 116, 37];      // #ee7425
+  const GRIJS_LIJN = [204, 204, 204]; // zwart 20%
   const KLEUR_STATUS = {
-    behaald: [220, 252, 231],
-    vrijstelling: [220, 252, 231],
-    bezig: [254, 243, 199],
-    gepland: [241, 234, 248],
-    'niet-behaald': [235, 235, 235],
+    behaald: [214, 235, 214],      // groen 20%
+    vrijstelling: [214, 235, 214],
+    bezig: [255, 235, 204],        // lichtoranje 20%
+    gepland: [224, 214, 224],      // paars 20%
+    'niet-behaald': [204, 204, 204], // zwart 20%
   };
 
   function datumNL(d = new Date()) {
@@ -48,23 +52,25 @@ const StudiePdf = (() => {
     const eerste = data.eersteVersie && data.eersteVersie !== data.gemaakt ? `Eerste versie: ${datumNL(new Date(data.eersteVersie))} · ` : '';
     doc.text(`${eerste}Aanbod versie: ${cat.versie || '-'}`, W - M, 16.5, { align: 'right' });
 
-    doc.setTextColor(30, 27, 34);
+    doc.setTextColor(51, 51, 51);
     const st = plan.student;
     const regels = [
-      ['Student', st.naam || '-'], ['Studentnummer', st.nummer || '-'], ['Studiecoach', st.coach || '-'],
+      ['Student', st.naam || '-'], ['Studentnummer', st.nummer || '-'], ['Studiecoach nu', api.coachVoor(Math.max(plan.startJaar, S.jaarVan(state.nu))).naam || '-'],
       ['Instroom', `${S.momentLabel(api.hStart())} (${S.startTekst(cat, api.hStart())})`],
-      ['EC', `${t.totaal} van ${cat.totaalEC} in plan (behaald ${t.behaald}, vrijstelling ${t.vrijstelling}, loopt ${t.bezig}, gepland ${t.gepland})`],
+      ['Traject', `${api.TRAJECTEN[st.traject] || 'Voltijd'} · EC-doel: ${api.doelEC() ? api.doelEC() + ' EC' : 'geen vast doel'}`],
+      ['EC', `${t.totaal}${api.doelEC() ? ' van ' + api.doelEC() : ''} in plan (behaald ${t.behaald}, vrijstelling ${t.vrijstelling}, loopt ${t.bezig}, gepland ${t.gepland})`],
     ];
     let y = 30;
     doc.setFontSize(10);
     regels.forEach(([k, v], idx) => {
-      const x = idx < 3 ? M + idx * 80 : M + (idx - 3) * 80;
-      const yy = idx < 3 ? y : y + 6;
+      // de EC-regel is lang en krijgt een eigen regel
+      const x = k === 'EC' ? M : M + (idx % 3) * 80;
+      const yy = k === 'EC' ? y + 12 : y + Math.floor(idx / 3) * 6;
       doc.setFont('helvetica', 'bold'); doc.text(k + ':', x, yy);
       const bw = doc.getTextWidth(k + ':');
       doc.setFont('helvetica', 'normal'); doc.text(String(v), x + bw + 2, yy);
     });
-    y += 12;
+    y += 18;
 
     // ---- overzicht per schooljaar ----
     // EvL's die tegelijk lopen staan onder elkaar (één tabelrij per baan).
@@ -72,14 +78,14 @@ const StudiePdf = (() => {
     const bereik = (begin, eind) => (S.datumsVoorlopig(cat, S.jaarVan(begin))
       ? `± ${S.maandKort(S.periodeStart(cat, begin))} – ${S.maandKort(S.periodeEind(cat, eind))} (datum volgt)`
       : `${S.datumKort(S.periodeStart(cat, begin))} – ${S.datumKort(S.periodeEind(cat, eind))}`);
-    const GRIJS = [140, 135, 150];
+    const GRIJS = [102, 102, 102]; // zwart 60%
     const body = [];
     const rijJaar = []; // tabelrij -> schooljaar (voor de vandaag-lijn)
     for (let j = S.jaarVan(h0); j <= S.jaarVan(h1); j++) {
       const { segs, banen } = api.rijIndeling(j);
       for (let L = 0; L < banen; L++) {
         const rij = [];
-        if (L === 0) rij.push({ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}${S.datumsVoorlopig(cat, j) ? '\ndatums volgen' : ''}`, rowSpan: banen, styles: { fontStyle: 'bold' } });
+        if (L === 0) rij.push({ content: `${S.jaarLabel(j)}\nstudiejaar ${j - S.jaarVan(h0) + 1}${api.coachVoor(j).naam ? '\ncoach: ' + api.coachVoor(j).naam : ''}${S.datumsVoorlopig(cat, j) ? '\ndatums volgen' : ''}`, rowSpan: banen, styles: { fontStyle: 'bold' } });
         for (let p = 1; p <= S.PER; p++) {
           const i = S.abs(j, p);
           const g = segs.find((x) => x.baan === L && x.s <= i && i <= x.eind);
@@ -92,10 +98,10 @@ const StudiePdf = (() => {
             rij.push({
               content: `${bereik(g.s, g.eind)}\n${e.code ? e.code + ' ' : ''}${e.naam}${g.vervolg ? ' (vervolg)' : ''}\n${e.ec} EC · ${S.leerwegNaam(b.leerweg)} · ${S.STATUS[b.status] || b.status}${vb ? ' · onder voorbehoud' : ''}${druk ? ' · tegelijk met andere EvL' : ''}${fout ? ' · LET OP' : ''}`,
               colSpan: g.eind - g.s + 1,
-              styles: { fillColor: fout ? [254, 226, 226] : KLEUR_STATUS[b.status] || [255, 255, 255], lineColor: druk ? [251, 146, 60] : [210, 205, 218] },
+              styles: { fillColor: fout ? [250, 204, 229] : KLEUR_STATUS[b.status] || [255, 255, 255], lineColor: druk ? ORANJE : GRIJS_LIJN },
             });
           } else if (i < h0) {
-            rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}\nvóór instroom` : '', styles: { fillColor: [243, 242, 245], textColor: GRIJS } });
+            rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}\nvóór instroom` : '', styles: { fillColor: [255, 255, 255], textColor: [153, 153, 153] } });
           } else {
             rij.push({ content: L === 0 ? `${S.periodeDatums(cat, i)}${i === h0 ? '\ninstroom' : ''}` : '', styles: { textColor: GRIJS } });
           }
@@ -111,7 +117,7 @@ const StudiePdf = (() => {
       head: [['Schooljaar', 'Periode 1', 'Periode 2', 'Periode 3', 'Periode 4']],
       body,
       theme: 'grid',
-      styles: { fontSize: 8.5, cellPadding: 2, valign: 'middle', lineColor: [210, 205, 218], minCellHeight: 12 },
+      styles: { fontSize: 8.5, cellPadding: 2, valign: 'middle', lineColor: GRIJS_LIJN, minCellHeight: 12 },
       headStyles: { fillColor: PAARS, textColor: 255, minCellHeight: 8 },
       columnStyles: (() => { const pw = (W - 2 * M - 28) / 4; return { 0: { cellWidth: 28 }, 1: { cellWidth: pw }, 2: { cellWidth: pw }, 3: { cellWidth: pw }, 4: { cellWidth: pw } }; })(),
       margin: { left: M, right: M },
@@ -131,14 +137,14 @@ const StudiePdf = (() => {
       const x = k.x + k.w * vp.frac;
       const huidig = doc.internal.getCurrentPageInfo().pageNumber;
       doc.setPage(r.pagina);
-      doc.setDrawColor(220, 38, 38); doc.setLineWidth(0.6);
+      doc.setDrawColor(...MAGENTA); doc.setLineWidth(0.6);
       doc.line(x, r.y1 - 1, x, r.y2 + 1);
       const label = `opgeslagen ${S.datumKort(S.iso(opgeslagen))}`;
       doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
       const lw = doc.getTextWidth(label) + 3;
-      doc.setFillColor(220, 38, 38); doc.roundedRect(x - lw / 2, r.y1 - 4, lw, 3.6, 1.2, 1.2, 'F');
+      doc.setFillColor(...MAGENTA); doc.roundedRect(x - lw / 2, r.y1 - 4, lw, 3.6, 1.2, 1.2, 'F');
       doc.setTextColor(255, 255, 255); doc.text(label, x, r.y1 - 1.3, { align: 'center' });
-      doc.setTextColor(30, 27, 34); doc.setLineWidth(0.2);
+      doc.setTextColor(51, 51, 51); doc.setLineWidth(0.2);
       doc.setPage(huidig);
     }
 
@@ -172,7 +178,7 @@ const StudiePdf = (() => {
     const punten = meldingen.map((m) => [m.niveau === 'fout' ? 'Moet aangepast' : m.niveau === 'let' ? 'Let op' : m.niveau === 'ok' ? 'In orde' : 'Info', m.t]);
     let y3 = doc.lastAutoTable.finalY + 10;
     if (y3 > doc.internal.pageSize.getHeight() - 30) { doc.addPage(); y3 = 16; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(30, 27, 34);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(51, 51, 51);
     doc.text('Aandachtspunten', M, y3);
     tabel({
       startY: y3 + 2,
@@ -199,7 +205,7 @@ const StudiePdf = (() => {
     const H = doc.internal.pageSize.getHeight();
     for (let k = 1; k <= n; k++) {
       doc.setPage(k);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(98, 93, 107);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(102, 102, 102);
       doc.text('De studieplanner bewaart zelf geen gegevens. Bewaar dit PDF en lees het in met "PDF inlezen" om je plan later verder aan te passen.', M, H - 6);
       doc.text(`Pagina ${k} van ${n}`, W - M, H - 6, { align: 'right' });
     }
