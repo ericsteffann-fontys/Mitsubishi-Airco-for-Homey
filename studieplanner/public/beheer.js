@@ -19,7 +19,7 @@
 
   function markeer(w = true) {
     gewijzigd = w;
-    $('#status').textContent = w ? 'Niet opgeslagen wijzigingen' : (zonderServer ? 'Zonder server: download het JSON-bestand' : 'Alles opgeslagen');
+    $('#status').textContent = w ? 'Niet opgeslagen wijzigingen' : (zonderServer ? (S.ingebouwd() ? 'Alles bewaard' : 'Zonder server: download het JSON-bestand') : 'Alles opgeslagen');
   }
 
   // ---------- inloggen ----------
@@ -367,5 +367,60 @@
       markeer(); vulInstellingen(); renderTabel(); renderEditor();
     } catch (e) { alert('Kon het bestand niet lezen: ' + e.message); }
   });
+  // ---------- losse HTML-versie (zonder server) ----------
+  // Het beheerbestand bevat de catalogus en een sjabloon van de studentpagina.
+  // Met één klik maak je een nieuwe studieplanner.html met het aangepaste aanbod.
+  function vervangCatalogus(html, json) {
+    const veilig = json.replace(/</g, '\\u003c');
+    return html.replace(/(<script type="application\/json" id="catalogus-data">)[\s\S]*?(<\/script>)/, (m, a, b) => a + veilig + b);
+  }
+  function download(naam, inhoud) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([inhoud], { type: 'text/html;charset=utf-8' }));
+    a.download = naam;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  function sjabloon() {
+    const el = document.getElementById('planner-sjabloon');
+    const bin = atob(el.textContent.trim());
+    const u8 = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k);
+    return new TextDecoder().decode(u8);
+  }
+  function nieuweVersie() {
+    const f = controleer();
+    if (f) { alert(f); return null; }
+    cat.versie = new Date().toISOString().slice(0, 10) + '.' + Date.now().toString(36);
+    return JSON.stringify(cat);
+  }
+  $('#btn-html-student').addEventListener('click', () => {
+    const json = nieuweVersie();
+    if (!json) return;
+    download('studieplanner.html', vervangCatalogus(sjabloon(), json));
+    // het beheerbestand zelf ook bijwerken, anders ben je de wijzigingen kwijt
+    download('studieplanner-beheer.html', vervangCatalogus(window.__BEHEER_BRON, json));
+    markeer(false);
+    $('#status').textContent = 'Beide bestanden gedownload. Vervang de oude versies.';
+  });
+  $('#btn-html-beheer').addEventListener('click', () => {
+    const json = nieuweVersie();
+    if (!json) return;
+    download('studieplanner-beheer.html', vervangCatalogus(window.__BEHEER_BRON, json));
+    markeer(false);
+    $('#status').textContent = 'Beheerbestand gedownload. Vervang het oude bestand.';
+  });
+  if (S.ingebouwd() && document.getElementById('planner-sjabloon')) {
+    document.addEventListener('DOMContentLoaded', async () => {
+      zonderServer = true;
+      $('#btn-opslaan').hidden = true;
+      $('#btn-json-uit').hidden = true;
+      $('#btn-html-beheer').hidden = false;
+      $('#btn-html-student').hidden = false;
+      await openBeheer();
+      $('#status').textContent = 'Losse versie: wijzigingen bewaar je met de knoppen hiernaast';
+    });
+  }
+
   window.addEventListener('beforeunload', (ev) => { if (gewijzigd) { ev.preventDefault(); ev.returnValue = ''; } });
 })();

@@ -179,7 +179,11 @@ const SP = (() => {
     return KLEUREN[(idx < 0 ? 0 : idx) % KLEUREN.length];
   }
 
+  // In de losse HTML-versie zit de catalogus in de pagina zelf (geen server nodig).
+  const ingebouwd = () => document.getElementById('catalogus-data');
   async function laadCatalogus() {
+    const el = ingebouwd();
+    if (el) return normaliseerCatalogus(JSON.parse(el.textContent));
     const r = await fetch('catalogus.json', { cache: 'no-store' });
     if (!r.ok) throw new Error('Kon de catalogus niet laden (' + r.status + ')');
     return normaliseerCatalogus(await r.json());
@@ -224,6 +228,6 @@ const SP = (() => {
     abs, jaarVan, periodeVan, jaarLabel, momentKey, parseMoment, momentLabel,
     duur, weken, huidigeMoment, aangeboden, isIso, vandaag, periodeStart, periodeEind, periodeDatums, datumKort, datumLang, maandVan,
     binnenLooptijd, looptijdTekst, datumsVoorlopig, maandKort, startTekst, eindTekst, onderVoorbehoud, iso, uitgefaseerd, nogNietActief, STANDAARD_START, STANDAARD_EINDE, patroonDatum, leerwegenOp, aanbodTekst,
-    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, laadCatalogus, normaliseerCatalogus,
+    encodePlan, decodePlanFromPdfBytes, esc, uid, kleurVoor, laadCatalogus, normaliseerCatalogus, ingebouwd,
   };
 })();

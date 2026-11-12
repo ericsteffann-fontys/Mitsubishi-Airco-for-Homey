@@ -67,6 +67,24 @@ Zolang er in beheer nog niets is opgeslagen, gebruikt de app de voorbeeldcatalog
 
 Gebruik HTTPS als je de app online zet (bijvoorbeeld achter de webserver of reverse proxy van de opleiding).
 
+### Als losse HTML-bestanden (geen server, geen installatie)
+
+In `dist/` staan twee bestanden die je opent door erop te dubbelklikken:
+
+| Bestand | Voor wie | Wat |
+|---|---|---|
+| `dist/studieplanner.html` | studenten en studiecoaches | De complete planner, met het aanbod erin. Delen via mail, Teams, Canvas of een gedeelde map. Werkt offline. |
+| `dist/studieplanner-beheer.html` | opleiding | Aanbod aanpassen. Bewaar het bestand op een plek waar alleen beheerders bij kunnen. |
+
+Aanbod wijzigen met de losse bestanden:
+1. Open `studieplanner-beheer.html` en pas het aanbod aan.
+2. Klik op **Download studieplanner.html**. Je krijgt een nieuwe `studieplanner.html` voor studenten en een bijgewerkt `studieplanner-beheer.html`, zodat je wijzigingen bewaard blijven.
+3. Vervang de oude bestanden en verspreid de nieuwe `studieplanner.html`. PDF's die met een oudere versie zijn gemaakt, kun je gewoon inlezen. De student ziet dan wat er sinds die versie is veranderd.
+
+*Bewaar beheerbestand* bewaart tussentijds alleen het beheerbestand, zonder een nieuwe studentversie te maken.
+
+Na een wijziging in de code bouw je de bestanden opnieuw met `node build-html.js`. Het script neemt de catalogus uit `data/catalogus.json` (opgeslagen via de server) of anders uit `public/catalogus.json`.
+
 ### Zonder server (statische hosting)
 
 De studentpagina werkt ook als gewone statische website: zet de map `public/` op een webserver. Beheer gaat dan via `/beheer.html` → *Werk zonder server*. Je past de catalogus aan, klikt op **Download JSON** en vervangt daarmee `public/catalogus.json` op de webserver.
